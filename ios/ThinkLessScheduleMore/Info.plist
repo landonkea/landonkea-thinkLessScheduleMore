@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- ── App name shown on home screen ─────────────────────── -->
+    <key>CFBundleDisplayName</key>
+    <string>ThinkLessScheduleMore</string>
+
+    <!-- ── Internal name (matches the Xcode target) ─────────── -->
+    <key>CFBundleName</key>
+    <string>ThinkLessScheduleMore</string>
+
+    <!-- ── Bundle identifier (unique app ID) ────────────────── -->
+    <key>CFBundleIdentifier</key>
+    <string>com.landonkea.ThinkLessScheduleMore</string>
+
+    <!-- ── Version numbers ──────────────────────────────────── -->
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+
+    <!-- ── App category (lifestyle) ─────────────────────────── -->
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category-lifestyle</string>
+
+    <!-- ── Required device capabilities ─────────────────────── -->
+    <key>UIRequiredDeviceCapabilities</key>
+    <array>
+        <string>arm64</string>
+    </array>
+
+    <!-- ── Supported orientations ───────────────────────────── -->
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+    </array>
+</dict>
+</plist>

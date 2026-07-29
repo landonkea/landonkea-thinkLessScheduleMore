@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ───────────────────────────────────────────────────────────
+     AndroidManifest.xml — tells Android what the app can do
+     ───────────────────────────────────────────────────────────
+     This XML file is required by every Android app.
+     It declares:
+       - Permissions (what the app is allowed to do)
+       - Activities (screens the user sees)
+       - Services (background tasks)
+     
+     Android reads this at install time.  If we don't declare
+     something here, the app can't use it.                     -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- ── Permissions ─────────────────────────────────────────
+         SEND_SMS: allows the app to send SMS from your SIM card.
+                   Android shows this to the user at install time.
+                   Without this, SmsManager.sendTextMessage fails.
+         
+         POST_NOTIFICATIONS: required on Android 13+ to show the
+                   persistent notification for our foreground service.
+                   Without this, the notification is silently blocked.
+         
+         FOREGROUND_SERVICE: required on Android 9+ to use
+                   startForegroundService().                      -->
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <!-- ── The app itself ──────────────────────────────────────
+         `label` = the app name shown under the icon.
+         `icon` = the launcher icon (default Android icon).       -->
+    <application
+        android:label="ThinkLessScheduleMore"
+        android:icon="@mipmap/ic_launcher"
+        android:supportsRtl="true">
+
+        <!-- ── Main screen ────────────────────────────────────
+             This is what opens when the user taps the icon.
+             `exported="true"` means other apps can open it
+             (needed for the launcher to find it).               -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- ── Background service ─────────────────────────────
+             This is our SMS scheduling engine.
+             `foregroundServiceType="sms"` tells Android this
+             service sends SMS in the foreground.
+             `exported="false"` = only our app can start it.     -->
+        <service
+            android:name=".SchedulerService"
+            android:foregroundServiceType="sms"
+            android:exported="false" />
+
+    </application>
+</manifest>

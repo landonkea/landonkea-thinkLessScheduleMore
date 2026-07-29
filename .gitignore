@@ -1,0 +1,42 @@
+# ───────────────────────────────────────────────────────────────────
+# .gitignore — files that should NEVER be committed
+# ───────────────────────────────────────────────────────────────────
+
+# ── Android ────────────────────────────────────────────────────
+*.iml
+.gradle/
+build/
+local.properties
+.idea/
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# ── iOS ────────────────────────────────────────────────────────
+*.xcworkspace/
+*.xcuserdata/
+DerivedData/
+Pods/
+.build/
+
+# ── macOS ──────────────────────────────────────────────────────
+.DS_Store
+
+# ── Python (if any scripts) ───────────────────────────────────
+__pycache__/
+*.pyc
+.venv/
+
+# ── Editor ────────────────────────────────────────────────────
+*.swp
+*.swo
+.vscode/
+
+# ── Environment files (never commit secrets) ──────────────────
+.env
+*.env.local
+
+# ── Agent instructions (never commit) ─────────────────────────
+AGENTS.md
+PROJECT_CHECKLIST.md
