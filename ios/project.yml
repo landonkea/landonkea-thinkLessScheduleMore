@@ -30,15 +30,14 @@ targets:
         # Exclude the spec file itself (it's not app code).
         excludes:
           - "*.yml"
-    # "info:" wires up the existing Info.plist (keeps our hand-written keys).
-    info:
-      # Where the plist lives (already committed to the repo).
-      path: ThinkLessScheduleMore/Info.plist
     # "settings:" applies build settings to this target.
     settings:
       base:
         # The unique bundle identifier for the app.
         PRODUCT_BUNDLE_IDENTIFIER: com.landonkea.ThinkLessScheduleMore
+        # Point Xcode at our hand-written Info.plist (keeps display name,
+        # app category, and portrait orientation keys).
+        INFOPLIST_FILE: ThinkLessScheduleMore/Info.plist
         # Generate the launch screen using the system default.
         GENERATE_INFOPLIST_FILE: YES
         # The app entry point uses SwiftUI's @main — no storyboard needed.
