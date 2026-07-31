@@ -1,15 +1,12 @@
-# ───────────────────────────────────────────────────────────────────
-# Project settings — tells Gradle what modules to build
-# ───────────────────────────────────────────────────────────────────
 pluginManagement {
     repositories {
-        google()            // Google's Maven repo (Android SDK)
-        mavenCentral()      // Standard Java/Kotlin libraries
-        gradlePluginPortal() // Gradle plugins
+        google()
+        mavenCentral()
+        gradlePluginPortal()
     }
 }
 
-dependencyResolution {
+dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()

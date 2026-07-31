@@ -16,6 +16,7 @@
 package com.landonkea.thinklessschedulemore
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.Button
@@ -28,6 +29,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
 
@@ -48,9 +51,21 @@ class MainActivity : AppCompatActivity() {
     private lateinit var intervalLabel: TextView
     private lateinit var intervalSeek: SeekBar
 
+    // ── Runtime permission request codes ─────────────────────────
+    companion object {
+        private const val PERMISSION_REQUEST_CODE = 100
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         store = MessageStore(this)
+
+        // ── Request dangerous permissions at runtime ─────────────
+        // On Android 6+ (API 23+), SEND_SMS is a "dangerous" permission.
+        // On Android 13+ (API 33+), POST_NOTIFICATIONS is also dangerous.
+        // Android only shows the dialog once; if denied permanently,
+        // the user must enable in Settings.
+        requestRequiredPermissions()
 
         // ── Build the UI programmatically (no XML needed) ─────────
         // Using code instead of XML keeps everything in one place.
@@ -225,6 +240,14 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+        // Remove message button.
+        root.addView(Button(this).apply {
+            text = "❌ Remove Message"
+            setOnClickListener {
+                showRemoveMessageDialog()
+            }
+        })
+
         // ── Section: Send History ───────────────────────────────
         root.addView(TextView(this).apply {
             text = "\n📋 Send History"
@@ -243,6 +266,62 @@ class MainActivity : AppCompatActivity() {
                 refreshUI()
             }
         })
+    }
+
+    // ── Request SMS + notification permissions at runtime ─────────
+    // Without these, the app crashes or the foreground service fails.
+    private fun requestRequiredPermissions() {
+        // Collect all permissions we haven't been granted yet.
+        val permissionsToRequest = mutableListOf<String>()
+
+        // SEND_SMS is dangerous on ALL versions of Android.
+        // Without it, SmsManager.sendTextMessage() throws SecurityException.
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.SEND_SMS)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionsToRequest.add(android.Manifest.permission.SEND_SMS)
+        }
+
+        // POST_NOTIFICATIONS is only dangerous on Android 13+.
+        // Without it, the foreground service notification is silently blocked.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                permissionsToRequest.add(android.Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+
+        // If there are any ungranted permissions, show the system dialog.
+        if (permissionsToRequest.isNotEmpty()) {
+            ActivityCompat.requestPermissions(
+                this,
+                permissionsToRequest.toTypedArray(),
+                PERMISSION_REQUEST_CODE
+            )
+        }
+    }
+
+    // ── Handle the result of the permission request ───────────────
+    // Shows a Toast explaining what was denied, so the user knows.
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            for (i in permissions.indices) {
+                if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(
+                        this,
+                        "Permission denied: ${permissions[i]}. " +
+                                "Some features may not work.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
     }
 
     // ── Refresh all UI elements from SharedPreferences ────────────
@@ -277,6 +356,32 @@ class MainActivity : AppCompatActivity() {
                     refreshUI()
                     Toast.makeText(this, "Message added!", Toast.LENGTH_SHORT).show()
                 }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    // ── Show dialog to remove a message ─────────────────────────
+    private fun showRemoveMessageDialog() {
+        val messages = store.getMessages()
+        if (messages.isEmpty()) {
+            // No messages to remove — show a brief hint instead of an empty dialog.
+            Toast.makeText(this, "No messages to remove. Add one first!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Build a list of message previews for the user to pick from.
+        val messageItems = messages.mapIndexed { index, msg ->
+            "${index + 1}. ${msg.take(50)}${if (msg.length > 50) "…" else ""}"
+        }.toTypedArray()
+
+        AlertDialog.Builder(this)
+            .setTitle("Remove a Message")
+            .setItems(messageItems) { _, which ->
+                // which = the index in the array the user tapped.
+                store.removeMessage(which)
+                refreshUI()
+                Toast.makeText(this, "Message removed!", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("Cancel", null)
             .show()

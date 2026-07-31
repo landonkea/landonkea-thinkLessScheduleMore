@@ -13,7 +13,8 @@
 
 import Foundation
 import UserNotifications  // iOS notification framework
-import MessageUI          // MFMessageComposeViewController
+// NOTE: MessageUI is not imported because we use the sms:// URL scheme
+// instead of MFMessageComposeViewController (simpler, no in-app compose).
 
 // ── NotificationManager ───────────────────────────────────────────
 // Handles scheduling notifications and opening the Messages app.

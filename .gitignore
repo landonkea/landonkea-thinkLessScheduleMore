@@ -39,4 +39,5 @@ __pycache__/
 
 # ── Agent instructions (never commit) ─────────────────────────
 AGENTS.md
-PROJECT_CHECKLIST.md
+# NOTE: PROJECT_CHECKLIST.md used to be here but it IS committed
+# because it's the project plan, not agent instructions.
