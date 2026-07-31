@@ -1,0 +1,73 @@
+# ── project.yml — xcodegen spec for ThinkLessScheduleMore (iOS) ──
+# This file is the SOURCE of truth for the Xcode project.
+# To regenerate the .xcodeproj after changing this file:
+#     xcodegen generate
+# (re-run it whenever you add/remove source files)
+
+# "name:" is the Xcode project name (becomes .xcodeproj folder name).
+name: ThinkLessScheduleMore
+
+# "options:" controls how the project is generated.
+options:
+  # The organization shows up in the "Copyright" line of new files
+  # and in the project navigator.
+  deploymentTarget:
+    # Minimum iOS version this app supports (iOS 17 for SwiftUI features).
+    iOS: "17.0"
+
+# "targets:" defines what gets built.
+targets:
+  # "ThinkLessScheduleMore:" is the app target name.
+  ThinkLessScheduleMore:
+    # "type: application" makes this build into an installable .app.
+    type: application
+    # "platform: iOS" means this builds for iPhones and iPads.
+    platform: iOS
+    # "sources:" lists the folder(s) that contain this target's code.
+    sources:
+      # Everything in this folder (.swift files, Info.plist, resources).
+      - path: ThinkLessScheduleMore
+        # Exclude the spec file itself (it's not app code).
+        excludes:
+          - "*.yml"
+    # "info:" wires up the existing Info.plist (keeps our hand-written keys).
+    info:
+      # Where the plist lives (already committed to the repo).
+      path: ThinkLessScheduleMore/Info.plist
+    # "settings:" applies build settings to this target.
+    settings:
+      base:
+        # The unique bundle identifier for the app.
+        PRODUCT_BUNDLE_IDENTIFIER: com.landonkea.ThinkLessScheduleMore
+        # Generate the launch screen using the system default.
+        GENERATE_INFOPLIST_FILE: YES
+        # The app entry point uses SwiftUI's @main — no storyboard needed.
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        # Landscape is not needed — portrait only (matches Info.plist).
+        SUPPORTS_MACCATALYST: NO
+        # Build only for the device architectures Xcode runs on.
+        ONLY_ACTIVE_ARCH: YES
+        # Use the modern asset catalogs / launch screen generation.
+        ASSETCATALOG_COMPILER_APPICON_NAME: ""
+        # Enable testability only for debug builds (better tests, no prod overhead).
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG
+    # "dependencies:" lists frameworks the app links against.
+    dependencies:
+      # UserNotifications — required for scheduling local notifications
+      # (NotificationManager.swift uses UNUserNotificationCenter).
+      # "sdk:" links an Apple system framework by name.
+      - sdk: UserNotifications.framework
+
+# "schemes:" defines run/test schemes for Xcode's toolbar.
+schemes:
+  # The scheme name shown in Xcode's scheme picker.
+  ThinkLessScheduleMore:
+    # "build:" configures which targets build in this scheme.
+    build:
+      # Build the app target.
+      targets:
+        ThinkLessScheduleMore: all
+    # "run:" configures how the app launches (on the simulator).
+    run:
+      # Build the Debug configuration when running.
+      config: Debug

@@ -13,6 +13,7 @@
 
 import Foundation
 import UserNotifications  // iOS notification framework
+import UIKit             // UIApplication — needed to open the sms:// URL
 // NOTE: MessageUI is not imported because we use the sms:// URL scheme
 // instead of MFMessageComposeViewController (simpler, no in-app compose).
 

@@ -43,7 +43,7 @@ struct ContentView: View {
                 // ── Section: Master Switch ─────────────────────────
                 Section(header: Text("⚡ Scheduling")) {
                     Toggle("Enabled", isOn: $store.isEnabled)
-                        .onChange(of: store.isEnabled) { enabled in
+                        .onChange(of: store.isEnabled) { _, enabled in
                             if enabled {
                                 startScheduling()
                             } else {
