@@ -22,10 +22,15 @@
                    Without this, the notification is silently blocked.
          
          FOREGROUND_SERVICE: required on Android 9+ to use
-                   startForegroundService().                      -->
+                   startForegroundService().
+         
+         FOREGROUND_SERVICE_SPECIAL_USE: required on Android 14+
+                   because our service type is "specialUse" (sending
+                   scheduled SMS doesn't match any built-in type).  -->
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <!-- ── The app itself ──────────────────────────────────────
          `label` = the app name shown under the icon.
@@ -50,13 +55,20 @@
 
         <!-- ── Background service ─────────────────────────────
              This is our SMS scheduling engine.
-             `foregroundServiceType="sms"` tells Android this
-             service sends SMS in the foreground.
+             `foregroundServiceType="specialUse"` tells Android
+             this service does a legitimate task that doesn't fit
+             any built-in type (scheduled SMS sending).
              `exported="false"` = only our app can start it.     -->
         <service
             android:name=".SchedulerService"
-            android:foregroundServiceType="sms"
-            android:exported="false" />
+            android:foregroundServiceType="specialUse"
+            android:exported="false">
+            <!-- Required on Android 14+ for specialUse services:
+                 explains WHY this type is needed. -->
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="sends scheduled SMS messages to a pre-approved recipient at user-configured random times" />
+        </service>
 
     </application>
 </manifest>
