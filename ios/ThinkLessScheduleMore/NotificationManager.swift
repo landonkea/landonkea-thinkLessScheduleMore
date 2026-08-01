@@ -19,7 +19,14 @@ import UIKit             // UIApplication — needed to open the sms:// URL
 
 // ── NotificationManager ───────────────────────────────────────────
 // Handles scheduling notifications and opening the Messages app.
-class NotificationManager: NSObject {
+//
+// Also acts as UNUserNotificationCenterDelegate: this is what wires
+// "user taps the notification" to "open Messages pre-filled" — the
+// last step of the core loop described in shared/ARCHITECTURE.md.
+// Without registering as the delegate, iOS still shows the
+// notification, but tapping it just opens the app to the main
+// screen and does nothing with the recipient/message baked into it.
+class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
 
     // ── Singleton ─────────────────────────────────────────────────
     // There should only be one NotificationManager in the app.
@@ -27,6 +34,9 @@ class NotificationManager: NSObject {
 
     private override init() {
         super.init()
+        // Become the delegate so we get notified when the user taps
+        // (or a notification arrives while the app is foregrounded).
+        UNUserNotificationCenter.current().delegate = self
         // Request notification permission on init.
         requestPermission()
     }
@@ -114,5 +124,40 @@ class NotificationManager: NSObject {
         DispatchQueue.main.async {
             UIApplication.shared.open(url)
         }
+    }
+
+    // ── UNUserNotificationCenterDelegate ────────────────────────────
+
+    // Called when the user taps a delivered notification (app was in
+    // background or not running). This is where "wake up" notifications
+    // (from scheduleTomorrow) and real send-time notifications diverge:
+    // a "wake up" one has no recipient/message in userInfo, so there's
+    // nothing to pre-fill — the tap just brings the user into the app,
+    // which re-schedules today's sends via ContentView's onAppear/toggle
+    // flow. A real send-time notification carries recipient + message,
+    // so we open Messages pre-filled with them.
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        let userInfo = response.notification.request.content.userInfo
+        if let recipient = userInfo["recipient"] as? String,
+           let message = userInfo["message"] as? String,
+           !recipient.isEmpty {
+            NotificationManager.openMessages(recipient: recipient, message: message)
+        }
+        completionHandler()
+    }
+
+    // Called when a notification would fire while the app is already
+    // in the foreground. Without this, foreground notifications are
+    // silently swallowed (no banner, no sound) — show them like normal.
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        completionHandler([.banner, .sound])
     }
 }

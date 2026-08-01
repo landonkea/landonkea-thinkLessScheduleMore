@@ -24,6 +24,30 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+
+    // ── Build types ─────────────────────────────────────────────
+    // debug: gets a distinct applicationId suffix so a debug build
+    //   can be installed side-by-side with a release build on the
+    //   same device (they're treated as different apps).
+    // release: enables code shrinking/obfuscation (R8) and resource
+    //   shrinking. No signingConfig is defined here — release builds
+    //   must be signed manually (e.g. via `-Pandroid.injected.signing...`
+    //   or Android Studio's Generate Signed Bundle flow) using a real
+    //   keystore, which is intentionally not checked into this repo.
+    buildTypes {
+        debug {
+            applicationIdSuffix = ".debug"
+            isMinifyEnabled = false
+        }
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
 }
 
 dependencies {

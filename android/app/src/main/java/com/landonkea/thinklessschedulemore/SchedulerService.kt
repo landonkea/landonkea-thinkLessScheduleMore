@@ -49,11 +49,22 @@ class SchedulerService : Service() {
     // ── Service lifecycle ─────────────────────────────────────────
 
     // Called when the service starts (via Intent).
+    // NOTE: onStartCommand can run more than once for the same running
+    // service instance — e.g. if startForegroundService() is called again
+    // while the service is already alive, or Android redelivers the
+    // start after a process restart. Without a guard, each call would
+    // stack an additional independent scheduleNext() chain on top of
+    // whatever is already pending, causing duplicate/overlapping SMS
+    // sends. Clearing pending callbacks first makes this method safe
+    // to call repeatedly — there is always at most one active chain.
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         store = MessageStore(this)
 
         // Show the persistent notification (required for foreground).
         startForeground(NOTIFICATION_ID, createNotification())
+
+        // Cancel any timer already in flight before starting a new chain.
+        handler.removeCallbacksAndMessages(null)
 
         // Start the scheduling loop.
         scheduleNext()
