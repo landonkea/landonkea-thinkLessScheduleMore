@@ -35,6 +35,20 @@ jobs:
           brew install xcodegen
           xcodegen generate
 
+      - name: Select simulator destination
+        id: sim
+        # Pick whatever iPhone simulator the runner's Xcode actually has
+        # installed, rather than hardcoding a device name (e.g. "iPhone
+        # 16") that may not exist on a given macos-latest image/Xcode
+        # version. Falls back to "iPhone 16" if none is found.
+        run: |
+          NAME=$(xcrun simctl list devices available | grep -m1 -E "iPhone (1[4-9]|[2-9][0-9])" | sed -E 's/^[[:space:]]*([^(]+) \(.*/\1/' | sed -E 's/[[:space:]]+$//')
+          if [ -z "$NAME" ]; then
+            NAME="iPhone 16"
+          fi
+          echo "Selected simulator: $NAME"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+
       - name: Build for iOS Simulator
         run: |
           cd ios
@@ -44,4 +58,4 @@ jobs:
         run: |
           cd ios
           xcodebuild -scheme ThinkLessScheduleMore -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 16' test
+            -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.name }}" test
