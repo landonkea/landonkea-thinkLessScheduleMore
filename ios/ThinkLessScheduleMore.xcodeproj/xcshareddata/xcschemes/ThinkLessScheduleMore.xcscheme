@@ -21,6 +21,20 @@
                ReferencedContainer = "container:ThinkLessScheduleMore.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "6EDFB77C6C120448A42EBC7C"
+               BuildableName = "ThinkLessScheduleMoreTests.xctest"
+               BlueprintName = "ThinkLessScheduleMoreTests"
+               ReferencedContainer = "container:ThinkLessScheduleMore.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -39,7 +53,20 @@
          </BuildableReference>
       </MacroExpansion>
       <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "6EDFB77C6C120448A42EBC7C"
+               BuildableName = "ThinkLessScheduleMoreTests.xctest"
+               BlueprintName = "ThinkLessScheduleMoreTests"
+               ReferencedContainer = "container:ThinkLessScheduleMore.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
+      <CommandLineArguments>
+      </CommandLineArguments>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"

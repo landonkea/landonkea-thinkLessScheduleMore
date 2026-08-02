@@ -57,16 +57,37 @@ targets:
       # "sdk:" links an Apple system framework by name.
       - sdk: UserNotifications.framework
 
+  # "ThinkLessScheduleMoreTests:" is the unit test target.
+  # Covers NotificationManager's UNUserNotificationCenterDelegate wiring
+  # (the notification-tap-to-open-Messages fix).
+  ThinkLessScheduleMoreTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: ThinkLessScheduleMoreTests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.landonkea.ThinkLessScheduleMoreTests
+        GENERATE_INFOPLIST_FILE: YES
+    dependencies:
+      - target: ThinkLessScheduleMore
+
 # "schemes:" defines run/test schemes for Xcode's toolbar.
 schemes:
   # The scheme name shown in Xcode's scheme picker.
   ThinkLessScheduleMore:
     # "build:" configures which targets build in this scheme.
     build:
-      # Build the app target.
+      # Build the app target and test target.
       targets:
         ThinkLessScheduleMore: all
+        ThinkLessScheduleMoreTests: [test]
     # "run:" configures how the app launches (on the simulator).
     run:
       # Build the Debug configuration when running.
       config: Debug
+    # "test:" configures which test targets run with Cmd+U / xcodebuild test.
+    test:
+      config: Debug
+      targets:
+        - ThinkLessScheduleMoreTests

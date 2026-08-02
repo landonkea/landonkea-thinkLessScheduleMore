@@ -10,19 +10,32 @@
 		39F70C9AA3AF31547147421F /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21328EBACA5A6D97CB46F79B /* NotificationManager.swift */; };
 		593C83F255E7776F04BE8096 /* ThinkLessScheduleMoreApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDBCF313FC827D7DB3D184 /* ThinkLessScheduleMoreApp.swift */; };
 		63D7DF97B97FA0E1092A901E /* MessageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 256C7A4160D2A9A5B0ECC173 /* MessageStore.swift */; };
+		AB068D78D9AFBA187FB05F59 /* NotificationManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56848A3D33F9BCDBDC7559BE /* NotificationManagerTests.swift */; };
 		B8131142DD03542AACD49EC8 /* SchedulerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B438A15633DC71EB8491C31B /* SchedulerManager.swift */; };
 		C18907142DAACC7A45C1C128 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F850F00693AF0CD9A277BC3 /* UserNotifications.framework */; };
 		E8FA5DE39C502772BAC5EBB1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A74DAC170A8576A75CA024 /* ContentView.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		9BFB40C083E2549BAF7123B7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 884F6FC156A7712B9721EFC9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3B72C052548ABD22111CCEC0;
+			remoteInfo = ThinkLessScheduleMore;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		21328EBACA5A6D97CB46F79B /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		256C7A4160D2A9A5B0ECC173 /* MessageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageStore.swift; sourceTree = "<group>"; };
+		56848A3D33F9BCDBDC7559BE /* NotificationManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManagerTests.swift; sourceTree = "<group>"; };
 		7AC544E8386BA1F92EB8098B /* ThinkLessScheduleMore.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ThinkLessScheduleMore.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D9E8F7DC7C06739799FAE01 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		9F850F00693AF0CD9A277BC3 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		B438A15633DC71EB8491C31B /* SchedulerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchedulerManager.swift; sourceTree = "<group>"; };
 		E4A74DAC170A8576A75CA024 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		E796D866907F68D75CE5B565 /* ThinkLessScheduleMoreTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ThinkLessScheduleMoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F0DDBCF313FC827D7DB3D184 /* ThinkLessScheduleMoreApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThinkLessScheduleMoreApp.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -38,6 +51,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		05720CFC19863976969191A7 /* ThinkLessScheduleMoreTests */ = {
+			isa = PBXGroup;
+			children = (
+				56848A3D33F9BCDBDC7559BE /* NotificationManagerTests.swift */,
+			);
+			path = ThinkLessScheduleMoreTests;
+			sourceTree = "<group>";
+		};
 		5CF5183A41F29F949111DEE7 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -50,6 +71,7 @@
 			isa = PBXGroup;
 			children = (
 				7AC544E8386BA1F92EB8098B /* ThinkLessScheduleMore.app */,
+				E796D866907F68D75CE5B565 /* ThinkLessScheduleMoreTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -71,6 +93,7 @@
 			isa = PBXGroup;
 			children = (
 				B734B14606C881F9871454AF /* ThinkLessScheduleMore */,
+				05720CFC19863976969191A7 /* ThinkLessScheduleMoreTests */,
 				5CF5183A41F29F949111DEE7 /* Frameworks */,
 				A4FD43A3B912D2C9F8B96CF6 /* Products */,
 			);
@@ -96,6 +119,24 @@
 			productName = ThinkLessScheduleMore;
 			productReference = 7AC544E8386BA1F92EB8098B /* ThinkLessScheduleMore.app */;
 			productType = "com.apple.product-type.application";
+		};
+		6EDFB77C6C120448A42EBC7C /* ThinkLessScheduleMoreTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CA215D8CAED3D2E055250DAC /* Build configuration list for PBXNativeTarget "ThinkLessScheduleMoreTests" */;
+			buildPhases = (
+				5DF6BD66B5ADAFC20C3247F4 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F7F37D334AD253A0E2C9758E /* PBXTargetDependency */,
+			);
+			name = ThinkLessScheduleMoreTests;
+			packageProductDependencies = (
+			);
+			productName = ThinkLessScheduleMoreTests;
+			productReference = E796D866907F68D75CE5B565 /* ThinkLessScheduleMoreTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -123,6 +164,7 @@
 			projectRoot = "";
 			targets = (
 				3B72C052548ABD22111CCEC0 /* ThinkLessScheduleMore */,
+				6EDFB77C6C120448A42EBC7C /* ThinkLessScheduleMoreTests */,
 			);
 		};
 /* End PBXProject section */
@@ -140,9 +182,42 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		5DF6BD66B5ADAFC20C3247F4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AB068D78D9AFBA187FB05F59 /* NotificationManagerTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		F7F37D334AD253A0E2C9758E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3B72C052548ABD22111CCEC0 /* ThinkLessScheduleMore */;
+			targetProxy = 9BFB40C083E2549BAF7123B7 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		2696A60A53C3F464701AE783 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.landonkea.ThinkLessScheduleMoreTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ThinkLessScheduleMore.app/ThinkLessScheduleMore";
+			};
+			name = Debug;
+		};
 		3235451D539654DF26A6DECD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -241,6 +316,23 @@
 			};
 			name = Debug;
 		};
+		85FD9BB69B2493026A391D85 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.landonkea.ThinkLessScheduleMoreTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ThinkLessScheduleMore.app/ThinkLessScheduleMore";
+			};
+			name = Release;
+		};
 		D9614E9180767E43545136D5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -321,6 +413,15 @@
 			buildConfigurations = (
 				64393DB6BDD3F24EEF23F1E6 /* Debug */,
 				420D80EF6A28A7FD0885E7F3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		CA215D8CAED3D2E055250DAC /* Build configuration list for PBXNativeTarget "ThinkLessScheduleMoreTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2696A60A53C3F464701AE783 /* Debug */,
+				85FD9BB69B2493026A391D85 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

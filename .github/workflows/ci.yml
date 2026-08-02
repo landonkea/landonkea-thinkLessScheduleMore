@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Compile Kotlin (debug + release)
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew compileDebugKotlin compileReleaseKotlin
+
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate Xcode project
+        run: |
+          cd ios
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Build for iOS Simulator
+        run: |
+          cd ios
+          xcodebuild -scheme ThinkLessScheduleMore -sdk iphonesimulator build
+
+      - name: Run unit tests (NotificationManager delegate wiring)
+        run: |
+          cd ios
+          xcodebuild -scheme ThinkLessScheduleMore -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 16' test
