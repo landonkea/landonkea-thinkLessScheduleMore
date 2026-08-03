@@ -95,8 +95,16 @@ class SchedulerManager {
             let randomOffset = Double.random(in: segmentStart...segmentEnd)
             let sendTime = max(now, windowStart).addingTimeInterval(randomOffset)
 
-            // Pick a random message from the pool.
-            let message = store.messages.randomElement() ?? "Thinking of you ❤️"
+            // Pick a message, avoiding whatever we've picked most
+            // recently (see MessageSelector — no more back-to-back
+            // repeats from a small pool).
+            let template = MessageSelector.pick(pool: store.messages, recentlySent: store.recentlySent)
+            store.addRecentlySent(template)
+
+            // Render {name}/{time-of-day} placeholders against the
+            // hour this message is actually scheduled to go out.
+            let hour = calendar.component(.hour, from: sendTime)
+            let message = MessageTemplate.render(template, name: store.recipientName, hour: hour)
 
             // Schedule the notification.
             notifier.scheduleNotification(
@@ -105,7 +113,7 @@ class SchedulerManager {
                 recipient: store.recipientNumber
             )
 
-            // Log it.
+            // Log it (the rendered text — what will actually be sent).
             let formatter = DateFormatter()
             formatter.dateFormat = "MMM d h:mm a"
             store.addToLog("pending|\(formatter.string(from: sendTime))|\(message)")

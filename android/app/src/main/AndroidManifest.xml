@@ -32,6 +32,10 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
+    <!-- RECEIVE_BOOT_COMPLETED: lets BootReceiver hear BOOT_COMPLETED
+         so scheduling survives a device restart (see BootReceiver). -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <!-- ── The app itself ──────────────────────────────────────
          `label` = the app name shown under the icon.
          `icon` = the launcher icon (default Android icon).       -->
@@ -69,6 +73,20 @@
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="sends scheduled SMS messages to a pre-approved recipient at user-configured random times" />
         </service>
+
+        <!-- ── Boot receiver ───────────────────────────────────
+             Restarts SchedulerService after a reboot (or app
+             update, via MY_PACKAGE_REPLACED) so scheduling doesn't
+             silently die. `exported="true"` is required for the
+             system to deliver BOOT_COMPLETED to it. -->
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
 
     </application>
 </manifest>

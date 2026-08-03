@@ -24,6 +24,13 @@ class MessageStore: ObservableObject {
         didSet { UserDefaults.standard.set(recipientNumber, forKey: Keys.recipient) }
     }
 
+    // ── Recipient display name (for {name} template substitution) ─
+    // Separate from the phone number — a number doesn't tell us how
+    // the user wants their partner addressed in a rendered message.
+    @Published var recipientName: String {
+        didSet { UserDefaults.standard.set(recipientName, forKey: Keys.recipientName) }
+    }
+
     @Published var messages: [String] {
         didSet { saveMessages() }
     }
@@ -59,9 +66,18 @@ class MessageStore: ObservableObject {
     // time scheduling runs, not persisted to disk.
     @Published var nextScheduledTime: Date? = nil
 
+    // ── Recently-sent messages (feeds MessageSelector's anti-repeat) ─
+    // Persisted so a same-day repeat-open of the app (or the next
+    // day's scheduling run) still remembers what just went out, not
+    // just what's been picked earlier in the same scheduleToday() call.
+    @Published var recentlySent: [String] {
+        didSet { UserDefaults.standard.set(recentlySent, forKey: Keys.recentlySent) }
+    }
+
     // ── Keys used in UserDefaults ────────────────────────────────
     private struct Keys {
         static let recipient = "recipient_number"
+        static let recipientName = "recipient_name"
         static let messages  = "message_pool"
         static let hourStart = "hour_start"
         static let hourEnd   = "hour_end"
@@ -69,6 +85,7 @@ class MessageStore: ObservableObject {
         static let minInterval = "min_interval"
         static let enabled   = "is_enabled"
         static let sentLog   = "sent_log"
+        static let recentlySent = "recently_sent"
     }
 
     // ── Init: load saved data or use defaults ────────────────────
@@ -77,12 +94,14 @@ class MessageStore: ObservableObject {
 
         // Load each value, falling back to a sensible default.
         recipientNumber = defaults.string(forKey: Keys.recipient) ?? ""
+        recipientName = defaults.string(forKey: Keys.recipientName) ?? ""
         hourStart = defaults.object(forKey: Keys.hourStart) as? Int ?? 9    // 9 AM
         hourEnd   = defaults.object(forKey: Keys.hourEnd) as? Int ?? 21     // 9 PM
         maxPerDay = defaults.object(forKey: Keys.maxPerDay) as? Int ?? 3
         minInterval = defaults.object(forKey: Keys.minInterval) as? Int ?? 60
         isEnabled = defaults.bool(forKey: Keys.enabled)
         sentLog = []
+        recentlySent = defaults.array(forKey: Keys.recentlySent) as? [String] ?? []
 
         // Load messages from the saved array.
         if let saved = defaults.array(forKey: Keys.messages) as? [String] {
@@ -143,5 +162,19 @@ class MessageStore: ObservableObject {
         // Sent log is ephemeral — we don't persist it to disk
         // for privacy reasons.  It resets when the app restarts.
         // This is intentional: the log is "what happened this session."
+    }
+
+    // ── Recently-sent history (feeds MessageSelector's anti-repeat) ─
+    // Separate from sentLog (display/history oriented, session-only).
+    // This is just the last few message *texts*, capped to
+    // MessageSelector.historySize, purely to avoid back-to-back
+    // repeats when picking the next message to send.
+    func addRecentlySent(_ message: String) {
+        var updated = recentlySent
+        updated.append(message)  // Oldest first — MessageSelector reads the tail.
+        if updated.count > MessageSelector.historySize {
+            updated.removeFirst(updated.count - MessageSelector.historySize)
+        }
+        recentlySent = updated
     }
 }

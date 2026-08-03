@@ -111,14 +111,22 @@ class SchedulerService : Service() {
 
         // ── Create the Runnable (what happens when timer fires) ─
         sendRunnable = Runnable {
-            // Pick a random message from the pool.
-            val randomMessage = messages[Random.nextInt(messages.size)]
+            // Pick a message, avoiding whatever we've sent most
+            // recently (see MessageSelector — no more back-to-back
+            // repeats from a small pool).
+            val template = MessageSelector.pick(messages, store.getRecentlySent())
+            store.addRecentlySent(template)
+
+            // Render {name}/{time-of-day} placeholders against the
+            // actual send time, so one template produces variety.
+            val sendHour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+            val rendered = MessageTemplate.render(template, store.getRecipientName(), sendHour)
 
             // Send the SMS.
-            sendSms(store.getRecipient(), randomMessage)
+            sendSms(store.getRecipient(), rendered)
 
-            // Log it.
-            store.addToSentLog(System.currentTimeMillis(), "sent", randomMessage)
+            // Log it (the rendered text — what actually went out).
+            store.addToSentLog(System.currentTimeMillis(), "sent", rendered)
 
             // Pick the NEXT random time and wait again.
             // This creates the loop: send → wait → send → wait...

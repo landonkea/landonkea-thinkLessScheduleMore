@@ -55,4 +55,29 @@ final class MessageStoreTests: XCTestCase {
         XCTAssertFalse(MessageStore.isValidPhoneNumber("123"))
         XCTAssertFalse(MessageStore.isValidPhoneNumber("+1 415 555 1234"))
     }
+
+    // ── Recently-sent history (feeds MessageSelector) ─────────────
+
+    func testRecentlySentTracksAdditionsInOrderOldestFirst() {
+        let store = MessageStore()
+        store.recentlySent = []
+
+        store.addRecentlySent("first")
+        store.addRecentlySent("second")
+
+        XCTAssertEqual(store.recentlySent, ["first", "second"])
+    }
+
+    func testRecentlySentCapsAtHistorySizeDroppingTheOldest() {
+        let store = MessageStore()
+        store.recentlySent = []
+
+        for i in 0..<(MessageSelector.historySize + 3) {
+            store.addRecentlySent("msg-\(i)")
+        }
+
+        XCTAssertEqual(store.recentlySent.count, MessageSelector.historySize)
+        XCTAssertEqual(store.recentlySent.first, "msg-3")
+        XCTAssertEqual(store.recentlySent.last, "msg-\(MessageSelector.historySize + 2)")
+    }
 }

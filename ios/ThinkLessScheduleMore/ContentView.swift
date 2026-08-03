@@ -56,6 +56,11 @@ struct ContentView: View {
                             .font(.caption)
                             .foregroundColor(.red)
                     }
+
+                    // Feeds the {name} template placeholder — purely
+                    // cosmetic, the phone number is what's actually texted.
+                    TextField("Name (for {name} in messages)",
+                              text: $store.recipientName)
                 }
 
                 // ── Section: Master Switch ─────────────────────────
@@ -119,7 +124,8 @@ struct ContentView: View {
                 }
 
                 // ── Section: Message Pool ──────────────────────────
-                Section(header: Text("💬 Message Pool")) {
+                Section(header: Text("💬 Message Pool"),
+                        footer: Text("Tip: use {name} and {time-of-day} for variety, e.g. \"Good {time-of-day}, {name}!\"")) {
                     if store.messages.isEmpty {
                         Text("No messages yet — tap Add below")
                             .foregroundColor(.secondary)

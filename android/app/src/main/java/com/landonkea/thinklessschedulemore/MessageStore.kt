@@ -48,6 +48,7 @@ class MessageStore(context: Context) {
     // These are the "column names" in our key-value store.
     companion object {
         private const val KEY_RECIPIENT = "recipient_number"
+        private const val KEY_RECIPIENT_NAME = "recipient_name"
         private const val KEY_MESSAGES = "message_pool"
         private const val KEY_HOUR_START = "hour_start"
         private const val KEY_HOUR_END = "hour_end"
@@ -56,6 +57,7 @@ class MessageStore(context: Context) {
         private const val KEY_ENABLED = "is_enabled"
         private const val KEY_SENT_LOG = "sent_log"
         private const val KEY_NEXT_SEND = "next_send_time"
+        private const val KEY_RECENTLY_SENT = "recently_sent"
         private const val LEGACY_DELIMITER = "|||"
     }
 
@@ -63,6 +65,14 @@ class MessageStore(context: Context) {
     fun getRecipient(): String = prefs.getString(KEY_RECIPIENT, "") ?: ""
     fun saveRecipient(number: String) {
         prefs.edit().putString(KEY_RECIPIENT, number).apply()
+    }
+
+    // ── Recipient display name (for {name} template substitution) ─
+    // Separate from the phone number — a number doesn't tell us how
+    // the user wants their partner addressed in a rendered message.
+    fun getRecipientName(): String = prefs.getString(KEY_RECIPIENT_NAME, "") ?: ""
+    fun saveRecipientName(name: String) {
+        prefs.edit().putString(KEY_RECIPIENT_NAME, name).apply()
     }
 
     // ── Message pool (stored as a JSON array) ─────────────────────
@@ -190,5 +200,33 @@ class MessageStore(context: Context) {
             arr.put(obj)
         }
         prefs.edit().putString(KEY_SENT_LOG, arr.toString()).apply()
+    }
+
+    // ── Recently-sent messages (feeds MessageSelector's anti-repeat) ─
+    // Stored separately from the sent log (which is display/history
+    // oriented and keeps up to 50 entries with timestamps). This is
+    // just the last few message *texts*, capped to
+    // MessageSelector.HISTORY_SIZE, purely to avoid back-to-back
+    // repeats when picking the next message to send.
+    fun getRecentlySent(): List<String> {
+        val raw = prefs.getString(KEY_RECENTLY_SENT, "") ?: ""
+        if (raw.isEmpty()) return emptyList()
+        return try {
+            val arr = JSONArray(raw)
+            List(arr.length()) { arr.getString(it) }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    fun addRecentlySent(message: String) {
+        val current = getRecentlySent().toMutableList()
+        current.add(message)  // Oldest first — MessageSelector reads the tail.
+        while (current.size > MessageSelector.HISTORY_SIZE) {
+            current.removeAt(0)
+        }
+        val arr = JSONArray()
+        current.forEach { arr.put(it) }
+        prefs.edit().putString(KEY_RECENTLY_SENT, arr.toString()).apply()
     }
 }

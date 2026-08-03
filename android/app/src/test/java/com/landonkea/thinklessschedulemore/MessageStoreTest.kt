@@ -131,4 +131,45 @@ class MessageStoreTest {
         store.clearNextSendTime()
         assertEquals(0L, store.getNextSendTime())
     }
+
+    // ── Recipient name ────────────────────────────────────────────
+
+    @Test
+    fun `recipient name defaults to empty`() {
+        assertEquals("", store.getRecipientName())
+    }
+
+    @Test
+    fun `recipient name persists`() {
+        store.saveRecipientName("Sam")
+        assertEquals("Sam", store.getRecipientName())
+    }
+
+    // ── Recently-sent history (feeds MessageSelector) ─────────────
+
+    @Test
+    fun `recently sent defaults to empty`() {
+        assertEquals(emptyList<String>(), store.getRecentlySent())
+    }
+
+    @Test
+    fun `recently sent tracks additions in order, oldest first`() {
+        store.addRecentlySent("first")
+        store.addRecentlySent("second")
+
+        assertEquals(listOf("first", "second"), store.getRecentlySent())
+    }
+
+    @Test
+    fun `recently sent caps at MessageSelector HISTORY_SIZE, dropping the oldest`() {
+        repeat(MessageSelector.HISTORY_SIZE + 3) { i ->
+            store.addRecentlySent("msg-$i")
+        }
+
+        val history = store.getRecentlySent()
+        assertEquals(MessageSelector.HISTORY_SIZE, history.size)
+        // The oldest entries ("msg-0", "msg-1", "msg-2") should have been dropped.
+        assertEquals("msg-3", history.first())
+        assertEquals("msg-${MessageSelector.HISTORY_SIZE + 2}", history.last())
+    }
 }

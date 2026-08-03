@@ -43,6 +43,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var messageListText: TextView
     private lateinit var historyText: TextView
     private lateinit var recipientInput: EditText
+    private lateinit var recipientNameInput: EditText
     private lateinit var masterSwitch: Switch
     private lateinit var hourStartLabel: TextView
     private lateinit var hourEndLabel: TextView
@@ -104,6 +105,18 @@ class MainActivity : AppCompatActivity() {
         }
         root.addView(recipientInput)
 
+        // ── Recipient display name — feeds the {name} template
+        // placeholder (see MessageTemplate). Purely cosmetic: the
+        // phone number is what actually gets texted either way.
+        root.addView(TextView(this).apply {
+            text = "Recipient's name (for {name} in messages)"
+        })
+        recipientNameInput = EditText(this).apply {
+            hint = "e.g. Sam"
+            setText(store.getRecipientName())
+        }
+        root.addView(recipientNameInput)
+
         // Save button for recipient.
         root.addView(Button(this).apply {
             text = "Save Number"
@@ -118,6 +131,7 @@ class MainActivity : AppCompatActivity() {
                     return@setOnClickListener
                 }
                 store.saveRecipient(number)
+                store.saveRecipientName(recipientNameInput.text.toString().trim())
                 Toast.makeText(this@MainActivity, "Number saved", Toast.LENGTH_SHORT).show()
             }
         })
@@ -254,6 +268,10 @@ class MainActivity : AppCompatActivity() {
             text = "\n💬 Message Pool"
             textSize = 18f
         })
+        root.addView(TextView(this).apply {
+            text = "Tip: use {name} and {time-of-day} for variety, e.g. \"Good {time-of-day}, {name}!\""
+            textSize = 12f
+        })
 
         messageListText = TextView(this).apply {
             text = formatMessages(store.getMessages())
@@ -363,6 +381,7 @@ class MainActivity : AppCompatActivity() {
     // ── Refresh all UI elements from SharedPreferences ────────────
     private fun refreshUI() {
         recipientInput.setText(store.getRecipient())
+        recipientNameInput.setText(store.getRecipientName())
         masterSwitch.isChecked = store.isEnabled()
         hourStartSeek.progress = store.getHourStart()
         hourEndSeek.progress = store.getHourEnd()
