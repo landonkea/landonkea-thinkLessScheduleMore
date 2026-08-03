@@ -16,4 +16,15 @@
 #
 #   Future: cross-platform notifications via Firebase if Apple
 #   ever opens up SMS access.
+#
+#   Stats dashboard (StatsCalculator + StatsActivity/StatsView):
+#     Both platforms persist a structured send log (Android always
+#     did; iOS's used to be an unpersisted [String] reset every
+#     launch — now it's a persisted [SentLogEntry], same as Android,
+#     so there's real history to summarize). StatsCalculator turns
+#     that log into success/engagement rate, sends-per-day, top
+#     messages, and a streak count. Status vocabulary differs by
+#     platform (Android: "sent"/"failed" — a real outcome; iOS:
+#     "pending"/"opened" — iOS can't confirm an actual send, only
+#     that the user tapped through to Messages).
 # ───────────────────────────────────────────────────────────────────

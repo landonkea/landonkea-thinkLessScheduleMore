@@ -320,6 +320,14 @@ class MainActivity : AppCompatActivity() {
                 refreshUI()
             }
         })
+
+        // Stats dashboard button (success rate, sends/day, top messages).
+        root.addView(Button(this).apply {
+            text = "📊 Stats"
+            setOnClickListener {
+                startActivity(Intent(this@MainActivity, StatsActivity::class.java))
+            }
+        })
     }
 
     // ── Request SMS + notification permissions at runtime ─────────

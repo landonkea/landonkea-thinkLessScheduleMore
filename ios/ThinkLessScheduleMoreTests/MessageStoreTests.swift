@@ -80,4 +80,50 @@ final class MessageStoreTests: XCTestCase {
         XCTAssertEqual(store.recentlySent.first, "msg-3")
         XCTAssertEqual(store.recentlySent.last, "msg-\(MessageSelector.historySize + 2)")
     }
+
+    // ── Send log (persisted, structured — feeds StatsCalculator) ──
+
+    func testAddToLogInsertsNewestFirst() {
+        let store = MessageStore()
+        store.sentLog = []
+
+        store.addToLog(id: UUID(), timestamp: Date(timeIntervalSince1970: 1), status: "pending", message: "older")
+        store.addToLog(id: UUID(), timestamp: Date(timeIntervalSince1970: 2), status: "pending", message: "newer")
+
+        XCTAssertEqual(store.sentLog.map(\.message), ["newer", "older"])
+    }
+
+    func testAddToLogCapsAt50DroppingOldest() {
+        let store = MessageStore()
+        store.sentLog = []
+
+        for i in 0..<55 {
+            store.addToLog(id: UUID(), timestamp: Date(), status: "pending", message: "msg-\(i)")
+        }
+
+        XCTAssertEqual(store.sentLog.count, 50)
+        // Newest-first: the most recently added (msg-54) should be at the front.
+        XCTAssertEqual(store.sentLog.first?.message, "msg-54")
+    }
+
+    func testMarkOpenedFlipsMatchingEntryStatus() {
+        let store = MessageStore()
+        store.sentLog = []
+        let id = UUID()
+        store.addToLog(id: id, timestamp: Date(), status: "pending", message: "hi")
+
+        store.markOpened(id)
+
+        XCTAssertEqual(store.sentLog.first?.status, "opened")
+    }
+
+    func testMarkOpenedWithUnknownIdIsNoOp() {
+        let store = MessageStore()
+        store.sentLog = []
+        store.addToLog(id: UUID(), timestamp: Date(), status: "pending", message: "hi")
+
+        store.markOpened(UUID()) // unrelated id
+
+        XCTAssertEqual(store.sentLog.first?.status, "pending")
+    }
 }

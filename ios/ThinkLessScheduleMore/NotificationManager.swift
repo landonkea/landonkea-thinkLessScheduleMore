@@ -41,6 +41,13 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         requestPermission()
     }
 
+    // ── Tap callback (feeds the send-log "opened" status) ─────────
+    // Set by ContentView (which owns the MessageStore) so this class
+    // stays store-agnostic. Called with the log entry's id whenever
+    // the user taps a real send-time notification (not a "wake up"
+    // one — those carry no id).
+    var onOpen: ((UUID) -> Void)?
+
     // ── Request notification permission ───────────────────────────
     // iOS shows a system dialog asking the user to allow notifications.
     // This must be called before scheduling any notifications.
@@ -57,7 +64,7 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     // iOS will show this notification at the given date.
     // When tapped, the app opens and calls the URL scheme for
     // the Messages app.
-    func scheduleNotification(at date: Date, message: String, recipient: String) {
+    func scheduleNotification(at date: Date, message: String, recipient: String, id: UUID? = nil) {
         let center = UNUserNotificationCenter.current()
 
         // ── Create the notification content ─────────────────────
@@ -68,11 +75,17 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
 
         // ── Encode recipient + message in the userInfo ─────────
         // When the user taps the notification, we read this data
-        // to open the Messages app pre-filled.
-        content.userInfo = [
+        // to open the Messages app pre-filled. `id`, when present,
+        // ties this notification back to its SentLogEntry so the tap
+        // can flip that entry's status to "opened" (see `onOpen`).
+        var userInfo: [String: String] = [
             "recipient": recipient,
             "message": message
         ]
+        if let id = id {
+            userInfo["id"] = id.uuidString
+        }
+        content.userInfo = userInfo
 
         // ── Create the trigger (specific date/time) ────────────
         let components = Calendar.current.dateComponents(
@@ -146,6 +159,10 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
            let message = userInfo["message"] as? String,
            !recipient.isEmpty {
             NotificationManager.openMessages(recipient: recipient, message: message)
+
+            if let idString = userInfo["id"] as? String, let id = UUID(uuidString: idString) {
+                onOpen?(id)
+            }
         }
         completionHandler()
     }

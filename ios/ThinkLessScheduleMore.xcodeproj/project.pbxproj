@@ -9,17 +9,21 @@
 /* Begin PBXBuildFile section */
 		39F70C9AA3AF31547147421F /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21328EBACA5A6D97CB46F79B /* NotificationManager.swift */; };
 		3F1CFFA20F8776EE9E97A4EE /* MessageStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D22253C23BD27C56B9D950 /* MessageStoreTests.swift */; };
+		42DCA28511773517EAD1BD83 /* StatsCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAB0B1F2A998C849425E901 /* StatsCalculator.swift */; };
 		58DBE3694B579676BDB54BFF /* MessageTemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4493E8BDADC5E35793632430 /* MessageTemplateTests.swift */; };
 		593C83F255E7776F04BE8096 /* ThinkLessScheduleMoreApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDBCF313FC827D7DB3D184 /* ThinkLessScheduleMoreApp.swift */; };
+		5AFDE4841593394C58C61538 /* SentLogEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8859813CA7157B843F20938 /* SentLogEntry.swift */; };
 		63483AE453B88504EC692D61 /* MessageSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873CF535E1E034991C9E0647 /* MessageSelector.swift */; };
 		63D7DF97B97FA0E1092A901E /* MessageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 256C7A4160D2A9A5B0ECC173 /* MessageStore.swift */; };
 		805FB991F15D019A9CFD8CBA /* MessageTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5DBDABDCAF6B312B571F2FA /* MessageTemplate.swift */; };
+		8E249E641CD3B1D4BA032607 /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47D9D54AE31C87ADBEE00D78 /* StatsView.swift */; };
 		9E2797AAE36BFD4E9B647423 /* MessageSelectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD582A444975A210AD59B122 /* MessageSelectorTests.swift */; };
 		AB068D78D9AFBA187FB05F59 /* NotificationManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56848A3D33F9BCDBDC7559BE /* NotificationManagerTests.swift */; };
 		B3B35DBD32C165FE71AE3354 /* MessageEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FDD4975D0B2F7545DEDC7E3 /* MessageEditorView.swift */; };
 		B8131142DD03542AACD49EC8 /* SchedulerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B438A15633DC71EB8491C31B /* SchedulerManager.swift */; };
 		C18907142DAACC7A45C1C128 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F850F00693AF0CD9A277BC3 /* UserNotifications.framework */; };
 		E8FA5DE39C502772BAC5EBB1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A74DAC170A8576A75CA024 /* ContentView.swift */; };
+		FA78B327CE7CA4C9292D7A26 /* StatsCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D926501E1DBA7C87A762C597 /* StatsCalculatorTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,7 +39,9 @@
 /* Begin PBXFileReference section */
 		21328EBACA5A6D97CB46F79B /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		256C7A4160D2A9A5B0ECC173 /* MessageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageStore.swift; sourceTree = "<group>"; };
+		2EAB0B1F2A998C849425E901 /* StatsCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsCalculator.swift; sourceTree = "<group>"; };
 		4493E8BDADC5E35793632430 /* MessageTemplateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageTemplateTests.swift; sourceTree = "<group>"; };
+		47D9D54AE31C87ADBEE00D78 /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
 		4FDD4975D0B2F7545DEDC7E3 /* MessageEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageEditorView.swift; sourceTree = "<group>"; };
 		56848A3D33F9BCDBDC7559BE /* NotificationManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManagerTests.swift; sourceTree = "<group>"; };
 		7AC544E8386BA1F92EB8098B /* ThinkLessScheduleMore.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ThinkLessScheduleMore.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -44,7 +50,9 @@
 		9F850F00693AF0CD9A277BC3 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		AD582A444975A210AD59B122 /* MessageSelectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageSelectorTests.swift; sourceTree = "<group>"; };
 		B438A15633DC71EB8491C31B /* SchedulerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchedulerManager.swift; sourceTree = "<group>"; };
+		B8859813CA7157B843F20938 /* SentLogEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentLogEntry.swift; sourceTree = "<group>"; };
 		D3D22253C23BD27C56B9D950 /* MessageStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageStoreTests.swift; sourceTree = "<group>"; };
+		D926501E1DBA7C87A762C597 /* StatsCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsCalculatorTests.swift; sourceTree = "<group>"; };
 		E4A74DAC170A8576A75CA024 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		E796D866907F68D75CE5B565 /* ThinkLessScheduleMoreTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ThinkLessScheduleMoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F0DDBCF313FC827D7DB3D184 /* ThinkLessScheduleMoreApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThinkLessScheduleMoreApp.swift; sourceTree = "<group>"; };
@@ -70,6 +78,7 @@
 				D3D22253C23BD27C56B9D950 /* MessageStoreTests.swift */,
 				4493E8BDADC5E35793632430 /* MessageTemplateTests.swift */,
 				56848A3D33F9BCDBDC7559BE /* NotificationManagerTests.swift */,
+				D926501E1DBA7C87A762C597 /* StatsCalculatorTests.swift */,
 			);
 			path = ThinkLessScheduleMoreTests;
 			sourceTree = "<group>";
@@ -102,6 +111,9 @@
 				F5DBDABDCAF6B312B571F2FA /* MessageTemplate.swift */,
 				21328EBACA5A6D97CB46F79B /* NotificationManager.swift */,
 				B438A15633DC71EB8491C31B /* SchedulerManager.swift */,
+				B8859813CA7157B843F20938 /* SentLogEntry.swift */,
+				2EAB0B1F2A998C849425E901 /* StatsCalculator.swift */,
+				47D9D54AE31C87ADBEE00D78 /* StatsView.swift */,
 				F0DDBCF313FC827D7DB3D184 /* ThinkLessScheduleMoreApp.swift */,
 			);
 			path = ThinkLessScheduleMore;
@@ -199,6 +211,9 @@
 				805FB991F15D019A9CFD8CBA /* MessageTemplate.swift in Sources */,
 				39F70C9AA3AF31547147421F /* NotificationManager.swift in Sources */,
 				B8131142DD03542AACD49EC8 /* SchedulerManager.swift in Sources */,
+				5AFDE4841593394C58C61538 /* SentLogEntry.swift in Sources */,
+				42DCA28511773517EAD1BD83 /* StatsCalculator.swift in Sources */,
+				8E249E641CD3B1D4BA032607 /* StatsView.swift in Sources */,
 				593C83F255E7776F04BE8096 /* ThinkLessScheduleMoreApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -211,6 +226,7 @@
 				3F1CFFA20F8776EE9E97A4EE /* MessageStoreTests.swift in Sources */,
 				58DBE3694B579676BDB54BFF /* MessageTemplateTests.swift in Sources */,
 				AB068D78D9AFBA187FB05F59 /* NotificationManagerTests.swift in Sources */,
+				FA78B327CE7CA4C9292D7A26 /* StatsCalculatorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

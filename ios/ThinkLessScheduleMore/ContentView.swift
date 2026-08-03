@@ -168,15 +168,35 @@ struct ContentView: View {
                             .foregroundColor(.secondary)
                     }
 
-                    ForEach(store.sentLog.prefix(10), id: \.self) { entry in
-                        Text(entry)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                    ForEach(store.sentLog.prefix(10)) { entry in
+                        HStack(alignment: .top) {
+                            Text(entry.status == "opened" ? "✅" : "🕓")
+                            VStack(alignment: .leading) {
+                                Text(Self.dateFormatter.string(from: entry.timestamp))
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                                Text(entry.message)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+
+                    NavigationLink("📊 Stats Dashboard") {
+                        StatsView(stats: StatsCalculator.compute(log: store.sentLog))
                     }
                 }
             }
             .navigationTitle("ThinkLess💕ScheduleMore")
             .onAppear {
+                // Wire notification taps to the send log: tapping a
+                // scheduled-message notification opens Messages (handled
+                // inside NotificationManager itself) AND flips that
+                // entry from "pending" to "opened" here.
+                NotificationManager.shared.onOpen = { id in
+                    store.markOpened(id)
+                }
+
                 // Initialize the scheduler when the view appears.
                 if scheduler == nil {
                     scheduler = SchedulerManager(store: store)

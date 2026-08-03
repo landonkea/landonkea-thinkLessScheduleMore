@@ -55,7 +55,15 @@ class MessageStore: ObservableObject {
         didSet { UserDefaults.standard.set(isEnabled, forKey: Keys.enabled) }
     }
 
-    @Published var sentLog: [String] {
+    // ── Send log (persisted, structured — feeds the stats dashboard) ─
+    // Previously this was `[String]` and explicitly NOT persisted
+    // ("ephemeral for privacy" — reset every app launch). That made a
+    // stats-over-time dashboard impossible: there was never more than
+    // one session's worth of history to summarize. Persisting it here
+    // doesn't change what leaves the device — it's the same on-device
+    // UserDefaults storage Android already uses for its sent log — it
+    // just stops silently discarding it on relaunch.
+    @Published var sentLog: [SentLogEntry] {
         didSet { saveSentLog() }
     }
 
@@ -100,7 +108,12 @@ class MessageStore: ObservableObject {
         maxPerDay = defaults.object(forKey: Keys.maxPerDay) as? Int ?? 3
         minInterval = defaults.object(forKey: Keys.minInterval) as? Int ?? 60
         isEnabled = defaults.bool(forKey: Keys.enabled)
-        sentLog = []
+        if let data = defaults.data(forKey: Keys.sentLog),
+           let decoded = try? JSONDecoder().decode([SentLogEntry].self, from: data) {
+            sentLog = decoded
+        } else {
+            sentLog = []
+        }
         recentlySent = defaults.array(forKey: Keys.recentlySent) as? [String] ?? []
 
         // Load messages from the saved array.
@@ -150,18 +163,27 @@ class MessageStore: ObservableObject {
         return regex.firstMatch(in: number, range: range) != nil
     }
 
-    // ── Sent log (rolling log of last 50 sends) ──────────────────
-    func addToLog(_ entry: String) {
-        sentLog.insert(entry, at: 0)  // Newest first
+    // ── Sent log (rolling log of last 50 entries, persisted) ──────
+    func addToLog(id: UUID, timestamp: Date, status: String, message: String) {
+        sentLog.insert(SentLogEntry(id: id, timestamp: timestamp, status: status, message: message), at: 0)  // Newest first
         if sentLog.count > 50 {
             sentLog = Array(sentLog.prefix(50))
         }
     }
 
+    // ── Mark a pending entry as opened ────────────────────────────
+    // Called when the user taps a scheduled-message notification
+    // (see NotificationManager's `onOpen` callback). No-op if the id
+    // isn't found (e.g. log was trimmed past 50 entries, or this is
+    // a "wake up" notification with no associated log entry).
+    func markOpened(_ id: UUID) {
+        guard let index = sentLog.firstIndex(where: { $0.id == id }) else { return }
+        sentLog[index].status = "opened"
+    }
+
     private func saveSentLog() {
-        // Sent log is ephemeral — we don't persist it to disk
-        // for privacy reasons.  It resets when the app restarts.
-        // This is intentional: the log is "what happened this session."
+        guard let data = try? JSONEncoder().encode(sentLog) else { return }
+        UserDefaults.standard.set(data, forKey: Keys.sentLog)
     }
 
     // ── Recently-sent history (feeds MessageSelector's anti-repeat) ─

@@ -106,17 +106,21 @@ class SchedulerManager {
             let hour = calendar.component(.hour, from: sendTime)
             let message = MessageTemplate.render(template, name: store.recipientName, hour: hour)
 
-            // Schedule the notification.
+            // Log it first so the id exists before the notification can
+            // possibly be tapped (schedule → id → notify → log would
+            // leave a window where a tap arrives before the log entry
+            // exists; this ordering avoids that race).
+            let id = UUID()
+            store.addToLog(id: id, timestamp: sendTime, status: "pending", message: message)
+
+            // Schedule the notification, tagged with the same id so a
+            // tap can flip this log entry to "opened".
             notifier.scheduleNotification(
                 at: sendTime,
                 message: message,
-                recipient: store.recipientNumber
+                recipient: store.recipientNumber,
+                id: id
             )
-
-            // Log it (the rendered text — what will actually be sent).
-            let formatter = DateFormatter()
-            formatter.dateFormat = "MMM d h:mm a"
-            store.addToLog("pending|\(formatter.string(from: sendTime))|\(message)")
 
             if earliestSendTime == nil || sendTime < earliestSendTime! {
                 earliestSendTime = sendTime

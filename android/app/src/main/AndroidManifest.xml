@@ -57,6 +57,14 @@
             </intent-filter>
         </activity>
 
+        <!-- ── Stats dashboard screen ─────────────────────────
+             Launched from MainActivity's "📊 Stats" button.
+             `exported="false"` — only reachable from within the app. -->
+        <activity
+            android:name=".StatsActivity"
+            android:exported="false"
+            android:label="Stats" />
+
         <!-- ── Background service ─────────────────────────────
              This is our SMS scheduling engine.
              `foregroundServiceType="specialUse"` tells Android
