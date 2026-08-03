@@ -92,11 +92,35 @@ notification fails to appear).
 
 ## Testing
 
-Neither platform currently has a test target/directory. Verification for
-this pass was limited to compiling/building both apps successfully
-(`./gradlew compileDebugKotlin` / `compileReleaseKotlin`, and
-`xcodebuild build` for the iOS simulator target) — there is no automated
-test suite to run yet.
+Both platforms have unit test suites: Android under
+`android/app/src/test/`, iOS under `ios/ThinkLessScheduleMoreTests/`.
+
+```bash
+cd android && ./gradlew testDebugUnitTest
+cd ios && xcodebuild -scheme ThinkLessScheduleMore -sdk iphonesimulator \
+  -destination 'platform=iOS Simulator,name=iPhone 16' test
+```
+
+### Combined test report
+
+`scripts/run_all_tests.sh` runs both suites (or one, via `android` /
+`ios` arguments) and writes a combined pass/fail summary — counts,
+timestamp, and any failures — to `test-results/latest.md`. That
+directory is git-ignored (generated content, regenerated on every run);
+run the script yourself to see current results:
+
+```bash
+scripts/run_all_tests.sh          # both platforms
+scripts/run_all_tests.sh android  # Android only
+scripts/run_all_tests.sh ios      # iOS only
+```
+
+CI runs the same underlying test commands directly in
+`.github/workflows/ci.yml`, then calls this script with `--parse-only`
+per job (Android's JUnit XML and a captured iOS `xcodebuild` log are
+already on disk by that point, so it just parses rather than
+re-running) and uploads each job's `test-results/latest.md` as a build
+artifact.
 
 ## Known gaps / ideas
 

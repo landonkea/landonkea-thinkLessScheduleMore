@@ -33,6 +33,9 @@ __pycache__/
 *.swo
 .vscode/
 
+# ── Generated test reports (see scripts/run_all_tests.sh) ─────
+test-results/
+
 # ── Environment files (never commit secrets) ──────────────────
 .env
 *.env.local

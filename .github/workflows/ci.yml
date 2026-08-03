@@ -29,6 +29,18 @@ jobs:
           cd android
           ./gradlew testDebugUnitTest
 
+      - name: Generate test report
+        if: always()
+        run: scripts/run_all_tests.sh android --parse-only
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-android
+          path: test-results/
+          if-no-files-found: warn
+
   ios:
     runs-on: macos-latest
     steps:
@@ -61,6 +73,21 @@ jobs:
 
       - name: Run unit tests (NotificationManager delegate wiring)
         run: |
+          set -o pipefail
+          mkdir -p test-results
           cd ios
           xcodebuild -scheme ThinkLessScheduleMore -sdk iphonesimulator \
-            -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.name }}" test
+            -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.name }}" test \
+            | tee ../test-results/ios-xcodebuild.log
+
+      - name: Generate test report
+        if: always()
+        run: scripts/run_all_tests.sh ios --parse-only
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-ios
+          path: test-results/
+          if-no-files-found: warn
