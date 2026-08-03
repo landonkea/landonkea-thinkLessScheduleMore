@@ -19,6 +19,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
@@ -50,10 +52,20 @@ class MainActivity : AppCompatActivity() {
     private lateinit var maxPerDaySeek: SeekBar
     private lateinit var intervalLabel: TextView
     private lateinit var intervalSeek: SeekBar
+    private lateinit var nextSendLabel: TextView
 
     // ── Runtime permission request codes ─────────────────────────
     companion object {
         private const val PERMISSION_REQUEST_CODE = 100
+
+        // Standard single-segment SMS length. Longer messages still send
+        // (multi-part), but we surface this as the design guideline.
+        private const val SMS_MAX_LENGTH = 160
+
+        // Loose E.164-ish check: optional leading +, 8-15 digits total.
+        // Deliberately permissive — real validation happens at the
+        // carrier, this is just a "did you fat-finger this" guard.
+        private val PHONE_REGEX = Regex("^\\+?[0-9]{8,15}$")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -96,7 +108,16 @@ class MainActivity : AppCompatActivity() {
         root.addView(Button(this).apply {
             text = "Save Number"
             setOnClickListener {
-                store.saveRecipient(recipientInput.text.toString().trim())
+                val number = recipientInput.text.toString().trim()
+                if (number.isNotEmpty() && !PHONE_REGEX.matches(number)) {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "That doesn't look like a valid phone number (e.g. +14155551234)",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    return@setOnClickListener
+                }
+                store.saveRecipient(number)
                 Toast.makeText(this@MainActivity, "Number saved", Toast.LENGTH_SHORT).show()
             }
         })
@@ -106,6 +127,11 @@ class MainActivity : AppCompatActivity() {
             text = "\n⚡ Scheduling"
             textSize = 18f
         })
+
+        nextSendLabel = TextView(this).apply {
+            text = formatNextSend(store.getNextSendTime())
+        }
+        root.addView(nextSendLabel)
 
         masterSwitch = Switch(this).apply {
             text = "Enabled"
@@ -126,9 +152,11 @@ class MainActivity : AppCompatActivity() {
                     // Stop the service.
                     val intent = Intent(this@MainActivity, SchedulerService::class.java)
                     stopService(intent)
+                    store.clearNextSendTime()
                     Toast.makeText(this@MainActivity,
                         "Scheduling paused", Toast.LENGTH_SHORT).show()
                 }
+                nextSendLabel.text = formatNextSend(store.getNextSendTime())
             }
         }
         root.addView(masterSwitch)
@@ -240,6 +268,14 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+        // Edit message button.
+        root.addView(Button(this).apply {
+            text = "✏️ Edit Message"
+            setOnClickListener {
+                showEditMessageDialog()
+            }
+        })
+
         // Remove message button.
         root.addView(Button(this).apply {
             text = "❌ Remove Message"
@@ -334,6 +370,7 @@ class MainActivity : AppCompatActivity() {
         intervalSeek.progress = store.getMinInterval()
         messageListText.text = formatMessages(store.getMessages())
         historyText.text = formatHistory(store.getSentLog())
+        nextSendLabel.text = formatNextSend(store.getNextSendTime())
 
         hourStartLabel.text = "Start: ${store.getHourStart()}:00"
         hourEndLabel.text = "End: ${store.getHourEnd()}:00"
@@ -341,20 +378,102 @@ class MainActivity : AppCompatActivity() {
         intervalLabel.text = "Min interval: ${store.getMinInterval()} minutes"
     }
 
+    // ── Build a message-editing view: a text box + live "N/160" counter ──
+    // Shared by both the Add and Edit dialogs so the character-count
+    // behavior (and the 160-char SMS design guideline) stays in one place.
+    private fun buildMessageEditView(initialText: String): Pair<LinearLayout, EditText> {
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(48, 16, 48, 0)
+        }
+
+        val input = EditText(this).apply {
+            hint = "Type your message here..."
+            setText(initialText)
+            setSelection(initialText.length)
+        }
+
+        val counter = TextView(this).apply {
+            text = "${initialText.length}/$SMS_MAX_LENGTH"
+        }
+
+        fun updateCounter(length: Int) {
+            counter.text = "$length/$SMS_MAX_LENGTH"
+            counter.setTextColor(
+                if (length > SMS_MAX_LENGTH)
+                    android.graphics.Color.RED
+                else
+                    android.graphics.Color.GRAY
+            )
+        }
+        updateCounter(initialText.length)
+
+        input.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                updateCounter(s?.length ?: 0)
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        container.addView(input)
+        container.addView(counter)
+        return Pair(container, input)
+    }
+
     // ── Show dialog to add a new message ──────────────────────────
     private fun showAddMessageDialog() {
-        val input = EditText(this)
-        input.hint = "Type your message here..."
+        val (view, input) = buildMessageEditView("")
 
         AlertDialog.Builder(this)
             .setTitle("New Message")
-            .setView(input)
+            .setView(view)
             .setPositiveButton("Add") { _, _ ->
                 val text = input.text.toString().trim()
                 if (text.isNotEmpty()) {
                     store.addMessage(text)
                     refreshUI()
                     Toast.makeText(this, "Message added!", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    // ── Show dialog to pick, then edit, an existing message ────────
+    private fun showEditMessageDialog() {
+        val messages = store.getMessages()
+        if (messages.isEmpty()) {
+            Toast.makeText(this, "No messages to edit. Add one first!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val messageItems = messages.mapIndexed { index, msg ->
+            "${index + 1}. ${msg.take(50)}${if (msg.length > 50) "…" else ""}"
+        }.toTypedArray()
+
+        AlertDialog.Builder(this)
+            .setTitle("Edit Which Message?")
+            .setItems(messageItems) { _, which ->
+                showEditMessageTextDialog(which, messages[which])
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    // ── Dialog to actually edit the text of message at `index` ─────
+    private fun showEditMessageTextDialog(index: Int, currentText: String) {
+        val (view, input) = buildMessageEditView(currentText)
+
+        AlertDialog.Builder(this)
+            .setTitle("Edit Message")
+            .setView(view)
+            .setPositiveButton("Save") { _, _ ->
+                val text = input.text.toString().trim()
+                if (text.isNotEmpty()) {
+                    store.updateMessage(index, text)
+                    refreshUI()
+                    Toast.makeText(this, "Message updated!", Toast.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton("Cancel", null)
@@ -379,7 +498,21 @@ class MainActivity : AppCompatActivity() {
             .setTitle("Remove a Message")
             .setItems(messageItems) { _, which ->
                 // which = the index in the array the user tapped.
-                store.removeMessage(which)
+                // Confirm before deleting — there's no undo once it's gone.
+                confirmRemoveMessage(which, messages[which])
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    // ── Confirmation step before actually deleting a message ───────
+    private fun confirmRemoveMessage(index: Int, text: String) {
+        val preview = if (text.length > 80) text.take(80) + "…" else text
+        AlertDialog.Builder(this)
+            .setTitle("Delete this message?")
+            .setMessage("❝$preview❞\n\nThis can't be undone.")
+            .setPositiveButton("Delete") { _, _ ->
+                store.removeMessage(index)
                 refreshUI()
                 Toast.makeText(this, "Message removed!", Toast.LENGTH_SHORT).show()
             }
@@ -395,18 +528,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     // ── Format history for display ────────────────────────────────
-    private fun formatHistory(log: List<String>): String {
+    private fun formatHistory(log: List<SentLogEntry>): String {
         if (log.isEmpty()) return "(No messages sent yet)"
+        val formatter = java.text.SimpleDateFormat("MMM d h:mm a", java.util.Locale.getDefault())
         return log.take(10).joinToString("\n") { entry ->
-            val parts = entry.split("|")
-            if (parts.size >= 3) {
-                val time = java.text.SimpleDateFormat("MMM d h:mm a",
-                    java.util.Locale.getDefault()).format(java.util.Date(parts[0].toLong()))
-                val status = if (parts[1] == "sent") "✅" else "❌"
-                "$status $time — ${parts[2].take(50)}"
-            } else {
-                entry
-            }
+            val time = formatter.format(java.util.Date(entry.timestamp))
+            val status = if (entry.status == "sent") "✅" else "❌"
+            "$status $time — ${entry.message.take(50)}"
         }
+    }
+
+    // ── Format the "next scheduled send" line ───────────────────────
+    private fun formatNextSend(timestampMs: Long): String {
+        if (timestampMs <= 0L) return "Next message: not scheduled"
+        val formatter = java.text.SimpleDateFormat("MMM d h:mm a", java.util.Locale.getDefault())
+        return "Next message: ${formatter.format(java.util.Date(timestampMs))}"
     }
 }

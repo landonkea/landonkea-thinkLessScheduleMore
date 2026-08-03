@@ -25,6 +25,16 @@ android {
         jvmTarget = "17"
     }
 
+    // ── Unit test config ──────────────────────────────────────────
+    // MessageStore reads/writes real SharedPreferences, so its unit
+    // tests run under Robolectric (a JVM-hosted Android framework
+    // implementation) instead of plain mocked stubs.
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
+
     // ── Build types ─────────────────────────────────────────────
     // debug: gets a distinct applicationId suffix so a debug build
     //   can be installed side-by-side with a release build on the
@@ -50,6 +60,19 @@ android {
     }
 }
 
+// ── Run unit tests on JDK 17, regardless of which JDK runs Gradle itself ──
+// Robolectric 4.13's bundled ASM can't parse class files emitted by very
+// new JDKs (observed: "Unsupported class file major version 70" under
+// JDK 26). Pinning just the Test task's launcher avoids that without
+// touching the JDK used to build/compile the rest of the project.
+tasks.withType<Test>().configureEach {
+    javaLauncher.set(
+        javaToolchains.launcherFor {
+            languageVersion.set(JavaLanguageVersion.of(17))
+        }
+    )
+}
+
 dependencies {
     // ── AppCompat (standard Android UI components) ────────────
     // Provides AppCompatActivity, AlertDialog, and backwards-
@@ -58,4 +81,12 @@ dependencies {
 
     // ── Core KTX (Kotlin extensions for Android core APIs) ───
     implementation("androidx.core:core-ktx:1.12.0")
+
+    // ── Unit testing ──────────────────────────────────────────
+    // Robolectric runs real Android framework code (SharedPreferences,
+    // org.json, etc.) on the JVM so MessageStore can be tested without
+    // an emulator/device.
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.robolectric:robolectric:4.13")
+    testImplementation("androidx.test:core:1.5.0")
 }

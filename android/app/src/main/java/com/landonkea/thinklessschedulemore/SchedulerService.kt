@@ -77,6 +77,7 @@ class SchedulerService : Service() {
     private fun scheduleNext() {
         // Stop if scheduling is disabled or no recipient.
         if (!store.isEnabled() || store.getRecipient().isEmpty()) {
+            store.clearNextSendTime()
             stopSelf()  // Kill the service — nothing to do.
             return
         }
@@ -86,6 +87,7 @@ class SchedulerService : Service() {
         if (messages.isEmpty()) {
             // No messages in the pool.  Stop the service.
             // User will restart it after adding messages.
+            store.clearNextSendTime()
             stopSelf()
             return
         }
@@ -104,6 +106,9 @@ class SchedulerService : Service() {
             return
         }
 
+        // Surface the next send time to the UI (see MessageStore.getNextSendTime).
+        store.saveNextSendTime(now + delayMs)
+
         // ── Create the Runnable (what happens when timer fires) ─
         sendRunnable = Runnable {
             // Pick a random message from the pool.
@@ -113,7 +118,7 @@ class SchedulerService : Service() {
             sendSms(store.getRecipient(), randomMessage)
 
             // Log it.
-            store.addToSentLog("${System.currentTimeMillis()}|sent|$randomMessage")
+            store.addToSentLog(System.currentTimeMillis(), "sent", randomMessage)
 
             // Pick the NEXT random time and wait again.
             // This creates the loop: send → wait → send → wait...
@@ -167,9 +172,14 @@ class SchedulerService : Service() {
 
         if (delayMs <= 0) {
             // Tomorrow already started?  Just stop.
+            store.clearNextSendTime()
             stopSelf()
             return
         }
+
+        // Surface tomorrow's window-open time as "next" until scheduleNext()
+        // picks a more specific random time inside the window.
+        store.saveNextSendTime(windowStartMs)
 
         handler.postDelayed({
             // Tomorrow's window has started.  Begin the loop.
@@ -190,7 +200,7 @@ class SchedulerService : Service() {
             )
         } catch (e: Exception) {
             // Log the failure but don't crash the service.
-            store.addToSentLog("${System.currentTimeMillis()}|failed|$message|${e.message}")
+            store.addToSentLog(System.currentTimeMillis(), "failed", message, e.message)
         }
     }
 
@@ -222,6 +232,7 @@ class SchedulerService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacksAndMessages(null)  // Cancel all pending timers
+        store.clearNextSendTime()
     }
 
     // ── Constants ─────────────────────────────────────────────────

@@ -52,6 +52,13 @@ class MessageStore: ObservableObject {
         didSet { saveSentLog() }
     }
 
+    // ── Next scheduled send time ─────────────────────────────────
+    // Set by SchedulerManager whenever it (re)computes today's sends,
+    // so the UI can surface "next message at ..." without duplicating
+    // the scheduling math. Ephemeral like sentLog — recomputed each
+    // time scheduling runs, not persisted to disk.
+    @Published var nextScheduledTime: Date? = nil
+
     // ── Keys used in UserDefaults ────────────────────────────────
     private struct Keys {
         static let recipient = "recipient_number"
@@ -106,6 +113,22 @@ class MessageStore: ObservableObject {
     func removeMessage(at index: Int) {
         guard messages.indices.contains(index) else { return }
         messages.remove(at: index)
+    }
+
+    // ── Edit the text of an existing message (not delete + re-add) ──
+    func updateMessage(at index: Int, text: String) {
+        guard messages.indices.contains(index) else { return }
+        messages[index] = text
+    }
+
+    // ── Loose phone-number validation ────────────────────────────
+    // Same permissive E.164-ish check as Android: optional leading
+    // "+", 8-15 digits. A guard against fat-fingering, not a full
+    // carrier-grade validator.
+    static func isValidPhoneNumber(_ number: String) -> Bool {
+        let regex = try! NSRegularExpression(pattern: "^\\+?[0-9]{8,15}$")
+        let range = NSRange(number.startIndex..<number.endIndex, in: number)
+        return regex.firstMatch(in: number, range: range) != nil
     }
 
     // ── Sent log (rolling log of last 50 sends) ──────────────────

@@ -38,9 +38,18 @@ class SchedulerManager {
         // Cancel any previously scheduled notifications.
         notifier.cancelAll()
 
-        guard store.isEnabled else { return }
-        guard !store.recipientNumber.isEmpty else { return }
-        guard !store.messages.isEmpty else { return }
+        guard store.isEnabled else {
+            store.nextScheduledTime = nil
+            return
+        }
+        guard !store.recipientNumber.isEmpty else {
+            store.nextScheduledTime = nil
+            return
+        }
+        guard !store.messages.isEmpty else {
+            store.nextScheduledTime = nil
+            return
+        }
 
         let now = Date()
         let calendar = Calendar.current
@@ -58,6 +67,7 @@ class SchedulerManager {
         // ── If window is already closed, schedule tomorrow ──────
         if now > windowEnd {
             scheduleTomorrow()
+            store.nextScheduledTime = tomorrowWindowStart()
             return
         }
 
@@ -71,6 +81,10 @@ class SchedulerManager {
         // Divide the window into segments and pick one random time
         // within each segment (same strategy as Android).
         let segmentSeconds = availableSeconds / Double(maxMessages)
+
+        // Track the earliest send time so it can be surfaced in the UI
+        // (see MessageStore.nextScheduledTime).
+        var earliestSendTime: Date? = nil
 
         for i in 0..<maxMessages {
             // Pick a random time within this segment.
@@ -95,7 +109,13 @@ class SchedulerManager {
             let formatter = DateFormatter()
             formatter.dateFormat = "MMM d h:mm a"
             store.addToLog("pending|\(formatter.string(from: sendTime))|\(message)")
+
+            if earliestSendTime == nil || sendTime < earliestSendTime! {
+                earliestSendTime = sendTime
+            }
         }
+
+        store.nextScheduledTime = earliestSendTime
 
         // Schedule tomorrow's check (so we keep repeating).
         scheduleTomorrow()
@@ -105,14 +125,7 @@ class SchedulerManager {
     // Uses a local notification that fires at windowStart tomorrow.
     // When it fires, the user opens the app, which re-schedules.
     private func scheduleTomorrow() {
-        let calendar = Calendar.current
-        let tomorrow = calendar.date(byAdding: .day, value: 1, to: Date())!
-
-        var startComponents = calendar.dateComponents([.year, .month, .day], from: tomorrow)
-        startComponents.hour = store.hourStart
-        startComponents.minute = 0
-
-        guard let startTime = calendar.date(from: startComponents) else { return }
+        guard let startTime = tomorrowWindowStart() else { return }
 
         // Schedule a "wake up" notification.
         notifier.scheduleNotification(
@@ -122,8 +135,21 @@ class SchedulerManager {
         )
     }
 
+    // ── Compute tomorrow's window-start Date ──────────────────────
+    private func tomorrowWindowStart() -> Date? {
+        let calendar = Calendar.current
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: Date())!
+
+        var startComponents = calendar.dateComponents([.year, .month, .day], from: tomorrow)
+        startComponents.hour = store.hourStart
+        startComponents.minute = 0
+
+        return calendar.date(from: startComponents)
+    }
+
     // ── Cancel all scheduled messages ─────────────────────────────
     func cancelAll() {
         notifier.cancelAll()
+        store.nextScheduledTime = nil
     }
 }

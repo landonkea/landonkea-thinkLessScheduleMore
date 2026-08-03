@@ -24,6 +24,11 @@ jobs:
           chmod +x gradlew
           ./gradlew compileDebugKotlin compileReleaseKotlin
 
+      - name: Run unit tests (MessageStore)
+        run: |
+          cd android
+          ./gradlew testDebugUnitTest
+
   ios:
     runs-on: macos-latest
     steps:

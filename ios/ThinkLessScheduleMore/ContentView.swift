@@ -22,13 +22,24 @@ struct ContentView: View {
     // `@EnvironmentObject` reads the store passed in by the App struct.
     @EnvironmentObject var store: MessageStore
 
-    // ── State for the "add message" dialog ───────────────────────
-    @State private var showAddMessage = false
-    @State private var newMessageText = ""
+    // ── State for the add/edit message sheet ──────────────────────
+    // `editingIndex == nil` means "adding a new message"; otherwise
+    // it's the index of the message being edited.
+    @State private var showMessageEditor = false
+    @State private var editingIndex: Int? = nil
+
+    // ── State for the "confirm delete" alert ───────────────────────
+    @State private var pendingDeleteIndex: Int? = nil
 
     // ── The scheduler (re-created when store changes) ────────────
     // `@State` because it's owned by this view.
     @State private var scheduler: SchedulerManager? = nil
+
+    private static let dateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "MMM d h:mm a"
+        return f
+    }()
 
     var body: some View {
         NavigationView {
@@ -38,6 +49,13 @@ struct ContentView: View {
                     TextField("Phone number (e.g. +14155551234)",
                               text: $store.recipientNumber)
                         .keyboardType(.phonePad)
+
+                    if !store.recipientNumber.isEmpty &&
+                        !MessageStore.isValidPhoneNumber(store.recipientNumber) {
+                        Text("That doesn't look like a valid phone number (e.g. +14155551234)")
+                            .font(.caption)
+                            .foregroundColor(.red)
+                    }
                 }
 
                 // ── Section: Master Switch ─────────────────────────
@@ -50,6 +68,16 @@ struct ContentView: View {
                                 stopScheduling()
                             }
                         }
+
+                    if let next = store.nextScheduledTime {
+                        Text("Next message: \(Self.dateFormatter.string(from: next))")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    } else {
+                        Text("Next message: not scheduled")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
                 }
 
                 // ── Section: Time Window ───────────────────────────
@@ -103,17 +131,27 @@ struct ContentView: View {
                                 .foregroundColor(.secondary)
                             Text("❝\(store.messages[index])❞")
                             Spacer()
-                            // Swipe to delete.
+                            // Edit this message's text.
+                            Button {
+                                editingIndex = index
+                                showMessageEditor = true
+                            } label: {
+                                Image(systemName: "pencil")
+                            }
+                            .buttonStyle(.borderless)
+                            // Delete (with confirmation — no undo once it's gone).
                             Button(role: .destructive) {
-                                store.removeMessage(at: index)
+                                pendingDeleteIndex = index
                             } label: {
                                 Image(systemName: "trash")
                             }
+                            .buttonStyle(.borderless)
                         }
                     }
 
                     Button("➕ Add Message") {
-                        showAddMessage = true
+                        editingIndex = nil
+                        showMessageEditor = true
                     }
                 }
 
@@ -136,25 +174,55 @@ struct ContentView: View {
                 // Initialize the scheduler when the view appears.
                 if scheduler == nil {
                     scheduler = SchedulerManager(store: store)
-                }
-            }
-            // ── Alert dialog for adding a message ──────────────
-            .alert("New Message", isPresented: $showAddMessage) {
-                TextField("Type your message...", text: $newMessageText)
-                Button("Add") {
-                    let text = newMessageText.trimmingCharacters(
-                        in: .whitespacesAndNewlines
-                    )
-                    if !text.isEmpty {
-                        store.addMessage(text)
-                        newMessageText = ""
+                    // If scheduling was already enabled from a previous
+                    // session, re-run it now so "Next message" reflects
+                    // reality instead of showing stale/empty state.
+                    if store.isEnabled {
+                        scheduler?.scheduleToday()
                     }
                 }
+            }
+            // ── Sheet for adding/editing a message (has a live char counter) ──
+            .sheet(isPresented: $showMessageEditor) {
+                if let index = editingIndex {
+                    MessageEditorView(
+                        title: "Edit Message",
+                        confirmLabel: "Save",
+                        text: store.messages[index]
+                    ) { newText in
+                        store.updateMessage(at: index, text: newText)
+                    }
+                } else {
+                    MessageEditorView(
+                        title: "New Message",
+                        confirmLabel: "Add",
+                        text: ""
+                    ) { newText in
+                        store.addMessage(newText)
+                    }
+                }
+            }
+            // ── Confirmation before deleting a message — no undo ────
+            .alert(
+                "Delete this message?",
+                isPresented: Binding(
+                    get: { pendingDeleteIndex != nil },
+                    set: { if !$0 { pendingDeleteIndex = nil } }
+                )
+            ) {
+                Button("Delete", role: .destructive) {
+                    if let index = pendingDeleteIndex {
+                        store.removeMessage(at: index)
+                    }
+                    pendingDeleteIndex = nil
+                }
                 Button("Cancel", role: .cancel) {
-                    newMessageText = ""
+                    pendingDeleteIndex = nil
                 }
             } message: {
-                Text("What would you like to send?")
+                if let index = pendingDeleteIndex, store.messages.indices.contains(index) {
+                    Text("❝\(store.messages[index])❞\n\nThis can't be undone.")
+                }
             }
         }
     }
