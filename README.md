@@ -3,6 +3,12 @@
 Sends sweet "thinking of you" texts to a partner at random times throughout
 the day, from your real phone number — no bot, no third-party service.
 
+> **Split-out repos:** each platform is also available as a standalone
+> repo with full preserved commit history, split out of this monorepo:
+> [landonkea-thinklessschedulemore-android](https://github.com/landonkea/landonkea-thinklessschedulemore-android) ·
+> [landonkea-thinklessschedulemore-ios](https://github.com/landonkea/landonkea-thinklessschedulemore-ios).
+> This monorepo remains the canonical combined source.
+
 Full design notes (core loop, platform differences, future plans) live in
 [`shared/ARCHITECTURE.md`](shared/ARCHITECTURE.md). This README covers
 setup, structure, and current build status.
