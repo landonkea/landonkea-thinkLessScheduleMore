@@ -13,9 +13,9 @@
 
 import Foundation
 import UserNotifications  // iOS notification framework
-import UIKit             // UIApplication — needed to open the sms:// URL
-// NOTE: MessageUI is not imported because we use the sms:// URL scheme
-// instead of MFMessageComposeViewController (simpler, no in-app compose).
+// NOTE: MessageUI is not imported because OpenSmsComposeAction uses the
+// sms:// URL scheme instead of MFMessageComposeViewController (simpler,
+// no in-app compose) -- see that file for the actual URL-opening logic.
 
 // ── NotificationManager ───────────────────────────────────────────
 // Handles scheduling notifications and opening the Messages app.
@@ -157,23 +157,16 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     }
 
     // ── Open Messages app with pre-filled message ─────────────────
-    // Called when the user taps a notification.
-    // We use `sms:` URL scheme which opens the Messages app.
+    // Called when the user taps a notification. The real work moved
+    // to OpenSmsComposeAction, reached through AutomationRegistry
+    // exactly the way a future Siri/Shortcuts-triggered AppIntent
+    // will reach it too — a notification tap is just one more
+    // trigger sharing the same action, not special-cased logic.
     static func openMessages(recipient: String, message: String) {
-        // URL-encode the message so special characters work.
-        guard let encoded = message.addingPercentEncoding(
-            withAllowedCharacters: .urlQueryAllowed
-        ) else { return }
-
-        // The `sms:` URL scheme opens the Messages app.
-        // Format:  sms://PHONE_NUMBER?body=MESSAGE
-        let urlString = "sms://\(recipient)?body=\(encoded)"
-        guard let url = URL(string: urlString) else { return }
-
-        // Open the URL (iOS switches to the Messages app).
-        DispatchQueue.main.async {
-            UIApplication.shared.open(url)
-        }
+        _ = AutomationRegistry.shared.execute(
+            actionId: "open_sms_compose",
+            params: ["recipient": recipient, "message": message]
+        )
     }
 
     // ── UNUserNotificationCenterDelegate ────────────────────────────

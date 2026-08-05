@@ -27,6 +27,17 @@ struct ThinkLessScheduleMoreApp: App {
     // schedule, not a replacement. See RecurringMessageStore.swift.
     @StateObject private var recurringStore = RecurringMessageStore()
 
+    // Registers every AutomationAction exactly once, here, because
+    // this init is the one guaranteed-first entry point — a
+    // Siri/Shortcuts-triggered AppIntent (see SendSmsIntent.swift)
+    // can be the very first code that runs after the app is
+    // installed, with no screen ever opened. See AutomationAction.swift
+    // for why lookup-by-id (not concrete type) is what actually makes
+    // this composable.
+    init() {
+        AutomationRegistry.shared.register(OpenSmsComposeAction())
+    }
+
     var body: some Scene {
         WindowGroup {
             // The main screen.  We pass the store as an
