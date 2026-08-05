@@ -46,6 +46,7 @@
          `label` = the app name shown under the icon.
          `icon` = the launcher icon (default Android icon).       -->
     <application
+        android:name=".ThinkLessApplication"
         android:label="ThinkLessScheduleMore"
         android:icon="@mipmap/ic_launcher"
         android:supportsRtl="true">

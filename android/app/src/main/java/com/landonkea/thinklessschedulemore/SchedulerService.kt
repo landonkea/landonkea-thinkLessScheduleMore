@@ -23,19 +23,13 @@ package com.landonkea.thinklessschedulemore
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import android.telephony.SmsManager
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import kotlin.random.Random
 
 class SchedulerService : Service() {
@@ -52,41 +46,16 @@ class SchedulerService : Service() {
     private lateinit var store: MessageStore
     private lateinit var recurringStore: RecurringMessageStore
 
-    // Whether the delivery-confirmation receiver (see below) is currently
-    // registered, so onDestroy doesn't try to unregister twice (or a
-    // never-registered receiver) if onStartCommand never got that far.
-    private var receiverRegistered = false
-
-    // ── Delivery-confirmation BroadcastReceiver ─────────────────────
-    // sendSms() passes PendingIntents (carrying custom actions below) as
-    // SmsManager's sentIntent/deliveryIntent. When Android fires those
-    // intents back at us, this receiver reads the system-assigned
-    // resultCode (RESULT_OK or one of SmsManager's RESULT_ERROR_* codes),
-    // maps it to a SendStatus via SmsResultMapper, and updates the
-    // matching log entry (found by the id we stashed as an intent extra).
-    private val smsResultReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val id = intent.getStringExtra(EXTRA_LOG_ID) ?: return
-            when (intent.action) {
-                ACTION_SMS_SENT -> {
-                    val status = SmsResultMapper.mapSentResult(resultCode)
-                    val error = if (status == SendStatus.FAILED) "SMS send failed (resultCode=$resultCode)" else null
-                    store.updateLogEntryStatus(id, status, error)
-                }
-                ACTION_SMS_DELIVERED -> {
-                    val status = SmsResultMapper.mapDeliveredResult(resultCode)
-                    // Only DELIVERED is meaningful here — some carriers never
-                    // send a delivery report at all, which isn't a failure,
-                    // it just means the entry stays at whatever mapSentResult
-                    // already set it to (SENT). Don't downgrade a confirmed
-                    // SENT to FAILED just because delivery wasn't confirmed.
-                    if (status == SendStatus.DELIVERED) {
-                        store.updateLogEntryStatus(id, SendStatus.DELIVERED)
-                    }
-                }
-            }
-        }
-    }
+    // ── SMS sending ──────────────────────────────────────────────
+    // This service is a TRIGGER (a timer, plus the recurring-date
+    // check below) — it no longer knows how to send an SMS itself.
+    // sendSms() now just calls AutomationRegistry.execute("send_sms",
+    // ...), the exact same call a Tasker-fired trigger would make
+    // (see SendSmsAction/AutomationRegistry). All the actual
+    // PendingIntent/delivery-confirmation plumbing that used to live
+    // here moved to SmsSender, which owns its own short-lived
+    // receiver per send instead of this service holding one open for
+    // its whole lifetime.
 
     // ── Service lifecycle ─────────────────────────────────────────
 
@@ -106,8 +75,6 @@ class SchedulerService : Service() {
         // Show the persistent notification (required for foreground).
         startForeground(NOTIFICATION_ID, createNotification())
 
-        registerSmsResultReceiver()
-
         // Cancel any timer already in flight before starting a new chain.
         handler.removeCallbacksAndMessages(null)
 
@@ -124,21 +91,6 @@ class SchedulerService : Service() {
 
         // If Android kills the service, restart it automatically.
         return START_STICKY
-    }
-
-    // ── Register the dynamic BroadcastReceiver for SMS callbacks ────
-    private fun registerSmsResultReceiver() {
-        if (receiverRegistered) return
-        val filter = IntentFilter().apply {
-            addAction(ACTION_SMS_SENT)
-            addAction(ACTION_SMS_DELIVERED)
-        }
-        // Android 13+ (API 33) requires an explicit exported flag when
-        // dynamically registering a receiver. This receiver only reacts to
-        // our own PendingIntent callbacks, so RECEIVER_NOT_EXPORTED is the
-        // correct/safe choice (nothing outside this app should trigger it).
-        ContextCompat.registerReceiver(this, smsResultReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
-        receiverRegistered = true
     }
 
     // ── Recurring (yearly date-based) messages ───────────────────────
@@ -292,51 +244,20 @@ class SchedulerService : Service() {
     }
 
     // ── Send the actual SMS ───────────────────────────────────────
-    // Logs a PENDING entry first (we don't yet know if it actually sent),
-    // then wires SmsManager's sentIntent/deliveryIntent PendingIntents to
-    // smsResultReceiver (see above) so the entry gets flipped to
-    // SENT/FAILED/DELIVERED once Android calls back. If sendTextMessage
-    // throws synchronously (e.g. missing permission), we flip the same
-    // entry straight to FAILED rather than logging a second entry.
+    // This service's ONLY job as a trigger is deciding WHEN to send —
+    // the how (logging, SmsManager, delivery confirmation) lives in
+    // SmsSender, reached through AutomationRegistry exactly like a
+    // Tasker-fired trigger would reach it. Ignoring the returned
+    // AutomationResult here is intentional: a synchronous dispatch
+    // failure is already logged as FAILED by SmsSender itself (see
+    // that class), so there's nothing further for a fire-and-forget
+    // timer trigger to do with it.
     private fun sendSms(recipient: String, message: String) {
-        val logId = store.addToSentLog(System.currentTimeMillis(), SendStatus.PENDING, message)
-        try {
-            val smsManager = getSystemService(SmsManager::class.java)
-
-            val sentIntent = PendingIntent.getBroadcast(
-                this,
-                logId.hashCode(),
-                Intent(ACTION_SMS_SENT).apply {
-                    setPackage(packageName)
-                    putExtra(EXTRA_LOG_ID, logId)
-                },
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            val deliveryIntent = PendingIntent.getBroadcast(
-                this,
-                // Distinct request code from sentIntent so the two
-                // PendingIntents don't collide/overwrite each other.
-                (logId + "_delivered").hashCode(),
-                Intent(ACTION_SMS_DELIVERED).apply {
-                    setPackage(packageName)
-                    putExtra(EXTRA_LOG_ID, logId)
-                },
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-
-            smsManager.sendTextMessage(
-                recipient,     // To: the recipient's number
-                null,          // From: null = use default SIM
-                message,       // The message text
-                sentIntent,    // sentIntent: fires when the SMS leaves the device
-                deliveryIntent // deliveryIntent: fires on carrier delivery confirmation (if supported)
-            )
-        } catch (e: Exception) {
-            // Synchronous failure (e.g. SecurityException from a missing
-            // permission) — flip the entry we already logged rather than
-            // creating a duplicate one.
-            store.updateLogEntryStatus(logId, SendStatus.FAILED, e.message)
-        }
+        AutomationRegistry.execute(
+            this,
+            "send_sms",
+            mapOf("recipient" to recipient, "message" to message)
+        )
     }
 
     // ── Notification (required by Android for foreground services) ─
@@ -367,10 +288,6 @@ class SchedulerService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacksAndMessages(null)  // Cancel all pending timers
-        if (receiverRegistered) {
-            unregisterReceiver(smsResultReceiver)
-            receiverRegistered = false
-        }
         store.clearNextSendTime()
     }
 
@@ -378,12 +295,6 @@ class SchedulerService : Service() {
     companion object {
         private const val NOTIFICATION_ID = 1001
         private const val CHANNEL_ID = "sms_scheduler_channel"
-
-        // Custom broadcast actions for the sentIntent/deliveryIntent
-        // PendingIntents passed to SmsManager.sendTextMessage.
-        private const val ACTION_SMS_SENT = "com.landonkea.thinklessschedulemore.SMS_SENT"
-        private const val ACTION_SMS_DELIVERED = "com.landonkea.thinklessschedulemore.SMS_DELIVERED"
-        private const val EXTRA_LOG_ID = "log_id"
 
         private val TODAY_KEY_FORMAT = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
     }
