@@ -54,8 +54,12 @@ object StatsCalculator {
         topN: Int = 5,
         now: Long = System.currentTimeMillis()
     ): Stats {
-        val sent = log.filter { it.status == "sent" }
-        val failed = log.filter { it.status == "failed" }
+        // DELIVERED is a stronger confirmation than SENT (carrier confirmed
+        // receipt), so it counts as a successful send here too — otherwise
+        // messages that got a delivery receipt would vanish from both
+        // buckets instead of counting as sent.
+        val sent = log.filter { it.status == SendStatus.SENT || it.status == SendStatus.DELIVERED }
+        val failed = log.filter { it.status == SendStatus.FAILED }
         val total = sent.size + failed.size
         val successRate = if (total == 0) 0.0 else (sent.size * 100.0) / total
 

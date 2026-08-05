@@ -20,6 +20,15 @@
     <key>CFBundleShortVersionString</key>
     <string>1.0.0</string>
 
+    <!-- ── Contacts access (for the "Pick Contact" picker) ──────
+         CNContactPickerViewController runs out-of-process and doesn't
+         require this for picking a single contact, but checking
+         CNContactStore.authorizationStatus(for:) defensively (see
+         ContactPickerView.swift) can still trigger Info.plist key
+         requirements, so it's declared regardless. -->
+    <key>NSContactsUsageDescription</key>
+    <string>Used to fill in a recipient's phone number and name when you pick them from your contacts.</string>
+
     <!-- ── App category (lifestyle) ─────────────────────────── -->
     <key>LSApplicationCategoryType</key>
     <string>public.app-category-lifestyle</string>

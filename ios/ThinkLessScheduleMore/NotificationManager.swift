@@ -32,13 +32,46 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     // There should only be one NotificationManager in the app.
     static let shared = NotificationManager()
 
+    // Category identifier for real send-time notifications — the
+    // "wake up" (tomorrow re-schedule trigger) notifications are NOT
+    // tagged with this, since snoozing a re-schedule trigger wouldn't
+    // mean anything (there's no recipient/message to delay).
+    static let scheduledMessageCategory = "SCHEDULED_MESSAGE"
+
     private override init() {
         super.init()
         // Become the delegate so we get notified when the user taps
         // (or a notification arrives while the app is foregrounded).
         UNUserNotificationCenter.current().delegate = self
+        // Register the snooze actions once so every notification
+        // tagged with scheduledMessageCategory shows them.
+        registerNotificationCategories()
         // Request notification permission on init.
         requestPermission()
+    }
+
+    // ── Register notification categories/actions ──────────────────
+    // "Snooze 15 min" / "Snooze 1 hour" appear on any notification
+    // whose content.categoryIdentifier is scheduledMessageCategory
+    // (see scheduleNotification below).
+    private func registerNotificationCategories() {
+        let snooze15 = UNNotificationAction(
+            identifier: SnoozeDuration.snooze15ActionIdentifier,
+            title: "Snooze 15 min",
+            options: []
+        )
+        let snooze60 = UNNotificationAction(
+            identifier: SnoozeDuration.snooze60ActionIdentifier,
+            title: "Snooze 1 hour",
+            options: []
+        )
+        let category = UNNotificationCategory(
+            identifier: NotificationManager.scheduledMessageCategory,
+            actions: [snooze15, snooze60],
+            intentIdentifiers: [],
+            options: []
+        )
+        UNUserNotificationCenter.current().setNotificationCategories([category])
     }
 
     // ── Tap callback (feeds the send-log "opened" status) ─────────
@@ -84,6 +117,10 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         ]
         if let id = id {
             userInfo["id"] = id.uuidString
+            // Only real send-time notifications (the ones with an id
+            // tying them to a SentLogEntry) get snooze actions — the
+            // "wake up" re-schedule trigger has nothing to delay.
+            content.categoryIdentifier = NotificationManager.scheduledMessageCategory
         }
         content.userInfo = userInfo
 
@@ -154,6 +191,17 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
+        // ── Snooze actions ("Snooze 15 min" / "Snooze 1 hour") ──────
+        // These reschedule the notification instead of opening
+        // Messages — the underlying SentLogEntry stays "pending", so
+        // this genuinely delays the send (see SnoozeCalculator.swift
+        // and Feature A notes in the task for the full rationale).
+        if let duration = SnoozeDuration(actionIdentifier: response.actionIdentifier) {
+            handleSnooze(response: response, duration: duration)
+            completionHandler()
+            return
+        }
+
         let userInfo = response.notification.request.content.userInfo
         if let recipient = userInfo["recipient"] as? String,
            let message = userInfo["message"] as? String,
@@ -165,6 +213,35 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
             }
         }
         completionHandler()
+    }
+
+    // ── Handle a snooze action ─────────────────────────────────────
+    // Reads the original notification's delivery date + userInfo,
+    // computes the new fire date, removes the now-delivered
+    // notification, and schedules a fresh one at the new time with
+    // the same recipient/message/id (so it re-flips the same log
+    // entry to "opened" whenever the user finally taps it, and can be
+    // snoozed again since it's tagged with the same category).
+    private func handleSnooze(response: UNNotificationResponse, duration: SnoozeDuration) {
+        let request = response.notification.request
+        let userInfo = request.content.userInfo
+        guard let recipient = userInfo["recipient"] as? String,
+              let message = userInfo["message"] as? String else { return }
+
+        let id: UUID? = (userInfo["id"] as? String).flatMap { UUID(uuidString: $0) }
+
+        // `response.notification.date` is the actual delivery
+        // (fire) date of the notification that was just acted on.
+        let originalFireDate = response.notification.date
+        let newFireDate = SnoozeCalculator.newFireDate(from: originalFireDate, snoozing: duration)
+
+        // The delivered notification is gone once acted on, but
+        // removing it from the delivered list keeps Notification
+        // Center tidy.
+        UNUserNotificationCenter.current()
+            .removeDeliveredNotifications(withIdentifiers: [request.identifier])
+
+        scheduleNotification(at: newFireDate, message: message, recipient: recipient, id: id)
     }
 
     // Called when a notification would fire while the app is already

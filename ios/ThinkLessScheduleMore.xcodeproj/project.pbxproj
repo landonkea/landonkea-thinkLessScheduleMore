@@ -8,9 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		035519680195C4F91EEF3B52 /* NextSendSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B951C5A2DDF4D3DEC387D9 /* NextSendSnapshot.swift */; };
+		08A4ACA8AAE098CCF9A2FD84 /* Contacts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 515C84EDB0AA3A18D785D359 /* Contacts.framework */; };
 		39F70C9AA3AF31547147421F /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21328EBACA5A6D97CB46F79B /* NotificationManager.swift */; };
 		3F1CFFA20F8776EE9E97A4EE /* MessageStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D22253C23BD27C56B9D950 /* MessageStoreTests.swift */; };
 		42DCA28511773517EAD1BD83 /* StatsCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAB0B1F2A998C849425E901 /* StatsCalculator.swift */; };
+		491B42D237FDFE10F8DD59CA /* ContactPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D72FE61A8ED74BD71EB1CE70 /* ContactPickerView.swift */; };
 		55681DCB6C3F79B64FA54FF7 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C352F4412D6D158E316C991 /* WidgetKit.framework */; };
 		58DBE3694B579676BDB54BFF /* MessageTemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4493E8BDADC5E35793632430 /* MessageTemplateTests.swift */; };
 		593C83F255E7776F04BE8096 /* ThinkLessScheduleMoreApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDBCF313FC827D7DB3D184 /* ThinkLessScheduleMoreApp.swift */; };
@@ -18,8 +20,11 @@
 		63483AE453B88504EC692D61 /* MessageSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873CF535E1E034991C9E0647 /* MessageSelector.swift */; };
 		63D7DF97B97FA0E1092A901E /* MessageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 256C7A4160D2A9A5B0ECC173 /* MessageStore.swift */; };
 		64CB6F1205433850B2406CEA /* ThinkLessScheduleMoreWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 236A5E7B1DF80A5AC1A69D8B /* ThinkLessScheduleMoreWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6D7004CBA2A8831D6A9EA058 /* RecurringMessageMatcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F40E10234ED82C3C2CD0F26 /* RecurringMessageMatcherTests.swift */; };
 		703FC6AD3615E7E2CDCBCC5C /* NextSendSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B951C5A2DDF4D3DEC387D9 /* NextSendSnapshot.swift */; };
 		805FB991F15D019A9CFD8CBA /* MessageTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5DBDABDCAF6B312B571F2FA /* MessageTemplate.swift */; };
+		8201DA88AAD6B438678064B9 /* SnoozeCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 481C3B1F4CE1675728668628 /* SnoozeCalculator.swift */; };
+		8DBC3C96C993355F8E923E6E /* RecurringMessageMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 716764462AB555D31CB7A5FB /* RecurringMessageMatcher.swift */; };
 		8E249E641CD3B1D4BA032607 /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47D9D54AE31C87ADBEE00D78 /* StatsView.swift */; };
 		919A57AD10507B661C8099A4 /* ThinkLessScheduleMoreWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4F06BC09BCE1DD913ABEDF9 /* ThinkLessScheduleMoreWidgetBundle.swift */; };
 		9368A97947B901B87763B36F /* NextSendProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3ECE49A636B0525AD969DE /* NextSendProvider.swift */; };
@@ -28,14 +33,17 @@
 		A0C9E123F707BEC2BBE1DD22 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C352F4412D6D158E316C991 /* WidgetKit.framework */; };
 		AB068D78D9AFBA187FB05F59 /* NotificationManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56848A3D33F9BCDBDC7559BE /* NotificationManagerTests.swift */; };
 		B3B35DBD32C165FE71AE3354 /* MessageEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FDD4975D0B2F7545DEDC7E3 /* MessageEditorView.swift */; };
+		B76B57D2F7217800ECE2B7C4 /* SnoozeCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45F1528074812963E4DC538D /* SnoozeCalculatorTests.swift */; };
 		B8131142DD03542AACD49EC8 /* SchedulerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B438A15633DC71EB8491C31B /* SchedulerManager.swift */; };
 		C18907142DAACC7A45C1C128 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F850F00693AF0CD9A277BC3 /* UserNotifications.framework */; };
 		CD003CDA6C3BF1E74C80FBF1 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF65479E50FF0C3328EBB561 /* SwiftUI.framework */; };
+		D3E659A7F3E4741E8E5F739A /* RecurringMessageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 743F62948D742A626C347F27 /* RecurringMessageStore.swift */; };
 		DC05FBB357AFA878C60A0DEC /* NextSendFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7113A1C5F2FC64EA206E9FBC /* NextSendFormatterTests.swift */; };
 		E7E77895BE548A24EECA99D4 /* NextSendFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43C94319F7CF01C36B8F1530 /* NextSendFormatter.swift */; };
 		E8FA5DE39C502772BAC5EBB1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A74DAC170A8576A75CA024 /* ContentView.swift */; };
 		F0CBF1D2B1C720A833BCE1C4 /* NextSendWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB9C36EE009CA94A8B44AFF /* NextSendWidget.swift */; };
 		FA78B327CE7CA4C9292D7A26 /* StatsCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D926501E1DBA7C87A762C597 /* StatsCalculatorTests.swift */; };
+		FB1516F8BAC4DFDD45E05830 /* ContactsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 491DDE5CFCCC2C252B8B68D9 /* ContactsUI.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -80,11 +88,18 @@
 		3C3ECE49A636B0525AD969DE /* NextSendProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextSendProvider.swift; sourceTree = "<group>"; };
 		43C94319F7CF01C36B8F1530 /* NextSendFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextSendFormatter.swift; sourceTree = "<group>"; };
 		4493E8BDADC5E35793632430 /* MessageTemplateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageTemplateTests.swift; sourceTree = "<group>"; };
+		45F1528074812963E4DC538D /* SnoozeCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnoozeCalculatorTests.swift; sourceTree = "<group>"; };
 		47D9D54AE31C87ADBEE00D78 /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
+		481C3B1F4CE1675728668628 /* SnoozeCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnoozeCalculator.swift; sourceTree = "<group>"; };
+		491DDE5CFCCC2C252B8B68D9 /* ContactsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ContactsUI.framework; path = System/Library/Frameworks/ContactsUI.framework; sourceTree = SDKROOT; };
 		4FDD4975D0B2F7545DEDC7E3 /* MessageEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageEditorView.swift; sourceTree = "<group>"; };
+		515C84EDB0AA3A18D785D359 /* Contacts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Contacts.framework; path = System/Library/Frameworks/Contacts.framework; sourceTree = SDKROOT; };
 		56848A3D33F9BCDBDC7559BE /* NotificationManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManagerTests.swift; sourceTree = "<group>"; };
 		7113A1C5F2FC64EA206E9FBC /* NextSendFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextSendFormatterTests.swift; sourceTree = "<group>"; };
+		716764462AB555D31CB7A5FB /* RecurringMessageMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecurringMessageMatcher.swift; sourceTree = "<group>"; };
+		743F62948D742A626C347F27 /* RecurringMessageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecurringMessageStore.swift; sourceTree = "<group>"; };
 		7AC544E8386BA1F92EB8098B /* ThinkLessScheduleMore.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ThinkLessScheduleMore.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7F40E10234ED82C3C2CD0F26 /* RecurringMessageMatcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecurringMessageMatcherTests.swift; sourceTree = "<group>"; };
 		873CF535E1E034991C9E0647 /* MessageSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageSelector.swift; sourceTree = "<group>"; };
 		9AE36A776B535BB3B20697C3 /* ThinkLessScheduleMoreWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ThinkLessScheduleMoreWidget.entitlements; sourceTree = "<group>"; };
 		9D9E8F7DC7C06739799FAE01 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -96,6 +111,7 @@
 		BF65479E50FF0C3328EBB561 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		D3D22253C23BD27C56B9D950 /* MessageStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageStoreTests.swift; sourceTree = "<group>"; };
 		D4F06BC09BCE1DD913ABEDF9 /* ThinkLessScheduleMoreWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThinkLessScheduleMoreWidgetBundle.swift; sourceTree = "<group>"; };
+		D72FE61A8ED74BD71EB1CE70 /* ContactPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactPickerView.swift; sourceTree = "<group>"; };
 		D926501E1DBA7C87A762C597 /* StatsCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsCalculatorTests.swift; sourceTree = "<group>"; };
 		E4A74DAC170A8576A75CA024 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		E796D866907F68D75CE5B565 /* ThinkLessScheduleMoreTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ThinkLessScheduleMoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -120,6 +136,8 @@
 			files = (
 				C18907142DAACC7A45C1C128 /* UserNotifications.framework in Frameworks */,
 				A0C9E123F707BEC2BBE1DD22 /* WidgetKit.framework in Frameworks */,
+				08A4ACA8AAE098CCF9A2FD84 /* Contacts.framework in Frameworks */,
+				FB1516F8BAC4DFDD45E05830 /* ContactsUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -134,6 +152,8 @@
 				4493E8BDADC5E35793632430 /* MessageTemplateTests.swift */,
 				7113A1C5F2FC64EA206E9FBC /* NextSendFormatterTests.swift */,
 				56848A3D33F9BCDBDC7559BE /* NotificationManagerTests.swift */,
+				7F40E10234ED82C3C2CD0F26 /* RecurringMessageMatcherTests.swift */,
+				45F1528074812963E4DC538D /* SnoozeCalculatorTests.swift */,
 				D926501E1DBA7C87A762C597 /* StatsCalculatorTests.swift */,
 			);
 			path = ThinkLessScheduleMoreTests;
@@ -163,6 +183,8 @@
 		5CF5183A41F29F949111DEE7 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				515C84EDB0AA3A18D785D359 /* Contacts.framework */,
+				491DDE5CFCCC2C252B8B68D9 /* ContactsUI.framework */,
 				BF65479E50FF0C3328EBB561 /* SwiftUI.framework */,
 				9F850F00693AF0CD9A277BC3 /* UserNotifications.framework */,
 				1C352F4412D6D158E316C991 /* WidgetKit.framework */,
@@ -183,6 +205,7 @@
 		B734B14606C881F9871454AF /* ThinkLessScheduleMore */ = {
 			isa = PBXGroup;
 			children = (
+				D72FE61A8ED74BD71EB1CE70 /* ContactPickerView.swift */,
 				E4A74DAC170A8576A75CA024 /* ContentView.swift */,
 				9D9E8F7DC7C06739799FAE01 /* Info.plist */,
 				4FDD4975D0B2F7545DEDC7E3 /* MessageEditorView.swift */,
@@ -190,8 +213,11 @@
 				256C7A4160D2A9A5B0ECC173 /* MessageStore.swift */,
 				F5DBDABDCAF6B312B571F2FA /* MessageTemplate.swift */,
 				21328EBACA5A6D97CB46F79B /* NotificationManager.swift */,
+				716764462AB555D31CB7A5FB /* RecurringMessageMatcher.swift */,
+				743F62948D742A626C347F27 /* RecurringMessageStore.swift */,
 				B438A15633DC71EB8491C31B /* SchedulerManager.swift */,
 				B8859813CA7157B843F20938 /* SentLogEntry.swift */,
+				481C3B1F4CE1675728668628 /* SnoozeCalculator.swift */,
 				2EAB0B1F2A998C849425E901 /* StatsCalculator.swift */,
 				47D9D54AE31C87ADBEE00D78 /* StatsView.swift */,
 				1B9A78AE9CB09B5BA6E4DED7 /* ThinkLessScheduleMore.entitlements */,
@@ -314,6 +340,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				491B42D237FDFE10F8DD59CA /* ContactPickerView.swift in Sources */,
 				E8FA5DE39C502772BAC5EBB1 /* ContentView.swift in Sources */,
 				B3B35DBD32C165FE71AE3354 /* MessageEditorView.swift in Sources */,
 				63483AE453B88504EC692D61 /* MessageSelector.swift in Sources */,
@@ -322,8 +349,11 @@
 				9D840A474768596033DE5C92 /* NextSendFormatter.swift in Sources */,
 				703FC6AD3615E7E2CDCBCC5C /* NextSendSnapshot.swift in Sources */,
 				39F70C9AA3AF31547147421F /* NotificationManager.swift in Sources */,
+				8DBC3C96C993355F8E923E6E /* RecurringMessageMatcher.swift in Sources */,
+				D3E659A7F3E4741E8E5F739A /* RecurringMessageStore.swift in Sources */,
 				B8131142DD03542AACD49EC8 /* SchedulerManager.swift in Sources */,
 				5AFDE4841593394C58C61538 /* SentLogEntry.swift in Sources */,
+				8201DA88AAD6B438678064B9 /* SnoozeCalculator.swift in Sources */,
 				42DCA28511773517EAD1BD83 /* StatsCalculator.swift in Sources */,
 				8E249E641CD3B1D4BA032607 /* StatsView.swift in Sources */,
 				593C83F255E7776F04BE8096 /* ThinkLessScheduleMoreApp.swift in Sources */,
@@ -339,6 +369,8 @@
 				58DBE3694B579676BDB54BFF /* MessageTemplateTests.swift in Sources */,
 				DC05FBB357AFA878C60A0DEC /* NextSendFormatterTests.swift in Sources */,
 				AB068D78D9AFBA187FB05F59 /* NotificationManagerTests.swift in Sources */,
+				6D7004CBA2A8831D6A9EA058 /* RecurringMessageMatcherTests.swift in Sources */,
+				B76B57D2F7217800ECE2B7C4 /* SnoozeCalculatorTests.swift in Sources */,
 				FA78B327CE7CA4C9292D7A26 /* StatsCalculatorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -90,19 +90,19 @@ class MessageStoreTest {
 
     @Test
     fun `sent log entries containing pipes round-trip intact`() {
-        store.addToSentLog(1000L, "sent", "Call me | text me ||| whichever")
+        store.addToSentLog(1000L, SendStatus.SENT, "Call me | text me ||| whichever")
 
         val log = store.getSentLog()
         assertEquals(1, log.size)
         assertEquals("Call me | text me ||| whichever", log[0].message)
-        assertEquals("sent", log[0].status)
+        assertEquals(SendStatus.SENT, log[0].status)
         assertEquals(1000L, log[0].timestamp)
     }
 
     @Test
     fun `sent log keeps newest entries first`() {
-        store.addToSentLog(1000L, "sent", "older")
-        store.addToSentLog(2000L, "sent", "newer")
+        store.addToSentLog(1000L, SendStatus.SENT, "older")
+        store.addToSentLog(2000L, SendStatus.SENT, "newer")
 
         val log = store.getSentLog()
         assertEquals("newer", log[0].message)
@@ -111,7 +111,7 @@ class MessageStoreTest {
 
     @Test
     fun `failed entries preserve the error message`() {
-        store.addToSentLog(1000L, "failed", "hi", "SecurityException: no SMS permission")
+        store.addToSentLog(1000L, SendStatus.FAILED, "hi", "SecurityException: no SMS permission")
 
         assertEquals("SecurityException: no SMS permission", store.getSentLog()[0].error)
     }

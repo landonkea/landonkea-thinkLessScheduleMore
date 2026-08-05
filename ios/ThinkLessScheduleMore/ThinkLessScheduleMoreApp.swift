@@ -22,12 +22,18 @@ struct ThinkLessScheduleMoreApp: App {
     // single source of truth for all data.
     @StateObject private var store = MessageStore()
 
+    // Second, independent store for date-based recurring messages
+    // (birthdays/anniversaries) — additive to `store`'s random-pool
+    // schedule, not a replacement. See RecurringMessageStore.swift.
+    @StateObject private var recurringStore = RecurringMessageStore()
+
     var body: some Scene {
         WindowGroup {
             // The main screen.  We pass the store as an
             // environment object so every child view can access it.
             ContentView()
                 .environmentObject(store)
+                .environmentObject(recurringStore)
         }
     }
 }

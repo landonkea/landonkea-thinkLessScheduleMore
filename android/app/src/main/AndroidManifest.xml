@@ -36,6 +36,12 @@
          so scheduling survives a device restart (see BootReceiver). -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
+    <!-- READ_CONTACTS: lets the "Pick Contact" button in MainActivity
+         read the selected contact's phone number/name from the
+         system Contacts provider. Falls back gracefully to manual
+         entry if denied — see MainActivity's contact picker section. -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
     <!-- ── The app itself ──────────────────────────────────────
          `label` = the app name shown under the icon.
          `icon` = the launcher icon (default Android icon).       -->

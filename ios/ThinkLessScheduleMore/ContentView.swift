@@ -22,6 +22,13 @@ struct ContentView: View {
     // `@EnvironmentObject` reads the store passed in by the App struct.
     @EnvironmentObject var store: MessageStore
 
+    // ── Date-based recurring messages (birthdays/anniversaries) ────
+    // Additive to `store`'s pool schedule — see RecurringMessageStore.
+    @EnvironmentObject var recurringStore: RecurringMessageStore
+
+    // ── State for the contact picker sheet ─────────────────────────
+    @State private var showContactPicker = false
+
     // ── State for the add/edit message sheet ──────────────────────
     // `editingIndex == nil` means "adding a new message"; otherwise
     // it's the index of the message being edited.
@@ -49,6 +56,16 @@ struct ContentView: View {
                     TextField("Phone number (e.g. +14155551234)",
                               text: $store.recipientNumber)
                         .keyboardType(.phonePad)
+
+                    // Alternative to typing the number by hand — picks a
+                    // single contact via the system contact picker. Manual
+                    // entry above always stays available as a fallback
+                    // (e.g. Contacts access denied/restricted).
+                    Button {
+                        showContactPicker = true
+                    } label: {
+                        Label("Pick Contact", systemImage: "person.crop.circle.badge.plus")
+                    }
 
                     if !store.recipientNumber.isEmpty &&
                         !MessageStore.isValidPhoneNumber(store.recipientNumber) {
@@ -199,7 +216,7 @@ struct ContentView: View {
 
                 // Initialize the scheduler when the view appears.
                 if scheduler == nil {
-                    scheduler = SchedulerManager(store: store)
+                    scheduler = SchedulerManager(store: store, recurringStore: recurringStore)
                     // If scheduling was already enabled from a previous
                     // session, re-run it now so "Next message" reflects
                     // reality instead of showing stale/empty state.
@@ -225,6 +242,15 @@ struct ContentView: View {
                         text: ""
                     ) { newText in
                         store.addMessage(newText)
+                    }
+                }
+            }
+            // ── Sheet for picking a contact (falls back to manual entry — see ContactPickerView.swift) ──
+            .sheet(isPresented: $showContactPicker) {
+                ContactPickerView { phoneNumber, name in
+                    store.recipientNumber = phoneNumber
+                    if let name = name, !name.isEmpty {
+                        store.recipientName = name
                     }
                 }
             }

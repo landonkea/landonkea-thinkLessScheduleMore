@@ -24,13 +24,20 @@ import android.content.Context
 import android.content.SharedPreferences
 import org.json.JSONArray
 import org.json.JSONObject
+import java.util.UUID
 
 // ── A single send-log entry ─────────────────────────────────────────
+// `id` identifies this specific send attempt so SchedulerService's
+// delivery-confirmation BroadcastReceivers (see Feature A / SendStatus)
+// can find and update the right entry once SmsManager calls back.
+// Defaults to a fresh UUID so existing call sites that only cared
+// about timestamp/status/message keep compiling unchanged.
 data class SentLogEntry(
     val timestamp: Long,
-    val status: String,   // "sent", "failed", or "pending"
+    val status: SendStatus,
     val message: String,
-    val error: String? = null
+    val error: String? = null,
+    val id: String = UUID.randomUUID().toString()
 )
 
 // ── MessageStore ──────────────────────────────────────────────────
@@ -168,11 +175,18 @@ class MessageStore(private val context: Context) {
             val arr = JSONArray(raw)
             return List(arr.length()) { i ->
                 val obj = arr.getJSONObject(i)
+                val timestamp = obj.getLong("timestamp")
                 SentLogEntry(
-                    timestamp = obj.getLong("timestamp"),
-                    status = obj.getString("status"),
+                    timestamp = timestamp,
+                    // Tolerant of legacy raw strings ("sent"/"failed"/"pending")
+                    // already on disk from before SendStatus existed.
+                    status = SendStatus.fromRaw(obj.getString("status")),
                     message = obj.getString("message"),
-                    error = if (obj.has("error") && !obj.isNull("error")) obj.getString("error") else null
+                    error = if (obj.has("error") && !obj.isNull("error")) obj.getString("error") else null,
+                    // Old entries predate the id field — fall back to the
+                    // timestamp so it's at least stable/deterministic rather
+                    // than a fresh random id on every read.
+                    id = if (obj.has("id") && !obj.isNull("id")) obj.getString("id") else timestamp.toString()
                 )
             }
         } catch (e: Exception) {
@@ -180,28 +194,56 @@ class MessageStore(private val context: Context) {
             return raw.split(LEGACY_DELIMITER).mapNotNull { entry ->
                 val parts = entry.split("|")
                 if (parts.size >= 3) {
+                    val timestamp = parts[0].toLongOrNull() ?: 0L
                     SentLogEntry(
-                        timestamp = parts[0].toLongOrNull() ?: 0L,
-                        status = parts[1],
+                        timestamp = timestamp,
+                        status = SendStatus.fromRaw(parts[1]),
                         message = parts[2],
-                        error = parts.getOrNull(3)
+                        error = parts.getOrNull(3),
+                        id = timestamp.toString()
                     )
                 } else null
             }
         }
     }
 
-    fun addToSentLog(timestamp: Long, status: String, message: String, error: String? = null) {
+    // Adds a new entry (newest-first, capped at 50) and returns its id —
+    // callers (SchedulerService) use that id later to update the entry's
+    // status once SmsManager's delivery-confirmation callbacks fire.
+    fun addToSentLog(
+        timestamp: Long,
+        status: SendStatus,
+        message: String,
+        error: String? = null,
+        id: String = UUID.randomUUID().toString()
+    ): String {
         val current = getSentLog().toMutableList()
-        current.add(0, SentLogEntry(timestamp, status, message, error))  // Newest first
+        current.add(0, SentLogEntry(timestamp, status, message, error, id))  // Newest first
         if (current.size > 50) {
             current.removeAt(current.lastIndex)
         }
+        saveSentLog(current)
+        return id
+    }
+
+    // Looks up a log entry by id and updates its status (and, optionally,
+    // its error message) in place. No-op if the id isn't found — e.g. the
+    // entry aged out of the 50-entry cap before the callback arrived.
+    fun updateLogEntryStatus(id: String, status: SendStatus, error: String? = null) {
+        val current = getSentLog().toMutableList()
+        val index = current.indexOfFirst { it.id == id }
+        if (index == -1) return
+        current[index] = current[index].copy(status = status, error = error ?: current[index].error)
+        saveSentLog(current)
+    }
+
+    private fun saveSentLog(entries: List<SentLogEntry>) {
         val arr = JSONArray()
-        current.forEach { entry ->
+        entries.forEach { entry ->
             val obj = JSONObject()
+            obj.put("id", entry.id)
             obj.put("timestamp", entry.timestamp)
-            obj.put("status", entry.status)
+            obj.put("status", entry.status.raw)
             obj.put("message", entry.message)
             if (entry.error != null) obj.put("error", entry.error)
             arr.put(obj)

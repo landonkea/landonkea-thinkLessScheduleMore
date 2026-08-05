@@ -23,14 +23,19 @@ package com.landonkea.thinklessschedulemore
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.telephony.SmsManager
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import kotlin.random.Random
 
 class SchedulerService : Service() {
@@ -43,8 +48,45 @@ class SchedulerService : Service() {
     // The Runnable that triggers the next SMS send.
     private lateinit var sendRunnable: Runnable
 
-    // Our data store.
+    // Our data stores.
     private lateinit var store: MessageStore
+    private lateinit var recurringStore: RecurringMessageStore
+
+    // Whether the delivery-confirmation receiver (see below) is currently
+    // registered, so onDestroy doesn't try to unregister twice (or a
+    // never-registered receiver) if onStartCommand never got that far.
+    private var receiverRegistered = false
+
+    // ── Delivery-confirmation BroadcastReceiver ─────────────────────
+    // sendSms() passes PendingIntents (carrying custom actions below) as
+    // SmsManager's sentIntent/deliveryIntent. When Android fires those
+    // intents back at us, this receiver reads the system-assigned
+    // resultCode (RESULT_OK or one of SmsManager's RESULT_ERROR_* codes),
+    // maps it to a SendStatus via SmsResultMapper, and updates the
+    // matching log entry (found by the id we stashed as an intent extra).
+    private val smsResultReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val id = intent.getStringExtra(EXTRA_LOG_ID) ?: return
+            when (intent.action) {
+                ACTION_SMS_SENT -> {
+                    val status = SmsResultMapper.mapSentResult(resultCode)
+                    val error = if (status == SendStatus.FAILED) "SMS send failed (resultCode=$resultCode)" else null
+                    store.updateLogEntryStatus(id, status, error)
+                }
+                ACTION_SMS_DELIVERED -> {
+                    val status = SmsResultMapper.mapDeliveredResult(resultCode)
+                    // Only DELIVERED is meaningful here — some carriers never
+                    // send a delivery report at all, which isn't a failure,
+                    // it just means the entry stays at whatever mapSentResult
+                    // already set it to (SENT). Don't downgrade a confirmed
+                    // SENT to FAILED just because delivery wasn't confirmed.
+                    if (status == SendStatus.DELIVERED) {
+                        store.updateLogEntryStatus(id, SendStatus.DELIVERED)
+                    }
+                }
+            }
+        }
+    }
 
     // ── Service lifecycle ─────────────────────────────────────────
 
@@ -59,18 +101,75 @@ class SchedulerService : Service() {
     // to call repeatedly — there is always at most one active chain.
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         store = MessageStore(this)
+        recurringStore = RecurringMessageStore(this)
 
         // Show the persistent notification (required for foreground).
         startForeground(NOTIFICATION_ID, createNotification())
 
+        registerSmsResultReceiver()
+
         // Cancel any timer already in flight before starting a new chain.
         handler.removeCallbacksAndMessages(null)
+
+        // Check today's recurring (birthday/anniversary-style) messages
+        // once per onStartCommand — this runs whenever the service (re)starts
+        // (enabled from the UI, boot, process restart). The per-id
+        // last-fired-date guard in RecurringMessageStore makes repeated
+        // calls on the same day safe, so it's fine that this can run more
+        // than once in a given day.
+        sendDueRecurringMessages()
 
         // Start the scheduling loop.
         scheduleNext()
 
         // If Android kills the service, restart it automatically.
         return START_STICKY
+    }
+
+    // ── Register the dynamic BroadcastReceiver for SMS callbacks ────
+    private fun registerSmsResultReceiver() {
+        if (receiverRegistered) return
+        val filter = IntentFilter().apply {
+            addAction(ACTION_SMS_SENT)
+            addAction(ACTION_SMS_DELIVERED)
+        }
+        // Android 13+ (API 33) requires an explicit exported flag when
+        // dynamically registering a receiver. This receiver only reacts to
+        // our own PendingIntent callbacks, so RECEIVER_NOT_EXPORTED is the
+        // correct/safe choice (nothing outside this app should trigger it).
+        ContextCompat.registerReceiver(this, smsResultReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
+        receiverRegistered = true
+    }
+
+    // ── Recurring (yearly date-based) messages ───────────────────────
+    // Additive to the normal random-pool schedule: guaranteed to send on
+    // their date regardless of whether/when the pool schedule fires today.
+    private fun sendDueRecurringMessages() {
+        val entries = recurringStore.getRecurringMessages()
+        if (entries.isEmpty()) return
+
+        val cal = java.util.Calendar.getInstance()
+        val todayMonth = cal.get(java.util.Calendar.MONTH) + 1  // Calendar.MONTH is 0-based
+        val todayDay = cal.get(java.util.Calendar.DAY_OF_MONTH)
+        val isLeapYear = (cal as java.util.GregorianCalendar).isLeapYear(cal.get(java.util.Calendar.YEAR))
+        val todayKey = TODAY_KEY_FORMAT.format(cal.time)
+
+        val dueToday = RecurringMessageMatcher.matchesToday(entries, todayMonth, todayDay, isLeapYear)
+        for (entry in dueToday) {
+            if (recurringStore.getLastFiredDateKey(entry.id) == todayKey) {
+                // Already sent today — the guard against duplicate sends
+                // when onStartCommand runs more than once in a day.
+                continue
+            }
+
+            val recipient = store.getRecipient()
+            if (recipient.isEmpty()) continue
+
+            val sendHour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+            val rendered = MessageTemplate.render(entry.message, store.getRecipientName(), sendHour)
+            sendSms(recipient, rendered)
+            recurringStore.setLastFiredDateKey(entry.id, todayKey)
+        }
     }
 
     // ── The scheduling loop ───────────────────────────────────────
@@ -122,11 +221,8 @@ class SchedulerService : Service() {
             val sendHour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
             val rendered = MessageTemplate.render(template, store.getRecipientName(), sendHour)
 
-            // Send the SMS.
+            // Send the SMS (this also logs it — see sendSms).
             sendSms(store.getRecipient(), rendered)
-
-            // Log it (the rendered text — what actually went out).
-            store.addToSentLog(System.currentTimeMillis(), "sent", rendered)
 
             // Pick the NEXT random time and wait again.
             // This creates the loop: send → wait → send → wait...
@@ -196,19 +292,50 @@ class SchedulerService : Service() {
     }
 
     // ── Send the actual SMS ───────────────────────────────────────
+    // Logs a PENDING entry first (we don't yet know if it actually sent),
+    // then wires SmsManager's sentIntent/deliveryIntent PendingIntents to
+    // smsResultReceiver (see above) so the entry gets flipped to
+    // SENT/FAILED/DELIVERED once Android calls back. If sendTextMessage
+    // throws synchronously (e.g. missing permission), we flip the same
+    // entry straight to FAILED rather than logging a second entry.
     private fun sendSms(recipient: String, message: String) {
+        val logId = store.addToSentLog(System.currentTimeMillis(), SendStatus.PENDING, message)
         try {
             val smsManager = getSystemService(SmsManager::class.java)
+
+            val sentIntent = PendingIntent.getBroadcast(
+                this,
+                logId.hashCode(),
+                Intent(ACTION_SMS_SENT).apply {
+                    setPackage(packageName)
+                    putExtra(EXTRA_LOG_ID, logId)
+                },
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            val deliveryIntent = PendingIntent.getBroadcast(
+                this,
+                // Distinct request code from sentIntent so the two
+                // PendingIntents don't collide/overwrite each other.
+                (logId + "_delivered").hashCode(),
+                Intent(ACTION_SMS_DELIVERED).apply {
+                    setPackage(packageName)
+                    putExtra(EXTRA_LOG_ID, logId)
+                },
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
             smsManager.sendTextMessage(
-                recipient,   // To: the recipient's number
-                null,        // From: null = use default SIM
-                message,     // The message text
-                null,        // sentIntent: null = no callback
-                null         // deliveryIntent: null = no callback
+                recipient,     // To: the recipient's number
+                null,          // From: null = use default SIM
+                message,       // The message text
+                sentIntent,    // sentIntent: fires when the SMS leaves the device
+                deliveryIntent // deliveryIntent: fires on carrier delivery confirmation (if supported)
             )
         } catch (e: Exception) {
-            // Log the failure but don't crash the service.
-            store.addToSentLog(System.currentTimeMillis(), "failed", message, e.message)
+            // Synchronous failure (e.g. SecurityException from a missing
+            // permission) — flip the entry we already logged rather than
+            // creating a duplicate one.
+            store.updateLogEntryStatus(logId, SendStatus.FAILED, e.message)
         }
     }
 
@@ -240,6 +367,10 @@ class SchedulerService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacksAndMessages(null)  // Cancel all pending timers
+        if (receiverRegistered) {
+            unregisterReceiver(smsResultReceiver)
+            receiverRegistered = false
+        }
         store.clearNextSendTime()
     }
 
@@ -247,5 +378,13 @@ class SchedulerService : Service() {
     companion object {
         private const val NOTIFICATION_ID = 1001
         private const val CHANNEL_ID = "sms_scheduler_channel"
+
+        // Custom broadcast actions for the sentIntent/deliveryIntent
+        // PendingIntents passed to SmsManager.sendTextMessage.
+        private const val ACTION_SMS_SENT = "com.landonkea.thinklessschedulemore.SMS_SENT"
+        private const val ACTION_SMS_DELIVERED = "com.landonkea.thinklessschedulemore.SMS_DELIVERED"
+        private const val EXTRA_LOG_ID = "log_id"
+
+        private val TODAY_KEY_FORMAT = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
     }
 }

@@ -17,8 +17,10 @@ package com.landonkea.thinklessschedulemore
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.Button
@@ -29,6 +31,7 @@ import android.widget.SeekBar
 import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -36,8 +39,9 @@ import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
 
-    // ── Our data store ────────────────────────────────────────────
+    // ── Our data stores ───────────────────────────────────────────
     private lateinit var store: MessageStore
+    private lateinit var recurringStore: RecurringMessageStore
 
     // ── UI references (so we can update them when data changes) ───
     private lateinit var messageListText: TextView
@@ -54,6 +58,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var intervalLabel: TextView
     private lateinit var intervalSeek: SeekBar
     private lateinit var nextSendLabel: TextView
+    private lateinit var recurringListText: TextView
+
+    // ── Contact picker plumbing ─────────────────────────────────────
+    // Two-step flow: request READ_CONTACTS (if not already granted),
+    // then — only on grant — launch the system contact picker. Both
+    // are registered as activity-result launchers up front (required
+    // before onStart), not created lazily on click.
+    private lateinit var pickContactLauncher: androidx.activity.result.ActivityResultLauncher<Intent>
+    private lateinit var requestContactsPermissionLauncher: androidx.activity.result.ActivityResultLauncher<String>
 
     // ── Runtime permission request codes ─────────────────────────
     companion object {
@@ -72,6 +85,34 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         store = MessageStore(this)
+        recurringStore = RecurringMessageStore(this)
+
+        // ── Contact picker launchers ──────────────────────────────
+        // Must be registered unconditionally in onCreate (before the
+        // activity reaches STARTED) — registering lazily inside a click
+        // handler would throw.
+        pickContactLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                result.data?.data?.let { contactUri -> loadPickedContact(contactUri) }
+            }
+        }
+        requestContactsPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { granted ->
+            if (granted) {
+                launchContactPicker()
+            } else {
+                // Graceful fallback — the manual EditText still works fine,
+                // so just let the user know instead of crashing/looping.
+                Toast.makeText(
+                    this,
+                    "Contacts permission denied — you can still type the number manually",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
 
         // ── Request dangerous permissions at runtime ─────────────
         // On Android 6+ (API 23+), SEND_SMS is a "dangerous" permission.
@@ -104,6 +145,23 @@ class MainActivity : AppCompatActivity() {
             setText(store.getRecipient())
         }
         root.addView(recipientInput)
+
+        // ── Pick from Contacts — an alternative to typing the number
+        // by hand. Requests READ_CONTACTS at runtime (if not already
+        // granted) before launching the system contact picker; denial
+        // just falls back to the manual EditText above, no crash.
+        root.addView(Button(this).apply {
+            text = "📇 Pick Contact"
+            setOnClickListener {
+                if (ContextCompat.checkSelfPermission(this@MainActivity, android.Manifest.permission.READ_CONTACTS)
+                    == PackageManager.PERMISSION_GRANTED
+                ) {
+                    launchContactPicker()
+                } else {
+                    requestContactsPermissionLauncher.launch(android.Manifest.permission.READ_CONTACTS)
+                }
+            }
+        })
 
         // ── Recipient display name — feeds the {name} template
         // placeholder (see MessageTemplate). Purely cosmetic: the
@@ -302,6 +360,38 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+        // ── Section: Recurring Messages ─────────────────────────
+        // Yearly date-based messages (birthdays, anniversaries, etc.)
+        // — additive to the random message pool above. See
+        // RecurringMessageStore/RecurringMessageMatcher/SchedulerService.
+        root.addView(TextView(this).apply {
+            text = "\n🎂 Recurring Messages"
+            textSize = 18f
+        })
+        root.addView(TextView(this).apply {
+            text = "Guaranteed to send every year on this date (e.g. a birthday)."
+            textSize = 12f
+        })
+
+        recurringListText = TextView(this).apply {
+            text = formatRecurringMessages(recurringStore.getRecurringMessages())
+        }
+        root.addView(recurringListText)
+
+        root.addView(Button(this).apply {
+            text = "➕ Add Recurring Message"
+            setOnClickListener {
+                showAddRecurringMessageDialog()
+            }
+        })
+
+        root.addView(Button(this).apply {
+            text = "❌ Remove Recurring Message"
+            setOnClickListener {
+                showRemoveRecurringMessageDialog()
+            }
+        })
+
         // ── Section: Send History ───────────────────────────────
         root.addView(TextView(this).apply {
             text = "\n📋 Send History"
@@ -396,6 +486,7 @@ class MainActivity : AppCompatActivity() {
         maxPerDaySeek.progress = store.getMaxPerDay()
         intervalSeek.progress = store.getMinInterval()
         messageListText.text = formatMessages(store.getMessages())
+        recurringListText.text = formatRecurringMessages(recurringStore.getRecurringMessages())
         historyText.text = formatHistory(store.getSentLog())
         nextSendLabel.text = formatNextSend(store.getNextSendTime())
 
@@ -560,7 +651,7 @@ class MainActivity : AppCompatActivity() {
         val formatter = java.text.SimpleDateFormat("MMM d h:mm a", java.util.Locale.getDefault())
         return log.take(10).joinToString("\n") { entry ->
             val time = formatter.format(java.util.Date(entry.timestamp))
-            val status = if (entry.status == "sent") "✅" else "❌"
+            val status = if (entry.status == SendStatus.SENT || entry.status == SendStatus.DELIVERED) "✅" else "❌"
             "$status $time — ${entry.message.take(50)}"
         }
     }
@@ -570,5 +661,120 @@ class MainActivity : AppCompatActivity() {
         if (timestampMs <= 0L) return "Next message: not scheduled"
         val formatter = java.text.SimpleDateFormat("MMM d h:mm a", java.util.Locale.getDefault())
         return "Next message: ${formatter.format(java.util.Date(timestampMs))}"
+    }
+
+    // ── Contact picker ───────────────────────────────────────────
+    // Launches the system contact picker, filtered to contacts that
+    // have a phone number (ACTION_PICK on the Phone content URI already
+    // implies "has at least one phone number").
+    private fun launchContactPicker() {
+        val intent = Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI)
+        pickContactLauncher.launch(intent)
+    }
+
+    // Reads the phone number (and display name, if present) off the
+    // contact URI returned by the picker and populates the recipient
+    // fields — same two fields the manual EditText / Save Number flow
+    // already writes to.
+    private fun loadPickedContact(contactUri: Uri) {
+        contentResolver.query(contactUri, null, null, null, null)?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val numberIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+                val nameIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+
+                if (numberIndex != -1) {
+                    // Strip formatting (spaces/dashes/parens) so it lines up
+                    // with PHONE_REGEX's expectations, but keep a leading '+'.
+                    val rawNumber = cursor.getString(numberIndex) ?: ""
+                    val cleaned = rawNumber.replace(Regex("[^0-9+]"), "")
+                    recipientInput.setText(cleaned)
+                }
+                if (nameIndex != -1) {
+                    val name = cursor.getString(nameIndex)
+                    if (!name.isNullOrBlank()) {
+                        recipientNameInput.setText(name)
+                    }
+                }
+            }
+        }
+    }
+
+    // ── Recurring messages: add/remove dialogs ───────────────────
+    // Mirrors the message-pool add/remove pattern above, kept simpler
+    // (no edit-in-place — remove and re-add covers the rare edit case).
+    private fun showAddRecurringMessageDialog() {
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(48, 16, 48, 0)
+        }
+
+        val monthInput = EditText(this).apply {
+            hint = "Month (1-12)"
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER
+        }
+        val dayInput = EditText(this).apply {
+            hint = "Day (1-31)"
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER
+        }
+        val messageInput = EditText(this).apply {
+            hint = "e.g. Happy Birthday, {name}! 🎉"
+        }
+
+        container.addView(TextView(this).apply { text = "Month" })
+        container.addView(monthInput)
+        container.addView(TextView(this).apply { text = "Day" })
+        container.addView(dayInput)
+        container.addView(TextView(this).apply { text = "Message" })
+        container.addView(messageInput)
+
+        AlertDialog.Builder(this)
+            .setTitle("New Recurring Message")
+            .setView(container)
+            .setPositiveButton("Add") { _, _ ->
+                val month = monthInput.text.toString().trim().toIntOrNull()
+                val day = dayInput.text.toString().trim().toIntOrNull()
+                val text = messageInput.text.toString().trim()
+
+                if (month == null || month !in 1..12 || day == null || day !in 1..31 || text.isEmpty()) {
+                    Toast.makeText(this, "Enter a valid month (1-12), day (1-31), and message", Toast.LENGTH_LONG).show()
+                    return@setPositiveButton
+                }
+
+                recurringStore.addRecurringMessage(month, day, text)
+                refreshUI()
+                Toast.makeText(this, "Recurring message added!", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showRemoveRecurringMessageDialog() {
+        val entries = recurringStore.getRecurringMessages()
+        if (entries.isEmpty()) {
+            Toast.makeText(this, "No recurring messages to remove. Add one first!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val items = entries.map { entry ->
+            "${entry.month}/${entry.day} — ${entry.message.take(40)}${if (entry.message.length > 40) "…" else ""}"
+        }.toTypedArray()
+
+        AlertDialog.Builder(this)
+            .setTitle("Remove a Recurring Message")
+            .setItems(items) { _, which ->
+                recurringStore.removeRecurringMessage(entries[which].id)
+                refreshUI()
+                Toast.makeText(this, "Recurring message removed!", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    // ── Format recurring messages for display ───────────────────────
+    private fun formatRecurringMessages(entries: List<RecurringMessage>): String {
+        if (entries.isEmpty()) return "(No recurring messages yet — tap Add Recurring Message)"
+        return entries.joinToString("\n") { entry ->
+            "${entry.month}/${entry.day} — ❝${entry.message}❞"
+        }
     }
 }

@@ -48,10 +48,10 @@ class StatsCalculatorTest {
     fun `success rate counts sent versus failed, ignoring other statuses`() {
         val now = fixedNow()
         val log = listOf(
-            SentLogEntry(now, "sent", "a"),
-            SentLogEntry(now, "sent", "b"),
-            SentLogEntry(now, "sent", "c"),
-            SentLogEntry(now, "failed", "d")
+            SentLogEntry(now, SendStatus.SENT, "a"),
+            SentLogEntry(now, SendStatus.SENT, "b"),
+            SentLogEntry(now, SendStatus.SENT, "c"),
+            SentLogEntry(now, SendStatus.FAILED, "d")
         )
 
         val stats = StatsCalculator.compute(log, now = now)
@@ -65,12 +65,12 @@ class StatsCalculatorTest {
     fun `top messages are ranked by frequency with ties broken by first-seen order`() {
         val now = fixedNow()
         val log = listOf(
-            SentLogEntry(now, "sent", "rare"),
-            SentLogEntry(now, "sent", "common"),
-            SentLogEntry(now, "sent", "common"),
-            SentLogEntry(now, "sent", "tied-first"),
-            SentLogEntry(now, "sent", "tied-second"),
-            SentLogEntry(now, "failed", "common") // failed sends don't count
+            SentLogEntry(now, SendStatus.SENT, "rare"),
+            SentLogEntry(now, SendStatus.SENT, "common"),
+            SentLogEntry(now, SendStatus.SENT, "common"),
+            SentLogEntry(now, SendStatus.SENT, "tied-first"),
+            SentLogEntry(now, SendStatus.SENT, "tied-second"),
+            SentLogEntry(now, SendStatus.FAILED, "common") // failed sends don't count
         )
 
         val top = StatsCalculator.compute(log, now = now, topN = 3).topMessages
@@ -88,10 +88,10 @@ class StatsCalculatorTest {
     fun `daily counts bucket sends by calendar day across the requested window`() {
         val now = fixedNow()
         val log = listOf(
-            SentLogEntry(now, "sent", "today-1"),
-            SentLogEntry(now, "sent", "today-2"),
-            SentLogEntry(daysAgo(now, 1), "sent", "yesterday"),
-            SentLogEntry(daysAgo(now, 20), "sent", "too-old-to-appear")
+            SentLogEntry(now, SendStatus.SENT, "today-1"),
+            SentLogEntry(now, SendStatus.SENT, "today-2"),
+            SentLogEntry(daysAgo(now, 1), SendStatus.SENT, "yesterday"),
+            SentLogEntry(daysAgo(now, 20), SendStatus.SENT, "too-old-to-appear")
         )
 
         val daily = StatsCalculator.compute(log, now = now, days = 14).dailyCounts
@@ -108,11 +108,11 @@ class StatsCalculatorTest {
     fun `streak counts consecutive days ending today`() {
         val now = fixedNow()
         val log = listOf(
-            SentLogEntry(now, "sent", "today"),
-            SentLogEntry(daysAgo(now, 1), "sent", "yesterday"),
-            SentLogEntry(daysAgo(now, 2), "sent", "two days ago"),
+            SentLogEntry(now, SendStatus.SENT, "today"),
+            SentLogEntry(daysAgo(now, 1), SendStatus.SENT, "yesterday"),
+            SentLogEntry(daysAgo(now, 2), SendStatus.SENT, "two days ago"),
             // Gap at 3 days ago breaks the streak.
-            SentLogEntry(daysAgo(now, 4), "sent", "four days ago")
+            SentLogEntry(daysAgo(now, 4), SendStatus.SENT, "four days ago")
         )
 
         val stats = StatsCalculator.compute(log, now = now)
@@ -123,7 +123,7 @@ class StatsCalculatorTest {
     @Test
     fun `streak is zero when nothing was sent today`() {
         val now = fixedNow()
-        val log = listOf(SentLogEntry(daysAgo(now, 1), "sent", "yesterday"))
+        val log = listOf(SentLogEntry(daysAgo(now, 1), SendStatus.SENT, "yesterday"))
 
         val stats = StatsCalculator.compute(log, now = now)
 

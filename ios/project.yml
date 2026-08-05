@@ -78,6 +78,11 @@ targets:
       # MessageStore whenever nextScheduledTime changes so the Home
       # Screen Next Message widget redraws.
       - sdk: WidgetKit.framework
+      # Contacts/ContactsUI — CNContactPickerViewController (the "Pick
+      # Contact" button) and CNContactStore.authorizationStatus checks
+      # in ContactPickerView.swift.
+      - sdk: Contacts.framework
+      - sdk: ContactsUI.framework
       # Embed the widget extension into the app bundle so installing the
       # app also installs its widget (the standard way a widget ships —
       # there's no separate download).
