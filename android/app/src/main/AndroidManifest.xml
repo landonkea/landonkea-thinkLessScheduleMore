@@ -120,5 +120,40 @@
                 android:resource="@xml/next_send_widget_info" />
         </receiver>
 
+        <!-- ── Tasker / Locale plugin: EDIT_SETTING ────────────
+             Tasker launches this Activity (for a result) when the
+             user adds or edits one of this app's automation actions
+             inside their own Task — see TaskerEditActivity.
+             `exported="true"` is required so Tasker (a different
+             app/process) can launch it. The <meta-data> line is part
+             of the standard plugin contract too, though not
+             functionally required by Tasker itself — it's how the
+             Locale app (the contract's original definer) discovers
+             plugin activities. -->
+        <activity
+            android:name=".TaskerEditActivity"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="Automation Action">
+            <intent-filter>
+                <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING" />
+            </intent-filter>
+        </activity>
+
+        <!-- ── Tasker / Locale plugin: FIRE_SETTING ─────────────
+             Tasker sends this broadcast when a Task containing a
+             configured action from this app actually runs — see
+             TaskerFireReceiver. `exported="true"` is required so
+             Tasker can deliver it; the receiver itself validates the
+             bundle contents before acting on anything (see that
+             class), so accepting broadcasts from other apps is safe. -->
+        <receiver
+            android:name=".TaskerFireReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING" />
+            </intent-filter>
+        </receiver>
+
     </application>
 </manifest>
