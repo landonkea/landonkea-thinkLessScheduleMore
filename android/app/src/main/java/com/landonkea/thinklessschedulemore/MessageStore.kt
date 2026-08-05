@@ -37,7 +37,7 @@ data class SentLogEntry(
 // This class wraps all SharedPreferences access.
 // The rest of the app calls messageStore.getMessages() etc.
 // and never touches SharedPreferences directly.
-class MessageStore(context: Context) {
+class MessageStore(private val context: Context) {
 
     // ── SharedPreferences instance ───────────────────────────────
     // `Context.MODE_PRIVATE` means only this app can read it.
@@ -73,6 +73,9 @@ class MessageStore(context: Context) {
     fun getRecipientName(): String = prefs.getString(KEY_RECIPIENT_NAME, "") ?: ""
     fun saveRecipientName(name: String) {
         prefs.edit().putString(KEY_RECIPIENT_NAME, name).apply()
+        // Keep the widget's recipient label in sync (see getNextSendTime's
+        // saveNextSendTime/clearNextSendTime for the full explanation).
+        NextSendWidgetProvider.pushUpdate(context)
     }
 
     // ── Message pool (stored as a JSON array) ─────────────────────
@@ -144,10 +147,14 @@ class MessageStore(context: Context) {
     // ── Next scheduled send time (epoch millis, 0 = none scheduled) ─
     // Written by SchedulerService each time it arms a new timer, so
     // the UI can surface "next message at ..." without duplicating
-    // the scheduling math.
+    // the scheduling math. Also pushes a fresh render to the Home
+    // Screen "Next Message" widget (see NextSendWidgetProvider) —
+    // there's no @Published-style observer on SharedPreferences, so
+    // every write that changes this value nudges the widget directly.
     fun getNextSendTime(): Long = prefs.getLong(KEY_NEXT_SEND, 0L)
     fun saveNextSendTime(timestampMs: Long) {
         prefs.edit().putLong(KEY_NEXT_SEND, timestampMs).apply()
+        NextSendWidgetProvider.pushUpdate(context)
     }
     fun clearNextSendTime() = saveNextSendTime(0L)
 

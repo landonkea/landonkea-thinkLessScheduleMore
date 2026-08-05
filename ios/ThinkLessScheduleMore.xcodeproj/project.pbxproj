@@ -7,26 +7,45 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		035519680195C4F91EEF3B52 /* NextSendSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B951C5A2DDF4D3DEC387D9 /* NextSendSnapshot.swift */; };
 		39F70C9AA3AF31547147421F /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21328EBACA5A6D97CB46F79B /* NotificationManager.swift */; };
 		3F1CFFA20F8776EE9E97A4EE /* MessageStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D22253C23BD27C56B9D950 /* MessageStoreTests.swift */; };
 		42DCA28511773517EAD1BD83 /* StatsCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAB0B1F2A998C849425E901 /* StatsCalculator.swift */; };
+		55681DCB6C3F79B64FA54FF7 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C352F4412D6D158E316C991 /* WidgetKit.framework */; };
 		58DBE3694B579676BDB54BFF /* MessageTemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4493E8BDADC5E35793632430 /* MessageTemplateTests.swift */; };
 		593C83F255E7776F04BE8096 /* ThinkLessScheduleMoreApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDBCF313FC827D7DB3D184 /* ThinkLessScheduleMoreApp.swift */; };
 		5AFDE4841593394C58C61538 /* SentLogEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8859813CA7157B843F20938 /* SentLogEntry.swift */; };
 		63483AE453B88504EC692D61 /* MessageSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873CF535E1E034991C9E0647 /* MessageSelector.swift */; };
 		63D7DF97B97FA0E1092A901E /* MessageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 256C7A4160D2A9A5B0ECC173 /* MessageStore.swift */; };
+		64CB6F1205433850B2406CEA /* ThinkLessScheduleMoreWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 236A5E7B1DF80A5AC1A69D8B /* ThinkLessScheduleMoreWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		703FC6AD3615E7E2CDCBCC5C /* NextSendSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B951C5A2DDF4D3DEC387D9 /* NextSendSnapshot.swift */; };
 		805FB991F15D019A9CFD8CBA /* MessageTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5DBDABDCAF6B312B571F2FA /* MessageTemplate.swift */; };
 		8E249E641CD3B1D4BA032607 /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47D9D54AE31C87ADBEE00D78 /* StatsView.swift */; };
+		919A57AD10507B661C8099A4 /* ThinkLessScheduleMoreWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4F06BC09BCE1DD913ABEDF9 /* ThinkLessScheduleMoreWidgetBundle.swift */; };
+		9368A97947B901B87763B36F /* NextSendProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3ECE49A636B0525AD969DE /* NextSendProvider.swift */; };
+		9D840A474768596033DE5C92 /* NextSendFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43C94319F7CF01C36B8F1530 /* NextSendFormatter.swift */; };
 		9E2797AAE36BFD4E9B647423 /* MessageSelectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD582A444975A210AD59B122 /* MessageSelectorTests.swift */; };
+		A0C9E123F707BEC2BBE1DD22 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C352F4412D6D158E316C991 /* WidgetKit.framework */; };
 		AB068D78D9AFBA187FB05F59 /* NotificationManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56848A3D33F9BCDBDC7559BE /* NotificationManagerTests.swift */; };
 		B3B35DBD32C165FE71AE3354 /* MessageEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FDD4975D0B2F7545DEDC7E3 /* MessageEditorView.swift */; };
 		B8131142DD03542AACD49EC8 /* SchedulerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B438A15633DC71EB8491C31B /* SchedulerManager.swift */; };
 		C18907142DAACC7A45C1C128 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F850F00693AF0CD9A277BC3 /* UserNotifications.framework */; };
+		CD003CDA6C3BF1E74C80FBF1 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF65479E50FF0C3328EBB561 /* SwiftUI.framework */; };
+		DC05FBB357AFA878C60A0DEC /* NextSendFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7113A1C5F2FC64EA206E9FBC /* NextSendFormatterTests.swift */; };
+		E7E77895BE548A24EECA99D4 /* NextSendFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43C94319F7CF01C36B8F1530 /* NextSendFormatter.swift */; };
 		E8FA5DE39C502772BAC5EBB1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4A74DAC170A8576A75CA024 /* ContentView.swift */; };
+		F0CBF1D2B1C720A833BCE1C4 /* NextSendWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB9C36EE009CA94A8B44AFF /* NextSendWidget.swift */; };
 		FA78B327CE7CA4C9292D7A26 /* StatsCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D926501E1DBA7C87A762C597 /* StatsCalculatorTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		2B2A1EDB821BD3F16C2C558F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 884F6FC156A7712B9721EFC9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9AF12586DF026624AF5147C7;
+			remoteInfo = ThinkLessScheduleMoreWidgetExtension;
+		};
 		9BFB40C083E2549BAF7123B7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 884F6FC156A7712B9721EFC9 /* Project object */;
@@ -36,35 +55,71 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		3B3447BA28EA84B45FD1C3E2 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				64CB6F1205433850B2406CEA /* ThinkLessScheduleMoreWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		0F7E015903FD0178B1C20A12 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		1B9A78AE9CB09B5BA6E4DED7 /* ThinkLessScheduleMore.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ThinkLessScheduleMore.entitlements; sourceTree = "<group>"; };
+		1C352F4412D6D158E316C991 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		21328EBACA5A6D97CB46F79B /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		236A5E7B1DF80A5AC1A69D8B /* ThinkLessScheduleMoreWidgetExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = ThinkLessScheduleMoreWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		256C7A4160D2A9A5B0ECC173 /* MessageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageStore.swift; sourceTree = "<group>"; };
 		2EAB0B1F2A998C849425E901 /* StatsCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsCalculator.swift; sourceTree = "<group>"; };
+		3C3ECE49A636B0525AD969DE /* NextSendProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextSendProvider.swift; sourceTree = "<group>"; };
+		43C94319F7CF01C36B8F1530 /* NextSendFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextSendFormatter.swift; sourceTree = "<group>"; };
 		4493E8BDADC5E35793632430 /* MessageTemplateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageTemplateTests.swift; sourceTree = "<group>"; };
 		47D9D54AE31C87ADBEE00D78 /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
 		4FDD4975D0B2F7545DEDC7E3 /* MessageEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageEditorView.swift; sourceTree = "<group>"; };
 		56848A3D33F9BCDBDC7559BE /* NotificationManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManagerTests.swift; sourceTree = "<group>"; };
+		7113A1C5F2FC64EA206E9FBC /* NextSendFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextSendFormatterTests.swift; sourceTree = "<group>"; };
 		7AC544E8386BA1F92EB8098B /* ThinkLessScheduleMore.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ThinkLessScheduleMore.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		873CF535E1E034991C9E0647 /* MessageSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageSelector.swift; sourceTree = "<group>"; };
+		9AE36A776B535BB3B20697C3 /* ThinkLessScheduleMoreWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ThinkLessScheduleMoreWidget.entitlements; sourceTree = "<group>"; };
 		9D9E8F7DC7C06739799FAE01 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		9F850F00693AF0CD9A277BC3 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		AD582A444975A210AD59B122 /* MessageSelectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageSelectorTests.swift; sourceTree = "<group>"; };
+		B0B951C5A2DDF4D3DEC387D9 /* NextSendSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextSendSnapshot.swift; sourceTree = "<group>"; };
 		B438A15633DC71EB8491C31B /* SchedulerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchedulerManager.swift; sourceTree = "<group>"; };
 		B8859813CA7157B843F20938 /* SentLogEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentLogEntry.swift; sourceTree = "<group>"; };
+		BF65479E50FF0C3328EBB561 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		D3D22253C23BD27C56B9D950 /* MessageStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageStoreTests.swift; sourceTree = "<group>"; };
+		D4F06BC09BCE1DD913ABEDF9 /* ThinkLessScheduleMoreWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThinkLessScheduleMoreWidgetBundle.swift; sourceTree = "<group>"; };
 		D926501E1DBA7C87A762C597 /* StatsCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsCalculatorTests.swift; sourceTree = "<group>"; };
 		E4A74DAC170A8576A75CA024 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		E796D866907F68D75CE5B565 /* ThinkLessScheduleMoreTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ThinkLessScheduleMoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F0DDBCF313FC827D7DB3D184 /* ThinkLessScheduleMoreApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThinkLessScheduleMoreApp.swift; sourceTree = "<group>"; };
 		F5DBDABDCAF6B312B571F2FA /* MessageTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageTemplate.swift; sourceTree = "<group>"; };
+		FBB9C36EE009CA94A8B44AFF /* NextSendWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextSendWidget.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		044B989C42F463D921C3A2BC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				55681DCB6C3F79B64FA54FF7 /* WidgetKit.framework in Frameworks */,
+				CD003CDA6C3BF1E74C80FBF1 /* SwiftUI.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		63EC7788C5CC240A78DCA7DB /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				C18907142DAACC7A45C1C128 /* UserNotifications.framework in Frameworks */,
+				A0C9E123F707BEC2BBE1DD22 /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -77,16 +132,40 @@
 				AD582A444975A210AD59B122 /* MessageSelectorTests.swift */,
 				D3D22253C23BD27C56B9D950 /* MessageStoreTests.swift */,
 				4493E8BDADC5E35793632430 /* MessageTemplateTests.swift */,
+				7113A1C5F2FC64EA206E9FBC /* NextSendFormatterTests.swift */,
 				56848A3D33F9BCDBDC7559BE /* NotificationManagerTests.swift */,
 				D926501E1DBA7C87A762C597 /* StatsCalculatorTests.swift */,
 			);
 			path = ThinkLessScheduleMoreTests;
 			sourceTree = "<group>";
 		};
+		3B5D5C95EA93259E8F73DF9F /* ThinkLessScheduleMoreWidget */ = {
+			isa = PBXGroup;
+			children = (
+				0F7E015903FD0178B1C20A12 /* Info.plist */,
+				3C3ECE49A636B0525AD969DE /* NextSendProvider.swift */,
+				FBB9C36EE009CA94A8B44AFF /* NextSendWidget.swift */,
+				9AE36A776B535BB3B20697C3 /* ThinkLessScheduleMoreWidget.entitlements */,
+				D4F06BC09BCE1DD913ABEDF9 /* ThinkLessScheduleMoreWidgetBundle.swift */,
+			);
+			path = ThinkLessScheduleMoreWidget;
+			sourceTree = "<group>";
+		};
+		51144B79EE21684309C150FD /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				43C94319F7CF01C36B8F1530 /* NextSendFormatter.swift */,
+				B0B951C5A2DDF4D3DEC387D9 /* NextSendSnapshot.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
 		5CF5183A41F29F949111DEE7 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BF65479E50FF0C3328EBB561 /* SwiftUI.framework */,
 				9F850F00693AF0CD9A277BC3 /* UserNotifications.framework */,
+				1C352F4412D6D158E316C991 /* WidgetKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -96,6 +175,7 @@
 			children = (
 				7AC544E8386BA1F92EB8098B /* ThinkLessScheduleMore.app */,
 				E796D866907F68D75CE5B565 /* ThinkLessScheduleMoreTests.xctest */,
+				236A5E7B1DF80A5AC1A69D8B /* ThinkLessScheduleMoreWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -114,6 +194,7 @@
 				B8859813CA7157B843F20938 /* SentLogEntry.swift */,
 				2EAB0B1F2A998C849425E901 /* StatsCalculator.swift */,
 				47D9D54AE31C87ADBEE00D78 /* StatsView.swift */,
+				1B9A78AE9CB09B5BA6E4DED7 /* ThinkLessScheduleMore.entitlements */,
 				F0DDBCF313FC827D7DB3D184 /* ThinkLessScheduleMoreApp.swift */,
 			);
 			path = ThinkLessScheduleMore;
@@ -122,8 +203,10 @@
 		D2AD2ECCE7F07EA15FEB1113 = {
 			isa = PBXGroup;
 			children = (
+				51144B79EE21684309C150FD /* Shared */,
 				B734B14606C881F9871454AF /* ThinkLessScheduleMore */,
 				05720CFC19863976969191A7 /* ThinkLessScheduleMoreTests */,
+				3B5D5C95EA93259E8F73DF9F /* ThinkLessScheduleMoreWidget */,
 				5CF5183A41F29F949111DEE7 /* Frameworks */,
 				A4FD43A3B912D2C9F8B96CF6 /* Products */,
 			);
@@ -138,10 +221,12 @@
 			buildPhases = (
 				009140EB4EC86A90866CB799 /* Sources */,
 				63EC7788C5CC240A78DCA7DB /* Frameworks */,
+				3B3447BA28EA84B45FD1C3E2 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				6B1A1D4B710E75F970B418F6 /* PBXTargetDependency */,
 			);
 			name = ThinkLessScheduleMore;
 			packageProductDependencies = (
@@ -168,6 +253,24 @@
 			productReference = E796D866907F68D75CE5B565 /* ThinkLessScheduleMoreTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		9AF12586DF026624AF5147C7 /* ThinkLessScheduleMoreWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9031E9CE3094CAF9C30F88DD /* Build configuration list for PBXNativeTarget "ThinkLessScheduleMoreWidgetExtension" */;
+			buildPhases = (
+				EF292D541AEBCF98127CB7CC /* Sources */,
+				044B989C42F463D921C3A2BC /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ThinkLessScheduleMoreWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = ThinkLessScheduleMoreWidgetExtension;
+			productReference = 236A5E7B1DF80A5AC1A69D8B /* ThinkLessScheduleMoreWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -177,6 +280,12 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					3B72C052548ABD22111CCEC0 = {
+						ProvisioningStyle = Automatic;
+					};
+					9AF12586DF026624AF5147C7 = {
+						ProvisioningStyle = Automatic;
+					};
 				};
 			};
 			buildConfigurationList = 1F57B4C93A1B1E69B6FA7080 /* Build configuration list for PBXProject "ThinkLessScheduleMore" */;
@@ -195,6 +304,7 @@
 			targets = (
 				3B72C052548ABD22111CCEC0 /* ThinkLessScheduleMore */,
 				6EDFB77C6C120448A42EBC7C /* ThinkLessScheduleMoreTests */,
+				9AF12586DF026624AF5147C7 /* ThinkLessScheduleMoreWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -209,6 +319,8 @@
 				63483AE453B88504EC692D61 /* MessageSelector.swift in Sources */,
 				63D7DF97B97FA0E1092A901E /* MessageStore.swift in Sources */,
 				805FB991F15D019A9CFD8CBA /* MessageTemplate.swift in Sources */,
+				9D840A474768596033DE5C92 /* NextSendFormatter.swift in Sources */,
+				703FC6AD3615E7E2CDCBCC5C /* NextSendSnapshot.swift in Sources */,
 				39F70C9AA3AF31547147421F /* NotificationManager.swift in Sources */,
 				B8131142DD03542AACD49EC8 /* SchedulerManager.swift in Sources */,
 				5AFDE4841593394C58C61538 /* SentLogEntry.swift in Sources */,
@@ -225,14 +337,32 @@
 				9E2797AAE36BFD4E9B647423 /* MessageSelectorTests.swift in Sources */,
 				3F1CFFA20F8776EE9E97A4EE /* MessageStoreTests.swift in Sources */,
 				58DBE3694B579676BDB54BFF /* MessageTemplateTests.swift in Sources */,
+				DC05FBB357AFA878C60A0DEC /* NextSendFormatterTests.swift in Sources */,
 				AB068D78D9AFBA187FB05F59 /* NotificationManagerTests.swift in Sources */,
 				FA78B327CE7CA4C9292D7A26 /* StatsCalculatorTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EF292D541AEBCF98127CB7CC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E7E77895BE548A24EECA99D4 /* NextSendFormatter.swift in Sources */,
+				9368A97947B901B87763B36F /* NextSendProvider.swift in Sources */,
+				035519680195C4F91EEF3B52 /* NextSendSnapshot.swift in Sources */,
+				F0CBF1D2B1C720A833BCE1C4 /* NextSendWidget.swift in Sources */,
+				919A57AD10507B661C8099A4 /* ThinkLessScheduleMoreWidgetBundle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		6B1A1D4B710E75F970B418F6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9AF12586DF026624AF5147C7 /* ThinkLessScheduleMoreWidgetExtension */;
+			targetProxy = 2B2A1EDB821BD3F16C2C558F /* PBXContainerItemProxy */;
+		};
 		F7F37D334AD253A0E2C9758E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 3B72C052548ABD22111CCEC0 /* ThinkLessScheduleMore */;
@@ -241,6 +371,28 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		10DDBC5E5C4FFF7E2076FEF2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ThinkLessScheduleMoreWidget/ThinkLessScheduleMoreWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ThinkLessScheduleMoreWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.landonkea.ThinkLessScheduleMore.widget;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		2696A60A53C3F464701AE783 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -318,7 +470,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "";
+				CODE_SIGN_ENTITLEMENTS = ThinkLessScheduleMore/ThinkLessScheduleMore.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ThinkLessScheduleMore/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -326,6 +481,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.0.0;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.landonkea.ThinkLessScheduleMore;
 				SDKROOT = iphoneos;
@@ -339,7 +495,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "";
+				CODE_SIGN_ENTITLEMENTS = ThinkLessScheduleMore/ThinkLessScheduleMore.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ThinkLessScheduleMore/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -347,6 +506,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.0.0;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.landonkea.ThinkLessScheduleMore;
 				SDKROOT = iphoneos;
@@ -372,6 +532,28 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ThinkLessScheduleMore.app/ThinkLessScheduleMore";
 			};
 			name = Release;
+		};
+		D4DFB4C18673267AC29AA002 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ThinkLessScheduleMoreWidget/ThinkLessScheduleMoreWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ThinkLessScheduleMoreWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.landonkea.ThinkLessScheduleMore.widget;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
 		};
 		D9614E9180767E43545136D5 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -444,6 +626,15 @@
 			buildConfigurations = (
 				D9614E9180767E43545136D5 /* Debug */,
 				3235451D539654DF26A6DECD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		9031E9CE3094CAF9C30F88DD /* Build configuration list for PBXNativeTarget "ThinkLessScheduleMoreWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D4DFB4C18673267AC29AA002 /* Debug */,
+				10DDBC5E5C4FFF7E2076FEF2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

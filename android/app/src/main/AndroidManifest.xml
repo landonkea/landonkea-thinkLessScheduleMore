@@ -96,5 +96,22 @@
             </intent-filter>
         </receiver>
 
+        <!-- ── Home Screen widget: "Next Message" ──────────────
+             Shows the next scheduled send time/recipient (see
+             NextSendWidgetProvider.kt). `exported="true"` is
+             required — the launcher (a different app/process)
+             needs to be able to deliver widget lifecycle broadcasts
+             (update/enable/disable/etc.) to this receiver. -->
+        <receiver
+            android:name=".NextSendWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/next_send_widget_info" />
+        </receiver>
+
     </application>
 </manifest>

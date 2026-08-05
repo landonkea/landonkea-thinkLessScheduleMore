@@ -24,12 +24,16 @@ targets:
     # "platform: iOS" means this builds for iPhones and iPads.
     platform: iOS
     # "sources:" lists the folder(s) that contain this target's code.
+    # Also includes Shared/: the small App-Group-sync types shared with
+    # the ThinkLessScheduleMoreWidgetExtension target below (see
+    # Shared/NextSendSnapshot.swift and Shared/NextSendFormatter.swift).
     sources:
       # Everything in this folder (.swift files, Info.plist, resources).
       - path: ThinkLessScheduleMore
         # Exclude the spec file itself (it's not app code).
         excludes:
           - "*.yml"
+      - path: Shared
     # "settings:" applies build settings to this target.
     settings:
       base:
@@ -50,12 +54,35 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: ""
         # Enable testability only for debug builds (better tests, no prod overhead).
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG
+        # Signing for the simulator — no team needed for local builds.
+        CODE_SIGN_STYLE: Automatic
+        # Grants access to the group.com.landonkea.thinklessschedulemore
+        # shared container the Next Message widget reads from — see
+        # ThinkLessScheduleMore.entitlements for the full explanation,
+        # including the no-signing-team local-build caveat.
+        CODE_SIGN_ENTITLEMENTS: ThinkLessScheduleMore/ThinkLessScheduleMore.entitlements
+        # Explicit version numbers so they match
+        # ThinkLessScheduleMoreWidget/Info.plist's hardcoded
+        # CFBundleShortVersionString/CFBundleVersion — an embedded
+        # extension's CFBundleVersion must match its containing app's, or
+        # Xcode's embedded-binary validation prints a warning at build time.
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
     # "dependencies:" lists frameworks the app links against.
     dependencies:
       # UserNotifications — required for scheduling local notifications
       # (NotificationManager.swift uses UNUserNotificationCenter).
       # "sdk:" links an Apple system framework by name.
       - sdk: UserNotifications.framework
+      # WidgetKit — WidgetCenter.reloadTimelines(ofKind:), called by
+      # MessageStore whenever nextScheduledTime changes so the Home
+      # Screen Next Message widget redraws.
+      - sdk: WidgetKit.framework
+      # Embed the widget extension into the app bundle so installing the
+      # app also installs its widget (the standard way a widget ships —
+      # there's no separate download).
+      - target: ThinkLessScheduleMoreWidgetExtension
+        embed: true
 
   # "ThinkLessScheduleMoreTests:" is the unit test target.
   # Covers NotificationManager's UNUserNotificationCenterDelegate wiring
@@ -72,6 +99,41 @@ targets:
     dependencies:
       - target: ThinkLessScheduleMore
 
+  # ── ThinkLessScheduleMoreWidgetExtension — Home Screen / Lock Screen
+  # widget ──
+  # A WidgetKit "app extension" target: a small, separate process the
+  # system launches to render the Next Message widget. It never runs
+  # SchedulerManager or touches SMS — it just reads the snapshot
+  # MessageStore wrote to the shared App Group container. See
+  # Shared/NextSendSnapshot.swift for the full data-flow explanation.
+  ThinkLessScheduleMoreWidgetExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: ThinkLessScheduleMoreWidget
+      - path: Shared
+    dependencies:
+      # WidgetKit — Widget, WidgetBundle, TimelineProvider, TimelineEntry.
+      - sdk: WidgetKit.framework
+      # SwiftUI — the widget's views (SmallNextSendView, etc.).
+      - sdk: SwiftUI.framework
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.landonkea.ThinkLessScheduleMore.widget
+        # This target supplies its own complete Info.plist (with the
+        # NSExtensionPointIdentifier that marks it as a WidgetKit
+        # extension) instead of a generated one.
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: ThinkLessScheduleMoreWidget/Info.plist
+        # Same App Group as ThinkLessScheduleMore.entitlements — required
+        # for both processes to resolve the same shared UserDefaults suite.
+        CODE_SIGN_ENTITLEMENTS: ThinkLessScheduleMoreWidget/ThinkLessScheduleMoreWidget.entitlements
+        CODE_SIGN_STYLE: Automatic
+        ONLY_ACTIVE_ARCH: YES
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "5.0"
+
 # "schemes:" defines run/test schemes for Xcode's toolbar.
 schemes:
   # The scheme name shown in Xcode's scheme picker.
@@ -82,6 +144,7 @@ schemes:
       targets:
         ThinkLessScheduleMore: all
         ThinkLessScheduleMoreTests: [test]
+        ThinkLessScheduleMoreWidgetExtension: all
     # "run:" configures how the app launches (on the simulator).
     run:
       # Build the Debug configuration when running.

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ───────────────────────────────────────────────────────────
+     next_send_widget_info.xml — AppWidgetProviderInfo for the
+     "Next Message" Home Screen widget.
+
+     minWidth/minHeight follow the standard "4x1 cell" sizing
+     guidance (roughly 250dp x 40dp minimum for a single-row
+     widget on most launchers).
+
+     updatePeriodMillis is a FALLBACK refresh only (Android
+     clamps this to a 30-minute floor regardless of what's set
+     here) — the real-time updates happen via
+     NextSendWidgetProvider.pushUpdate(), called by MessageStore
+     whenever the next-send time or recipient changes (see
+     MessageStore.kt). 30 minutes just guards against the widget
+     ever going fully stale if a push update were ever missed.
+     ─────────────────────────────────────────────────────────── -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="250dp"
+    android:minHeight="40dp"
+    android:minResizeWidth="180dp"
+    android:minResizeHeight="40dp"
+    android:updatePeriodMillis="1800000"
+    android:initialLayout="@layout/widget_next_send"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:previewImage="@mipmap/ic_launcher" />

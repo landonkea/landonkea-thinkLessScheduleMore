@@ -10,6 +10,7 @@
 
 import Foundation
 import Combine  // For @Published (auto-refresh UI when data changes)
+import WidgetKit  // For WidgetCenter.reloadTimelines(ofKind:) — see nextScheduledTime's didSet
 
 // ── MessageStore ──────────────────────────────────────────────────
 // `ObservableObject` means SwiftUI watches it for changes.
@@ -28,7 +29,12 @@ class MessageStore: ObservableObject {
     // Separate from the phone number — a number doesn't tell us how
     // the user wants their partner addressed in a rendered message.
     @Published var recipientName: String {
-        didSet { UserDefaults.standard.set(recipientName, forKey: Keys.recipientName) }
+        didSet {
+            UserDefaults.standard.set(recipientName, forKey: Keys.recipientName)
+            // Keep the widget's recipient label in sync too (see
+            // nextScheduledTime's didSet for the full explanation).
+            syncWidgetSnapshot()
+        }
     }
 
     @Published var messages: [String] {
@@ -72,7 +78,13 @@ class MessageStore: ObservableObject {
     // so the UI can surface "next message at ..." without duplicating
     // the scheduling math. Ephemeral like sentLog — recomputed each
     // time scheduling runs, not persisted to disk.
-    @Published var nextScheduledTime: Date? = nil
+    // didSet mirrors this into the App Group shared container and pokes
+    // WidgetKit to redraw the Home Screen "Next Message" widget — see
+    // ../Shared/NextSendSnapshot.swift for why the widget can't just read
+    // this @Published property directly (it runs in a separate process).
+    @Published var nextScheduledTime: Date? = nil {
+        didSet { syncWidgetSnapshot() }
+    }
 
     // ── Recently-sent messages (feeds MessageSelector's anti-repeat) ─
     // Persisted so a same-day repeat-open of the app (or the next
@@ -184,6 +196,22 @@ class MessageStore: ObservableObject {
     private func saveSentLog() {
         guard let data = try? JSONEncoder().encode(sentLog) else { return }
         UserDefaults.standard.set(data, forKey: Keys.sentLog)
+    }
+
+    // ── Push nextScheduledTime to the Home Screen widget ──────────
+    // Writes the current (send time, recipient) pair to the App Group
+    // shared container, then asks WidgetKit to re-render — see
+    // ../Shared/NextSendSnapshot.swift for the full explanation of why
+    // this hand-off exists (the widget runs in a separate process and
+    // can't observe @Published properties directly).
+    private func syncWidgetSnapshot() {
+        let snapshot = NextSendSnapshot(
+            nextSendDate: nextScheduledTime,
+            recipientName: recipientName,
+            updatedAt: Date()
+        )
+        NextSendSnapshotStore.save(snapshot)
+        WidgetCenter.shared.reloadTimelines(ofKind: NextSendSnapshotStore.widgetKind)
     }
 
     // ── Recently-sent history (feeds MessageSelector's anti-repeat) ─

@@ -35,6 +35,20 @@
                ReferencedContainer = "container:ThinkLessScheduleMore.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "9AF12586DF026624AF5147C7"
+               BuildableName = "ThinkLessScheduleMoreWidgetExtension.appex"
+               BlueprintName = "ThinkLessScheduleMoreWidgetExtension"
+               ReferencedContainer = "container:ThinkLessScheduleMore.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
