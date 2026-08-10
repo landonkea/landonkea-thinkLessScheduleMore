@@ -1,10 +1,10 @@
 // ───────────────────────────────────────────────────────────────────
-// NextSendFormatter — turns "next scheduled send" data into the
+// NextSendFormatter, turns "next scheduled send" data into the
 // display string shown on the Home Screen widget.
 // ───────────────────────────────────────────────────────────────────
 // Mirrors iOS's NextSendFormatter.swift. Kept as a pure function (no
 // System.currentTimeMillis(), no Context, no AppWidgetManager) so it's
-// directly unit-testable on the JVM without Robolectric — mirrors
+// directly unit-testable on the JVM without Robolectric, mirrors
 // MessageTemplate.kt's pure `render`/`timeOfDay` functions.
 // ───────────────────────────────────────────────────────────────────
 
@@ -57,7 +57,7 @@ object NextSendFormatter {
         }
     }
 
-    /// A shorter variant for space-constrained layouts — just the
+    /// A shorter variant for space-constrained layouts, just the
     /// time/status, no recipient name.
     @JvmStatic
     @JvmOverloads

@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// RecurringMessageMatcherTest — "does this yearly entry fire today?"
+// RecurringMessageMatcherTest, "does this yearly entry fire today?"
 // ───────────────────────────────────────────────────────────────────
 // Pure logic, no Android dependencies, so it runs as a plain JVM
 // unit test (no Robolectric needed).
@@ -28,7 +28,7 @@ class RecurringMessageMatcherTest {
     @Test
     fun `Feb 29 entry fires on Feb 29 in a leap year`() {
         assertTrue(RecurringMessageMatcher.matches(2, 29, todayMonth = 2, todayDay = 29, isLeapYear = true))
-        // And should NOT fire early on Feb 28 in a leap year — Feb 29 exists this year.
+        // And should NOT fire early on Feb 28 in a leap year, Feb 29 exists this year.
         assertFalse(RecurringMessageMatcher.matches(2, 29, todayMonth = 2, todayDay = 28, isLeapYear = true))
     }
 

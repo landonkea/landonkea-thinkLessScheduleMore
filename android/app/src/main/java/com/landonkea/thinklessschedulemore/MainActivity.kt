@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// MainActivity — the app's only screen
+// MainActivity, the app's only screen
 // ───────────────────────────────────────────────────────────────────
 // This is where the user:
 //   1. Enters their partner's phone number
@@ -10,7 +10,7 @@
 //   6. Views send history
 //
 // Simple layout: one scrollable screen with sections.
-// No tabs, no navigation — everything visible at once.
+// No tabs, no navigation, everything visible at once.
 // ───────────────────────────────────────────────────────────────────
 
 package com.landonkea.thinklessschedulemore
@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity() {
 
     // ── Contact picker plumbing ─────────────────────────────────────
     // Two-step flow: request READ_CONTACTS (if not already granted),
-    // then — only on grant — launch the system contact picker. Both
+    // then, only on grant, launch the system contact picker. Both
     // are registered as activity-result launchers up front (required
     // before onStart), not created lazily on click.
     private lateinit var pickContactLauncher: androidx.activity.result.ActivityResultLauncher<Intent>
@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity() {
         private const val SMS_MAX_LENGTH = 160
 
         // Loose E.164-ish check: optional leading +, 8-15 digits total.
-        // Deliberately permissive — real validation happens at the
+        // Deliberately permissive, real validation happens at the
         // carrier, this is just a "did you fat-finger this" guard.
         private val PHONE_REGEX = Regex("^\\+?[0-9]{8,15}$")
     }
@@ -89,7 +89,7 @@ class MainActivity : AppCompatActivity() {
 
         // ── Contact picker launchers ──────────────────────────────
         // Must be registered unconditionally in onCreate (before the
-        // activity reaches STARTED) — registering lazily inside a click
+        // activity reaches STARTED), registering lazily inside a click
         // handler would throw.
         pickContactLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -104,11 +104,11 @@ class MainActivity : AppCompatActivity() {
             if (granted) {
                 launchContactPicker()
             } else {
-                // Graceful fallback — the manual EditText still works fine,
+                // Graceful fallback, the manual EditText still works fine,
                 // so just let the user know instead of crashing/looping.
                 Toast.makeText(
                     this,
-                    "Contacts permission denied — you can still type the number manually",
+                    "Contacts permission denied, you can still type the number manually",
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -146,7 +146,7 @@ class MainActivity : AppCompatActivity() {
         }
         root.addView(recipientInput)
 
-        // ── Pick from Contacts — an alternative to typing the number
+        // ── Pick from Contacts, an alternative to typing the number
         // by hand. Requests READ_CONTACTS at runtime (if not already
         // granted) before launching the system contact picker; denial
         // just falls back to the manual EditText above, no crash.
@@ -163,7 +163,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        // ── Recipient display name — feeds the {name} template
+        // ── Recipient display name, feeds the {name} template
         // placeholder (see MessageTemplate). Purely cosmetic: the
         // phone number is what actually gets texted either way.
         root.addView(TextView(this).apply {
@@ -362,7 +362,7 @@ class MainActivity : AppCompatActivity() {
 
         // ── Section: Recurring Messages ─────────────────────────
         // Yearly date-based messages (birthdays, anniversaries, etc.)
-        // — additive to the random message pool above. See
+        //, additive to the random message pool above. See
         // RecurringMessageStore/RecurringMessageMatcher/SchedulerService.
         root.addView(TextView(this).apply {
             text = "\n🎂 Recurring Messages"
@@ -602,7 +602,7 @@ class MainActivity : AppCompatActivity() {
     private fun showRemoveMessageDialog() {
         val messages = store.getMessages()
         if (messages.isEmpty()) {
-            // No messages to remove — show a brief hint instead of an empty dialog.
+            // No messages to remove, show a brief hint instead of an empty dialog.
             Toast.makeText(this, "No messages to remove. Add one first!", Toast.LENGTH_SHORT).show()
             return
         }
@@ -616,7 +616,7 @@ class MainActivity : AppCompatActivity() {
             .setTitle("Remove a Message")
             .setItems(messageItems) { _, which ->
                 // which = the index in the array the user tapped.
-                // Confirm before deleting — there's no undo once it's gone.
+                // Confirm before deleting, there's no undo once it's gone.
                 confirmRemoveMessage(which, messages[which])
             }
             .setNegativeButton("Cancel", null)
@@ -640,7 +640,7 @@ class MainActivity : AppCompatActivity() {
 
     // ── Format messages for display ───────────────────────────────
     private fun formatMessages(messages: List<String>): String {
-        if (messages.isEmpty()) return "(No messages yet — tap Add Message)"
+        if (messages.isEmpty()) return "(No messages yet, tap Add Message)"
         return messages.mapIndexed { i, msg -> "${i + 1}. ❝$msg❞" }
             .joinToString("\n")
     }
@@ -652,7 +652,7 @@ class MainActivity : AppCompatActivity() {
         return log.take(10).joinToString("\n") { entry ->
             val time = formatter.format(java.util.Date(entry.timestamp))
             val status = if (entry.status == SendStatus.SENT || entry.status == SendStatus.DELIVERED) "✅" else "❌"
-            "$status $time — ${entry.message.take(50)}"
+            "$status $time, ${entry.message.take(50)}"
         }
     }
 
@@ -674,7 +674,7 @@ class MainActivity : AppCompatActivity() {
 
     // Reads the phone number (and display name, if present) off the
     // contact URI returned by the picker and populates the recipient
-    // fields — same two fields the manual EditText / Save Number flow
+    // fields, same two fields the manual EditText / Save Number flow
     // already writes to.
     private fun loadPickedContact(contactUri: Uri) {
         contentResolver.query(contactUri, null, null, null, null)?.use { cursor ->
@@ -701,7 +701,7 @@ class MainActivity : AppCompatActivity() {
 
     // ── Recurring messages: add/remove dialogs ───────────────────
     // Mirrors the message-pool add/remove pattern above, kept simpler
-    // (no edit-in-place — remove and re-add covers the rare edit case).
+    // (no edit-in-place, remove and re-add covers the rare edit case).
     private fun showAddRecurringMessageDialog() {
         val container = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -756,7 +756,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         val items = entries.map { entry ->
-            "${entry.month}/${entry.day} — ${entry.message.take(40)}${if (entry.message.length > 40) "…" else ""}"
+            "${entry.month}/${entry.day}, ${entry.message.take(40)}${if (entry.message.length > 40) "…" else ""}"
         }.toTypedArray()
 
         AlertDialog.Builder(this)
@@ -772,9 +772,9 @@ class MainActivity : AppCompatActivity() {
 
     // ── Format recurring messages for display ───────────────────────
     private fun formatRecurringMessages(entries: List<RecurringMessage>): String {
-        if (entries.isEmpty()) return "(No recurring messages yet — tap Add Recurring Message)"
+        if (entries.isEmpty()) return "(No recurring messages yet, tap Add Recurring Message)"
         return entries.joinToString("\n") { entry ->
-            "${entry.month}/${entry.day} — ❝${entry.message}❞"
+            "${entry.month}/${entry.day}, ❝${entry.message}❞"
         }
     }
 }

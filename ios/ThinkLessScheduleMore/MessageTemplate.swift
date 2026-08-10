@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// MessageTemplate — renders {name}/{time-of-day} placeholders
+// MessageTemplate, renders {name}/{time-of-day} placeholders
 // ───────────────────────────────────────────────────────────────────
 // Mirrors Android's MessageTemplate.kt. Lets one message pool entry
 // generate variety instead of every send being verbatim. Supports:

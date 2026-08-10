@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// MessageTemplateTest — {name}/{time-of-day} placeholder rendering.
+// MessageTemplateTest, {name}/{time-of-day} placeholder rendering.
 // ───────────────────────────────────────────────────────────────────
 
 package com.landonkea.thinklessschedulemore

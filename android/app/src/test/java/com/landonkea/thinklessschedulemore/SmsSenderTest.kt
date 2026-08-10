@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// SmsSenderTest — the real send path, via Robolectric's shadow SmsManager
+// SmsSenderTest, the real send path, via Robolectric's shadow SmsManager
 // ───────────────────────────────────────────────────────────────────
 // Robolectric intercepts SmsManager.sendTextMessage instead of
 // touching real telephony hardware, so this runs on the plain JVM
@@ -11,7 +11,7 @@
 // NOT covered here: the async SENT/DELIVERED broadcast callbacks
 // firing after dispatch (that would mean manually invoking the
 // PendingIntents Robolectric captured, simulating the Android
-// broadcast system end to end) — SmsResultMapperTest already covers
+// broadcast system end to end), SmsResultMapperTest already covers
 // the resultCode -> SendStatus mapping logic those callbacks feed
 // into, and this refactor is a straight extraction of
 // SchedulerService's pre-existing, already-shipped receiver-wiring

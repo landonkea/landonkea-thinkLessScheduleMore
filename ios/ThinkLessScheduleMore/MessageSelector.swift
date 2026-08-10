@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// MessageSelector — picks the next message to send, avoiding recent
+// MessageSelector, picks the next message to send, avoiding recent
 // repeats
 // ───────────────────────────────────────────────────────────────────
 // Mirrors Android's MessageSelector.kt: previously SchedulerManager
@@ -34,7 +34,7 @@ enum MessageSelector {
     ) -> String {
         precondition(!pool.isEmpty, "Cannot pick a message from an empty pool")
 
-        // Never exclude more than (pool.count - 1) entries — always
+        // Never exclude more than (pool.count - 1) entries, always
         // leave at least one candidate standing.
         let maxExclusions = pool.count - 1
         let toExclude: Set<String> = maxExclusions <= 0

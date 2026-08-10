@@ -1,11 +1,11 @@
 // ───────────────────────────────────────────────────────────────────
-// TaskerBundleCodec — packs/unpacks an action id + params into a
+// TaskerBundleCodec, packs/unpacks an action id + params into a
 // Bundle, the shape Tasker stores and hands back at fire time
 // ───────────────────────────────────────────────────────────────────
 // Tasker's plugin contract (see TaskerEditActivity/TaskerFireReceiver)
 // only ever moves a single android.os.Bundle across the boundary
 // between "user configured this in Tasker's task editor" and "Tasker
-// is now firing it" — Tasker persists that Bundle itself and hands it
+// is now firing it", Tasker persists that Bundle itself and hands it
 // straight back later, verbatim. This class is the one place that
 // knows how an AutomationAction's (id, params) pair maps into and out
 // of that Bundle's string keys, so TaskerEditActivity (writes it) and
@@ -31,7 +31,7 @@ object TaskerBundleCodec {
         return bundle
     }
 
-    /** Returns null if [bundle] has no action id at all — a Bundle from
+    /** Returns null if [bundle] has no action id at all, a Bundle from
      *  some other, unrelated Locale-plugin-compatible app, or genuinely
      *  corrupted data, rather than something this app itself produced. */
     fun decode(bundle: Bundle): Pair<String, Map<String, String>>? {

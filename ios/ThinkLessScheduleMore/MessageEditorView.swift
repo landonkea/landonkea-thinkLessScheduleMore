@@ -1,10 +1,10 @@
 // ───────────────────────────────────────────────────────────────────
-// MessageEditorView — shared Add/Edit message sheet
+// MessageEditorView, shared Add/Edit message sheet
 // ───────────────────────────────────────────────────────────────────
 // SwiftUI's `.alert` TextField can't show a live character counter,
 // so Add and Edit both use this small sheet instead. It shows the
 // live "N/160" counter against the standard single-segment SMS
-// length (messages can still be longer — this is just the design
+// length (messages can still be longer, this is just the design
 // guideline both platforms use).
 // ───────────────────────────────────────────────────────────────────
 

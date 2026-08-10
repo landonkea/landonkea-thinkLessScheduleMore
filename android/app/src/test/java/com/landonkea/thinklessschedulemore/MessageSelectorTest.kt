@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// MessageSelectorTest — the anti-repeat message-picking logic.
+// MessageSelectorTest, the anti-repeat message-picking logic.
 // ───────────────────────────────────────────────────────────────────
 // Pure logic, no Android dependencies, so it runs as a plain JVM
 // unit test (no Robolectric needed).
@@ -20,7 +20,7 @@ class MessageSelectorTest {
         val recentlySent = listOf("a")
 
         // Run many times to make sure "a" never comes back while it's
-        // excluded — a flaky single-shot random assertion would miss bugs.
+        // excluded, a flaky single-shot random assertion would miss bugs.
         repeat(50) {
             val picked = MessageSelector.pick(pool, recentlySent)
             assertTrue("expected pick not to be 'a' but was '$picked'", picked != "a")
@@ -40,7 +40,7 @@ class MessageSelectorTest {
     @Test
     fun `never excludes more than pool size minus one, leaving at least one candidate`() {
         val pool = listOf("a", "b")
-        // Both messages recently sent — with a pool of 2 we must still
+        // Both messages recently sent, with a pool of 2 we must still
         // leave at least one standing (the most recent exclusion wins,
         // since takeLast(1) keeps only the tail).
         val recentlySent = listOf("a", "b")

@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// StatsCalculator — turns the raw send log into dashboard numbers
+// StatsCalculator, turns the raw send log into dashboard numbers
 // ───────────────────────────────────────────────────────────────────
 // MessageStore already keeps a rolling log of the last 50 sends
 // (SentLogEntry: timestamp + status + message [+ error]). Nothing
@@ -7,8 +7,8 @@
 // MainActivity. This pulls that summarization into a pure, testable
 // module so StatsActivity can be a thin rendering layer.
 //
-// Kept as a pure object (no Android/Context dependency) — same shape
-// as MessageSelector/MessageTemplate — so it's trivially unit
+// Kept as a pure object (no Android/Context dependency), same shape
+// as MessageSelector/MessageTemplate, so it's trivially unit
 // testable on the JVM and mirrors iOS's StatsCalculator.swift.
 // ───────────────────────────────────────────────────────────────────
 
@@ -55,7 +55,7 @@ object StatsCalculator {
         now: Long = System.currentTimeMillis()
     ): Stats {
         // DELIVERED is a stronger confirmation than SENT (carrier confirmed
-        // receipt), so it counts as a successful send here too — otherwise
+        // receipt), so it counts as a successful send here too, otherwise
         // messages that got a delivery receipt would vanish from both
         // buckets instead of counting as sent.
         val sent = log.filter { it.status == SendStatus.SENT || it.status == SendStatus.DELIVERED }
@@ -118,7 +118,7 @@ object StatsCalculator {
 
     // ── Current streak of consecutive days with >= 1 successful send ─
     // Counts backward from "today" (relative to `now`). If nothing
-    // was sent today, the streak is 0 — it doesn't count "yesterday"
+    // was sent today, the streak is 0, it doesn't count "yesterday"
     // as an active streak once today has passed without a send.
     private fun currentStreakDays(sent: List<SentLogEntry>, now: Long): Int {
         if (sent.isEmpty()) return 0

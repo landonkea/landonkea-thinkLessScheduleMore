@@ -1,11 +1,11 @@
 // ───────────────────────────────────────────────────────────────────
-// MessageStoreTest — first tests in this project.
+// MessageStoreTest, first tests in this project.
 // ───────────────────────────────────────────────────────────────────
 // Runs under Robolectric so MessageStore can use real
 // SharedPreferences + org.json on the JVM (no emulator needed).
 //
 // Focus: the JSON-backed storage migration (fixes the pipe-delimiter
-// corruption bug — see MessageStore's class comment) and the new
+// corruption bug, see MessageStore's class comment) and the new
 // edit-message / next-send-time behavior added alongside it.
 // ───────────────────────────────────────────────────────────────────
 

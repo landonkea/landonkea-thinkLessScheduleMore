@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// MessageStoreTests — covers the message-editing and phone-number
+// MessageStoreTests, covers the message-editing and phone-number
 // validation behavior added alongside the QUICK-tier feature pass.
 // ───────────────────────────────────────────────────────────────────
 // NOTE: MessageStore reads/writes UserDefaults.standard directly (no
@@ -81,7 +81,7 @@ final class MessageStoreTests: XCTestCase {
         XCTAssertEqual(store.recentlySent.last, "msg-\(MessageSelector.historySize + 2)")
     }
 
-    // ── Send log (persisted, structured — feeds StatsCalculator) ──
+    // ── Send log (persisted, structured, feeds StatsCalculator) ──
 
     func testAddToLogInsertsNewestFirst() {
         let store = MessageStore()

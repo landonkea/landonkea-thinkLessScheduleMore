@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// SnoozeCalculatorTests — verifies the pure fire-date math used by
+// SnoozeCalculatorTests, verifies the pure fire-date math used by
 // NotificationManager's "Snooze 15 min" / "Snooze 1 hour" actions.
 // ───────────────────────────────────────────────────────────────────
 

@@ -1,9 +1,9 @@
 // ───────────────────────────────────────────────────────────────────
-// ThinkLessApplication — registers every AutomationAction, once
+// ThinkLessApplication, registers every AutomationAction, once
 // ───────────────────────────────────────────────────────────────────
 // Application.onCreate() is guaranteed to run before ANY other
 // component in this app (an Activity, a Service, a BroadcastReceiver
-// — including BootReceiver, which can be the first and only thing
+//, including BootReceiver, which can be the first and only thing
 // that runs after a device reboot with no Activity ever launching,
 // and the future TaskerPluginReceiver, which can fire from Tasker
 // with this app's UI never opened). Registering actions here, rather

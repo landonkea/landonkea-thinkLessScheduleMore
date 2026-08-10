@@ -1,9 +1,9 @@
 // ───────────────────────────────────────────────────────────────────
-// NextSendFormatterTest — the Home Screen widget's display-text logic.
+// NextSendFormatterTest, the Home Screen widget's display-text logic.
 // ───────────────────────────────────────────────────────────────────
 // NextSendFormatter is a pure function (no System.currentTimeMillis(),
 // no Context, no AppWidgetManager) so every branch can be exercised
-// deterministically here with injected `nowMs`/`timeZone` values —
+// deterministically here with injected `nowMs`/`timeZone` values,
 // mirrors iOS's NextSendFormatterTests.swift.
 // ───────────────────────────────────────────────────────────────────
 

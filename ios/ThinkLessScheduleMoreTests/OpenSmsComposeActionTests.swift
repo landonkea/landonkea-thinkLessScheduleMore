@@ -1,8 +1,8 @@
 // ───────────────────────────────────────────────────────────────────
-// OpenSmsComposeActionTests — parameter validation
+// OpenSmsComposeActionTests, parameter validation
 // ───────────────────────────────────────────────────────────────────
 // Doesn't (and can't, in an XCTest unit test target) verify that
-// UIApplication.shared.open() actually switches to Messages — that's
+// UIApplication.shared.open() actually switches to Messages, that's
 // an OS-level side effect outside what a unit test can observe. What
 // IS tested: the id/displayName contract, and that malformed params
 // (exactly the risk when Siri/Shortcuts extraction produces empty or

@@ -1,13 +1,13 @@
 // ───────────────────────────────────────────────────────────────────
-// RecurringMessageMatcher — "does this yearly entry fire today?"
+// RecurringMessageMatcher, "does this yearly entry fire today?"
 // ───────────────────────────────────────────────────────────────────
-// Pure logic, no java.time / android.icu.util.Calendar dependency —
+// Pure logic, no java.time / android.icu.util.Calendar dependency,
 // callers compute (month, day, isLeapYear) however they like (see
 // SchedulerService, which uses java.util.Calendar) and pass in plain
 // ints/booleans, so this is trivially unit-testable on the JVM.
 //
 // Policy: a Feb 29 recurring entry fires on Feb 28 in non-leap years,
-// so it's never skipped entirely — the alternative (silently doing
+// so it's never skipped entirely, the alternative (silently doing
 // nothing for 3 out of every 4 years) would be a worse surprise for a
 // birthday/anniversary reminder than firing a day early.
 // ───────────────────────────────────────────────────────────────────

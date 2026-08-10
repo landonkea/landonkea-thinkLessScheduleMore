@@ -1,9 +1,9 @@
-// NextSendFormatter.swift — Turns a NextSendSnapshot into the display
+// NextSendFormatter.swift, Turns a NextSendSnapshot into the display
 // string shown on the Home Screen widget (and reusable anywhere else in
 // the app that wants the same "next message" summary).
 //
 // Kept as a pure function (no Date(), no UserDefaults, no WidgetKit
-// imports) so it's directly unit-testable — mirrors MessageTemplate's
+// imports) so it's directly unit-testable, mirrors MessageTemplate's
 // pure `render`/`timeOfDay` functions in the app target.
 
 import Foundation
@@ -57,7 +57,7 @@ enum NextSendFormatter {
     }
 
     /// A shorter variant for space-constrained layouts (e.g. the small
-    /// widget size, or a lock-screen-style accessory view) — just the
+    /// widget size, or a lock-screen-style accessory view), just the
     /// time/status, no recipient name.
     static func compactDisplayText(
         nextSendDate: Date?,

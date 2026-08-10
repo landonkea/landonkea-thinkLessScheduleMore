@@ -125,14 +125,14 @@ def render_android_section(data: dict | None) -> str:
     if not data["found_results"]:
         return (
             "### Android\n\n"
-            "**No results found** — the build likely failed before any tests ran. "
+            "**No results found**, the build likely failed before any tests ran. "
             "Check the raw `./gradlew testDebugUnitTest` output.\n"
         )
     status = "PASS" if data["failures"] == 0 and data["errors"] == 0 else "FAIL"
     lines = [
         "### Android",
         "",
-        f"**{status}** — {data['passed']} passed, {data['failures']} failed, "
+        f"**{status}**, {data['passed']} passed, {data['failures']} failed, "
         f"{data['errors']} errors, {data['skipped']} skipped (of {data['tests']} total)",
     ]
     if data["failure_list"]:
@@ -150,14 +150,14 @@ def render_ios_section(data: dict | None) -> str:
     if not data["found_results"]:
         return (
             "### iOS\n\n"
-            "**No results found** — the build likely failed before any tests ran. "
+            "**No results found**, the build likely failed before any tests ran. "
             "Check the raw `xcodebuild test` output.\n"
         )
     status = "PASS" if data["failures"] == 0 else "FAIL"
     lines = [
         "### iOS",
         "",
-        f"**{status}** — {data['passed']} passed, {data['failures']} failed (of {data['total']} total)",
+        f"**{status}**, {data['passed']} passed, {data['failures']} failed (of {data['total']} total)",
     ]
     if data["failure_list"]:
         lines.append("")

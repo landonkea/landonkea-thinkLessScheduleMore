@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// StatsView — the stats/history dashboard screen (iOS)
+// StatsView, the stats/history dashboard screen (iOS)
 // ───────────────────────────────────────────────────────────────────
 // Reached via a "📊 Stats Dashboard" NavigationLink from ContentView's
 // Send History section. Summarizes StatsCalculator's output:

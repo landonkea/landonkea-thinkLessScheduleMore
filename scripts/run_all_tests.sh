@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Runs the Android and/or iOS unit test suites and writes a combined
-# Markdown summary to test-results/latest.md (git-ignored — see README.md
+# Markdown summary to test-results/latest.md (git-ignored, see README.md
 # "Testing" section).
 #
 # Usage:

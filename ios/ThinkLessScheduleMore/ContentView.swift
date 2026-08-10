@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// ContentView — the app's only screen (iOS)
+// ContentView, the app's only screen (iOS)
 // ───────────────────────────────────────────────────────────────────
 // This is the iOS equivalent of Android's MainActivity.
 // It shows all settings in one scrollable view:
@@ -23,7 +23,7 @@ struct ContentView: View {
     @EnvironmentObject var store: MessageStore
 
     // ── Date-based recurring messages (birthdays/anniversaries) ────
-    // Additive to `store`'s pool schedule — see RecurringMessageStore.
+    // Additive to `store`'s pool schedule, see RecurringMessageStore.
     @EnvironmentObject var recurringStore: RecurringMessageStore
 
     // ── State for the contact picker sheet ─────────────────────────
@@ -57,7 +57,7 @@ struct ContentView: View {
                               text: $store.recipientNumber)
                         .keyboardType(.phonePad)
 
-                    // Alternative to typing the number by hand — picks a
+                    // Alternative to typing the number by hand, picks a
                     // single contact via the system contact picker. Manual
                     // entry above always stays available as a fallback
                     // (e.g. Contacts access denied/restricted).
@@ -74,7 +74,7 @@ struct ContentView: View {
                             .foregroundColor(.red)
                     }
 
-                    // Feeds the {name} template placeholder — purely
+                    // Feeds the {name} template placeholder, purely
                     // cosmetic, the phone number is what's actually texted.
                     TextField("Name (for {name} in messages)",
                               text: $store.recipientName)
@@ -144,7 +144,7 @@ struct ContentView: View {
                 Section(header: Text("💬 Message Pool"),
                         footer: Text("Tip: use {name} and {time-of-day} for variety, e.g. \"Good {time-of-day}, {name}!\"")) {
                     if store.messages.isEmpty {
-                        Text("No messages yet — tap Add below")
+                        Text("No messages yet, tap Add below")
                             .foregroundColor(.secondary)
                     }
 
@@ -162,7 +162,7 @@ struct ContentView: View {
                                 Image(systemName: "pencil")
                             }
                             .buttonStyle(.borderless)
-                            // Delete (with confirmation — no undo once it's gone).
+                            // Delete (with confirmation, no undo once it's gone).
                             Button(role: .destructive) {
                                 pendingDeleteIndex = index
                             } label: {
@@ -245,7 +245,7 @@ struct ContentView: View {
                     }
                 }
             }
-            // ── Sheet for picking a contact (falls back to manual entry — see ContactPickerView.swift) ──
+            // ── Sheet for picking a contact (falls back to manual entry, see ContactPickerView.swift) ──
             .sheet(isPresented: $showContactPicker) {
                 ContactPickerView { phoneNumber, name in
                     store.recipientNumber = phoneNumber
@@ -254,7 +254,7 @@ struct ContentView: View {
                     }
                 }
             }
-            // ── Confirmation before deleting a message — no undo ────
+            // ── Confirmation before deleting a message, no undo ────
             .alert(
                 "Delete this message?",
                 isPresented: Binding(

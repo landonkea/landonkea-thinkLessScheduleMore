@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// RecurringMessageMatcherTests — verifies the pure date-matching logic
+// RecurringMessageMatcherTests, verifies the pure date-matching logic
 // used by SchedulerManager's recurring (birthday/anniversary) message
 // wiring, including the Feb 29 -> Feb 28 non-leap-year policy.
 // ───────────────────────────────────────────────────────────────────
@@ -46,7 +46,7 @@ final class RecurringMessageMatcherTests: XCTestCase {
     }
 
     func testFeb29EntryFiresOnFeb28InNonLeapYear() {
-        // Feb 29 doesn't exist in a non-leap year — policy says fire
+        // Feb 29 doesn't exist in a non-leap year, policy says fire
         // on Feb 28 instead so the message still shows up every year.
         XCTAssertTrue(
             RecurringMessageMatcher.matches(entryMonth: 2, entryDay: 29, todayMonth: 2, todayDay: 28, isLeapYear: false)
@@ -100,7 +100,7 @@ final class RecurringMessageMatcherTests: XCTestCase {
             RecurringMessage(month: 2, day: 28, message: "Regular Feb 28 entry"),
         ]
 
-        // Non-leap year, today is Feb 28 — both entries should fire:
+        // Non-leap year, today is Feb 28, both entries should fire:
         // the Feb 29 entry via the policy, and the Feb 28 entry directly.
         let firing = RecurringMessageMatcher.entriesFiring(
             entries: entries,

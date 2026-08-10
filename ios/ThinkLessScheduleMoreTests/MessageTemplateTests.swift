@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// MessageTemplateTests — {name}/{time-of-day} placeholder rendering.
+// MessageTemplateTests, {name}/{time-of-day} placeholder rendering.
 // ───────────────────────────────────────────────────────────────────
 // Mirrors Android's MessageTemplateTest.kt.
 // ───────────────────────────────────────────────────────────────────

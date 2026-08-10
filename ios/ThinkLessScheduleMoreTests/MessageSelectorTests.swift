@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// MessageSelectorTests — the anti-repeat message-picking logic.
+// MessageSelectorTests, the anti-repeat message-picking logic.
 // ───────────────────────────────────────────────────────────────────
 // Mirrors Android's MessageSelectorTest.kt. Pure logic, no
 // UserDefaults/UIKit dependency.
@@ -12,7 +12,7 @@ import XCTest
 struct SeededGenerator: RandomNumberGenerator {
     var state: UInt64
     mutating func next() -> UInt64 {
-        // xorshift64* — good enough determinism for tests, not for security.
+        // xorshift64*, good enough determinism for tests, not for security.
         state ^= state << 13
         state ^= state >> 7
         state ^= state << 17

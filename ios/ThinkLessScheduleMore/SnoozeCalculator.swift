@@ -1,11 +1,11 @@
 // ───────────────────────────────────────────────────────────────────
-// SnoozeCalculator — pure fire-date math for notification snoozing
+// SnoozeCalculator, pure fire-date math for notification snoozing
 // ───────────────────────────────────────────────────────────────────
 // Kept as a standalone, Foundation-only (no UserNotifications/UIKit)
 // pure function so it's trivially unit-testable. `Date` is already an
 // absolute point in time (seconds since a reference date), so adding
 // a TimeInterval to it is correct across day/month/year boundaries
-// with no calendar-aware arithmetic needed — the tests exist to prove
+// with no calendar-aware arithmetic needed, the tests exist to prove
 // that rather than to work around any subtlety.
 // ───────────────────────────────────────────────────────────────────
 
@@ -42,7 +42,7 @@ enum SnoozeDuration: Equatable {
 
 enum SnoozeCalculator {
     // Given a fire date and a snooze duration, compute the new fire
-    // date. Pure arithmetic on absolute Date values — day/month/year
+    // date. Pure arithmetic on absolute Date values, day/month/year
     // boundaries "just work" and stacking is just repeated addition.
     static func newFireDate(from date: Date, snoozing duration: TimeInterval) -> Date {
         date.addingTimeInterval(duration)

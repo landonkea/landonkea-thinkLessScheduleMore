@@ -1,7 +1,7 @@
 // ───────────────────────────────────────────────────────────────────
-// SchedulerService — the background engine
+// SchedulerService, the background engine
 // ───────────────────────────────────────────────────────────────────
-// This is a "Foreground Service" — Android keeps it running even
+// This is a "Foreground Service", Android keeps it running even
 // if the app is in the background.  It works like this:
 //
 //   1. When the user enables scheduling, we start this service.
@@ -48,7 +48,7 @@ class SchedulerService : Service() {
 
     // ── SMS sending ──────────────────────────────────────────────
     // This service is a TRIGGER (a timer, plus the recurring-date
-    // check below) — it no longer knows how to send an SMS itself.
+    // check below), it no longer knows how to send an SMS itself.
     // sendSms() now just calls AutomationRegistry.execute("send_sms",
     // ...), the exact same call a Tasker-fired trigger would make
     // (see SendSmsAction/AutomationRegistry). All the actual
@@ -61,13 +61,13 @@ class SchedulerService : Service() {
 
     // Called when the service starts (via Intent).
     // NOTE: onStartCommand can run more than once for the same running
-    // service instance — e.g. if startForegroundService() is called again
+    // service instance, e.g. if startForegroundService() is called again
     // while the service is already alive, or Android redelivers the
     // start after a process restart. Without a guard, each call would
     // stack an additional independent scheduleNext() chain on top of
     // whatever is already pending, causing duplicate/overlapping SMS
     // sends. Clearing pending callbacks first makes this method safe
-    // to call repeatedly — there is always at most one active chain.
+    // to call repeatedly, there is always at most one active chain.
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         store = MessageStore(this)
         recurringStore = RecurringMessageStore(this)
@@ -79,7 +79,7 @@ class SchedulerService : Service() {
         handler.removeCallbacksAndMessages(null)
 
         // Check today's recurring (birthday/anniversary-style) messages
-        // once per onStartCommand — this runs whenever the service (re)starts
+        // once per onStartCommand, this runs whenever the service (re)starts
         // (enabled from the UI, boot, process restart). The per-id
         // last-fired-date guard in RecurringMessageStore makes repeated
         // calls on the same day safe, so it's fine that this can run more
@@ -109,7 +109,7 @@ class SchedulerService : Service() {
         val dueToday = RecurringMessageMatcher.matchesToday(entries, todayMonth, todayDay, isLeapYear)
         for (entry in dueToday) {
             if (recurringStore.getLastFiredDateKey(entry.id) == todayKey) {
-                // Already sent today — the guard against duplicate sends
+                // Already sent today, the guard against duplicate sends
                 // when onStartCommand runs more than once in a day.
                 continue
             }
@@ -129,7 +129,7 @@ class SchedulerService : Service() {
         // Stop if scheduling is disabled or no recipient.
         if (!store.isEnabled() || store.getRecipient().isEmpty()) {
             store.clearNextSendTime()
-            stopSelf()  // Kill the service — nothing to do.
+            stopSelf()  // Kill the service, nothing to do.
             return
         }
 
@@ -163,7 +163,7 @@ class SchedulerService : Service() {
         // ── Create the Runnable (what happens when timer fires) ─
         sendRunnable = Runnable {
             // Pick a message, avoiding whatever we've sent most
-            // recently (see MessageSelector — no more back-to-back
+            // recently (see MessageSelector, no more back-to-back
             // repeats from a small pool).
             val template = MessageSelector.pick(messages, store.getRecentlySent())
             store.addRecentlySent(template)
@@ -173,7 +173,7 @@ class SchedulerService : Service() {
             val sendHour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
             val rendered = MessageTemplate.render(template, store.getRecipientName(), sendHour)
 
-            // Send the SMS (this also logs it — see sendSms).
+            // Send the SMS (this also logs it, see sendSms).
             sendSms(store.getRecipient(), rendered)
 
             // Pick the NEXT random time and wait again.
@@ -244,7 +244,7 @@ class SchedulerService : Service() {
     }
 
     // ── Send the actual SMS ───────────────────────────────────────
-    // This service's ONLY job as a trigger is deciding WHEN to send —
+    // This service's ONLY job as a trigger is deciding WHEN to send,
     // the how (logging, SmsManager, delivery confirmation) lives in
     // SmsSender, reached through AutomationRegistry exactly like a
     // Tasker-fired trigger would reach it. Ignoring the returned

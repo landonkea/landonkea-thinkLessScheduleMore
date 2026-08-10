@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// SendSmsAction — the first AutomationAction implementation
+// SendSmsAction, the first AutomationAction implementation
 // ───────────────────────────────────────────────────────────────────
 // A thin adapter: all the real work is SmsSender's. This class exists
 // so "send an SMS" is reachable by id ("send_sms") from

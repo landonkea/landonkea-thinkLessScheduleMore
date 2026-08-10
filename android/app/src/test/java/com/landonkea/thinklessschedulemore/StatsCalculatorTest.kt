@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// StatsCalculatorTest — the stats-dashboard aggregation logic.
+// StatsCalculatorTest, the stats-dashboard aggregation logic.
 // ───────────────────────────────────────────────────────────────────
 // Pure logic, no Android dependencies, so it runs as a plain JVM
 // unit test (no Robolectric needed). `now` is always pinned so day
@@ -16,7 +16,7 @@ import java.util.Calendar
 
 class StatsCalculatorTest {
 
-    // A fixed "now" — noon on a fixed date — so day-boundary math is
+    // A fixed "now", noon on a fixed date, so day-boundary math is
     // stable regardless of when/where the test runs.
     private fun fixedNow(): Long {
         val cal = Calendar.getInstance()

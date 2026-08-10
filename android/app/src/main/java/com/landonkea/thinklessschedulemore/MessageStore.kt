@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// MessageStore — stores all app data in SharedPreferences
+// MessageStore, stores all app data in SharedPreferences
 // ───────────────────────────────────────────────────────────────────
 // SharedPreferences is Android's simplest key-value storage.
 // It's like a JSON file the phone manages for you.
@@ -14,7 +14,7 @@
 // as one big string joined with a "|||" / "|" delimiter. That broke
 // if a message ever contained those exact characters (log parsing
 // would silently corrupt). Both are now stored as JSON (via the
-// built-in org.json — no new dependency) so arbitrary message text,
+// built-in org.json, no new dependency) so arbitrary message text,
 // including pipes, is safe.
 // ───────────────────────────────────────────────────────────────────
 
@@ -75,7 +75,7 @@ class MessageStore(private val context: Context) {
     }
 
     // ── Recipient display name (for {name} template substitution) ─
-    // Separate from the phone number — a number doesn't tell us how
+    // Separate from the phone number, a number doesn't tell us how
     // the user wants their partner addressed in a rendered message.
     fun getRecipientName(): String = prefs.getString(KEY_RECIPIENT_NAME, "") ?: ""
     fun saveRecipientName(name: String) {
@@ -155,7 +155,7 @@ class MessageStore(private val context: Context) {
     // Written by SchedulerService each time it arms a new timer, so
     // the UI can surface "next message at ..." without duplicating
     // the scheduling math. Also pushes a fresh render to the Home
-    // Screen "Next Message" widget (see NextSendWidgetProvider) —
+    // Screen "Next Message" widget (see NextSendWidgetProvider),
     // there's no @Published-style observer on SharedPreferences, so
     // every write that changes this value nudges the widget directly.
     fun getNextSendTime(): Long = prefs.getLong(KEY_NEXT_SEND, 0L)
@@ -183,7 +183,7 @@ class MessageStore(private val context: Context) {
                     status = SendStatus.fromRaw(obj.getString("status")),
                     message = obj.getString("message"),
                     error = if (obj.has("error") && !obj.isNull("error")) obj.getString("error") else null,
-                    // Old entries predate the id field — fall back to the
+                    // Old entries predate the id field, fall back to the
                     // timestamp so it's at least stable/deterministic rather
                     // than a fresh random id on every read.
                     id = if (obj.has("id") && !obj.isNull("id")) obj.getString("id") else timestamp.toString()
@@ -207,7 +207,7 @@ class MessageStore(private val context: Context) {
         }
     }
 
-    // Adds a new entry (newest-first, capped at 50) and returns its id —
+    // Adds a new entry (newest-first, capped at 50) and returns its id,
     // callers (SchedulerService) use that id later to update the entry's
     // status once SmsManager's delivery-confirmation callbacks fire.
     fun addToSentLog(
@@ -227,7 +227,7 @@ class MessageStore(private val context: Context) {
     }
 
     // Looks up a log entry by id and updates its status (and, optionally,
-    // its error message) in place. No-op if the id isn't found — e.g. the
+    // its error message) in place. No-op if the id isn't found, e.g. the
     // entry aged out of the 50-entry cap before the callback arrived.
     fun updateLogEntryStatus(id: String, status: SendStatus, error: String? = null) {
         val current = getSentLog().toMutableList()
@@ -270,7 +270,7 @@ class MessageStore(private val context: Context) {
 
     fun addRecentlySent(message: String) {
         val current = getRecentlySent().toMutableList()
-        current.add(message)  // Oldest first — MessageSelector reads the tail.
+        current.add(message)  // Oldest first, MessageSelector reads the tail.
         while (current.size > MessageSelector.HISTORY_SIZE) {
             current.removeAt(0)
         }

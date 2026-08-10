@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// TaskerFireReceiverTest — Tasker's broadcast actually reaches the
+// TaskerFireReceiverTest, Tasker's broadcast actually reaches the
 // registry
 // ───────────────────────────────────────────────────────────────────
 

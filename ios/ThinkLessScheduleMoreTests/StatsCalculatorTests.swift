@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// StatsCalculatorTests — the stats-dashboard aggregation logic.
+// StatsCalculatorTests, the stats-dashboard aggregation logic.
 // ───────────────────────────────────────────────────────────────────
 // Pure logic, no UIKit dependency, so these run fast without a
 // simulator's app lifecycle involved. `now`/`calendar` are always

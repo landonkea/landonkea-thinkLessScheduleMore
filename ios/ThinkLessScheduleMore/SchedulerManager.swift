@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// SchedulerManager — the iOS scheduling engine
+// SchedulerManager, the iOS scheduling engine
 // ───────────────────────────────────────────────────────────────────
 // This is the iOS equivalent of Android's SchedulerService.
 // It:
@@ -24,7 +24,7 @@ class SchedulerManager {
     private let store: MessageStore
 
     // ── Date-based recurring messages (birthdays/anniversaries) ──
-    // Additive to the random-pool schedule below — see
+    // Additive to the random-pool schedule below, see
     // RecurringMessageStore.swift and RecurringMessageMatcher.swift.
     private let recurringStore: RecurringMessageStore
 
@@ -110,7 +110,7 @@ class SchedulerManager {
             let sendTime = max(now, windowStart).addingTimeInterval(randomOffset)
 
             // Pick a message, avoiding whatever we've picked most
-            // recently (see MessageSelector — no more back-to-back
+            // recently (see MessageSelector, no more back-to-back
             // repeats from a small pool).
             let template = MessageSelector.pick(pool: store.messages, recentlySent: store.recentlySent)
             store.addRecentlySent(template)
@@ -148,7 +148,7 @@ class SchedulerManager {
     }
 
     // ── Day-key formatter ──────────────────────────────────────────
-    // "yyyy-MM-dd" — matches RecurringMessageStore's documented dayKey
+    // "yyyy-MM-dd", matches RecurringMessageStore's documented dayKey
     // format. Fixed calendar/locale/timezone so the string is stable
     // regardless of device settings (only the wall-clock day matters
     // here, not locale-specific formatting).
@@ -164,14 +164,14 @@ class SchedulerManager {
     // ── Schedule today's recurring (date-based) messages ───────────
     // Finds any RecurringMessage entries whose (month, day) matches
     // today (per RecurringMessageMatcher's Feb 29 policy), skips ones
-    // already fired today (recurringStore's hasFired/markFired guard —
+    // already fired today (recurringStore's hasFired/markFired guard,
     // keeps a second same-day scheduleToday() call, e.g. app reopened,
     // from double-sending), and schedules + logs the rest.
     //
     // These are guaranteed-fire, not part of the random pool pick, so
     // rather than competing for a random slot in the window like pool
     // messages, each one is scheduled to fire shortly after this runs
-    // (a few seconds out — scheduleToday() only runs when the app is
+    // (a few seconds out, scheduleToday() only runs when the app is
     // opened, so "shortly after" is effectively "next time the user
     // opens the app on the matching day").
     private func scheduleRecurringMessages() {
@@ -196,7 +196,7 @@ class SchedulerManager {
 
             // Recurring messages are plain strings (no {name}/{time-of-day}
             // placeholders defined for RecurringMessage), so no
-            // MessageTemplate.render pass — sent verbatim, same as
+            // MessageTemplate.render pass, sent verbatim, same as
             // Android's equivalent.
             let id = UUID()
             let sendTime = now.addingTimeInterval(5)

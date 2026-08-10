@@ -1,12 +1,12 @@
 // ───────────────────────────────────────────────────────────────────
-// RecurringMessageStore — date-based recurring messages (iOS)
+// RecurringMessageStore, date-based recurring messages (iOS)
 // ───────────────────────────────────────────────────────────────────
 // Mirrors Android's recurring-message design: a second, independent
 // store that's additive to the random-pool schedule, not competing
 // with it. Follows MessageStore.swift's exact pattern (Keys struct,
 // @Published array persisted via didSet, UserDefaults-backed).
 //
-// A RecurringMessage fires once per calendar year on (month, day) —
+// A RecurringMessage fires once per calendar year on (month, day),
 // see RecurringMessageMatcher for the actual date-matching logic
 // (including the Feb 29 policy) and SchedulerManager for how this
 // store is consulted each time scheduleToday() runs.
@@ -39,7 +39,7 @@ class RecurringMessageStore: ObservableObject {
     // Keyed by entry id -> "yyyy-MM-dd" string for the calendar day it
     // last fired on. Prevents scheduleToday() re-firing the same
     // recurring entry twice if it runs more than once on the same day
-    // (e.g. app reopened). Kept as a simple persisted dictionary —
+    // (e.g. app reopened). Kept as a simple persisted dictionary,
     // deliberately not trying to be clever about cleanup, entries are
     // few and strings are tiny.
     @Published private(set) var lastFiredDates: [String: String] {
@@ -67,7 +67,7 @@ class RecurringMessageStore: ObservableObject {
         UserDefaults.standard.set(data, forKey: Keys.entries)
     }
 
-    // ── Add/update/remove — analogous to MessageStore's message-pool
+    // ── Add/update/remove, analogous to MessageStore's message-pool
     // functions ──────────────────────────────────────────────────────
     func addEntry(month: Int, day: Int, message: String) {
         entries.append(RecurringMessage(month: month, day: day, message: message))

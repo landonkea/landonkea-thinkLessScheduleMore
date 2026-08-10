@@ -1,4 +1,4 @@
-// NextSendWidget.swift — The widget configuration and per-size views:
+// NextSendWidget.swift, The widget configuration and per-size views:
 // which sizes it supports, what to call it in the widget gallery, and
 // what each size draws.
 
@@ -7,7 +7,7 @@ import SwiftUI
 
 struct NextSendWidget: Widget {
     // Must exactly match the `ofKind:` string MessageStore passes to
-    // `WidgetCenter.shared.reloadTimelines(ofKind:)` — see
+    // `WidgetCenter.shared.reloadTimelines(ofKind:)`, see
     // NextSendSnapshotStore.widgetKind in ../Shared/NextSendSnapshot.swift.
     let kind: String = NextSendSnapshotStore.widgetKind
 
@@ -45,7 +45,7 @@ struct NextSendWidgetEntryView: View {
 
 // MARK: - Home Screen: Small
 
-/// The `.systemSmall` layout — an icon, a compact time/status line, and
+/// The `.systemSmall` layout, an icon, a compact time/status line, and
 /// the recipient name.
 struct SmallNextSendView: View {
     let entry: NextSendEntry
@@ -79,7 +79,7 @@ struct SmallNextSendView: View {
 
 // MARK: - Home Screen: Medium
 
-/// The `.systemMedium` layout — icon on the left, the full "Next: ... to
+/// The `.systemMedium` layout, icon on the left, the full "Next: ... to
 /// ..." sentence on the right (wider format, no need to abbreviate).
 struct MediumNextSendView: View {
     let entry: NextSendEntry
@@ -111,7 +111,7 @@ struct MediumNextSendView: View {
 
 // MARK: - Lock Screen: Rectangular
 
-/// The `.accessoryRectangular` Lock Screen layout — text-only (system
+/// The `.accessoryRectangular` Lock Screen layout, text-only (system
 /// renders Lock Screen widgets in a single tint color).
 struct LockScreenNextSendView: View {
     let entry: NextSendEntry

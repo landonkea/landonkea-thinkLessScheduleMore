@@ -1,10 +1,10 @@
 // ───────────────────────────────────────────────────────────────────
-// RecurringMessageStore — yearly date-based messages (birthdays,
+// RecurringMessageStore, yearly date-based messages (birthdays,
 // anniversaries, etc.)
 // ───────────────────────────────────────────────────────────────────
 // Independent of MessageStore's random message pool: entries here
 // GUARANTEE a send on their matching date (month + day, since it
-// repeats every year — no year field), additive to whatever the
+// repeats every year, no year field), additive to whatever the
 // normal random-pool schedule already sends that day. See
 // RecurringMessageMatcher for the "does this fire today" logic and
 // SchedulerService for where it's hooked into the daily loop.

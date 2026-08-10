@@ -1,5 +1,5 @@
 # ───────────────────────────────────────────────────────────────────
-# Shared architecture notes — read before touching either platform
+# Shared architecture notes, read before touching either platform
 # ───────────────────────────────────────────────────────────────────
 # Both apps (Android Kotlin, iOS Swift) share the same design:
 #
@@ -11,7 +11,7 @@
 #     5. Logs the send so you can track
 #
 #   Android CAN send silently from your SIM.
-#   iOS CANNOT send silently — Apple blocks it. Instead it opens
+#   iOS CANNOT send silently, Apple blocks it. Instead it opens
 #   the Messages app with a pre-filled message; you tap Send once.
 #
 #   Future: cross-platform notifications via Firebase if Apple
@@ -20,11 +20,11 @@
 #   Stats dashboard (StatsCalculator + StatsActivity/StatsView):
 #     Both platforms persist a structured send log (Android always
 #     did; iOS's used to be an unpersisted [String] reset every
-#     launch — now it's a persisted [SentLogEntry], same as Android,
+#     launch, now it's a persisted [SentLogEntry], same as Android,
 #     so there's real history to summarize). StatsCalculator turns
 #     that log into success/engagement rate, sends-per-day, top
 #     messages, and a streak count. Status vocabulary differs by
-#     platform (Android: "sent"/"failed" — a real outcome; iOS:
-#     "pending"/"opened" — iOS can't confirm an actual send, only
+#     platform (Android: "sent"/"failed", a real outcome; iOS:
+#     "pending"/"opened", iOS can't confirm an actual send, only
 #     that the user tapped through to Messages).
 # ───────────────────────────────────────────────────────────────────

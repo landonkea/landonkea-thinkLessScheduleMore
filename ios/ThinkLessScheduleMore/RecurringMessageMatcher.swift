@@ -1,11 +1,11 @@
 // ───────────────────────────────────────────────────────────────────
-// RecurringMessageMatcher — pure date-matching logic for recurring
+// RecurringMessageMatcher, pure date-matching logic for recurring
 // (anniversary/birthday-style) messages
 // ───────────────────────────────────────────────────────────────────
 // Mirrors Android's recurring-message matcher for consistency across
 // platforms. Deliberately pure Swift with no Foundation Date/Calendar
 // dependency in the comparison itself, so it's trivially unit-testable
-// — callers compute `isLeapYear` themselves (e.g. via
+//, callers compute `isLeapYear` themselves (e.g. via
 // Calendar.current.range(of:in:) or the simple %4/%100/%400 rule).
 //
 // Feb 29 policy (matches Android): an entry scheduled for Feb 29 fires
@@ -31,7 +31,7 @@ enum RecurringMessageMatcher {
     // today. `T` is left generic-ish via a closure-based extraction so
     // this doesn't need to know about RecurringMessage's exact shape,
     // but in practice we just filter RecurringMessageStore's array
-    // directly using `matches` above — this exists for callers that
+    // directly using `matches` above, this exists for callers that
     // want the "which of these fire today" shape without repeating the
     // filter boilerplate.
     static func entriesFiring(

@@ -1,7 +1,7 @@
 // ───────────────────────────────────────────────────────────────────
-// NextSendWidgetProvider — the Home Screen "Next Message" widget
+// NextSendWidgetProvider, the Home Screen "Next Message" widget
 // ───────────────────────────────────────────────────────────────────
-// A plain AppWidgetProvider + RemoteViews widget (no Jetpack Glance —
+// A plain AppWidgetProvider + RemoteViews widget (no Jetpack Glance,
 // this project has no Compose dependency in build.gradle.kts, and
 // pulling one in just for a single-row text widget isn't worth the
 // added build surface).

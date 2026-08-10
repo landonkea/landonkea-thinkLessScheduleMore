@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// StatsActivity — the stats/history dashboard screen
+// StatsActivity, the stats/history dashboard screen
 // ───────────────────────────────────────────────────────────────────
 // A second screen (launched from MainActivity's "📊 Stats" button)
 // that summarizes the send log via StatsCalculator:
@@ -7,7 +7,7 @@
 //   - Sends per day: a simple text bar chart for the last 14 days
 //   - Top messages: the most-frequently-sent message texts
 //
-// Built the same way as MainActivity — a single ScrollView of
+// Built the same way as MainActivity, a single ScrollView of
 // programmatically-created views, no XML layout or charting library.
 // A text-block bar chart keeps this dependency-free and consistent
 // with the rest of the app's minimal style.

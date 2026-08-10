@@ -1,11 +1,11 @@
 // ───────────────────────────────────────────────────────────────────
-// ThinkLessScheduleMoreApp — iOS app entry point
+// ThinkLessScheduleMoreApp, iOS app entry point
 // ───────────────────────────────────────────────────────────────────
 // This is the SwiftUI app entry point.  It's equivalent to
 // Android's AndroidManifest.xml + onCreate().
 //
 // SwiftUI apps start here and render whatever `WindowGroup`
-// contains (in our case, ContentView — the main screen).
+// contains (in our case, ContentView, the main screen).
 // ───────────────────────────────────────────────────────────────────
 
 import SwiftUI
@@ -23,12 +23,12 @@ struct ThinkLessScheduleMoreApp: App {
     @StateObject private var store = MessageStore()
 
     // Second, independent store for date-based recurring messages
-    // (birthdays/anniversaries) — additive to `store`'s random-pool
+    // (birthdays/anniversaries), additive to `store`'s random-pool
     // schedule, not a replacement. See RecurringMessageStore.swift.
     @StateObject private var recurringStore = RecurringMessageStore()
 
     // Registers every AutomationAction exactly once, here, because
-    // this init is the one guaranteed-first entry point — a
+    // this init is the one guaranteed-first entry point, a
     // Siri/Shortcuts-triggered AppIntent (see SendSmsIntent.swift)
     // can be the very first code that runs after the app is
     // installed, with no screen ever opened. See AutomationAction.swift

@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// AutomationRegistryTests — proves the trigger/action decoupling is
+// AutomationRegistryTests, proves the trigger/action decoupling is
 // real on iOS too
 // ───────────────────────────────────────────────────────────────────
 // Mirrors Android's AutomationRegistryTest.kt: a fake action, never

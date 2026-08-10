@@ -1,17 +1,17 @@
 // ───────────────────────────────────────────────────────────────────
-// TaskerEditActivity — Tasker opens this when the user adds/edits
+// TaskerEditActivity, Tasker opens this when the user adds/edits
 // one of our actions inside their own task editor
 // ───────────────────────────────────────────────────────────────────
 // This is the "EDIT_SETTING" half of the Locale/Tasker plugin
 // contract (see TaskerFireReceiver's class comment for the other
 // half). Tasker launches this Activity for a result; it must finish
 // with RESULT_OK and two extras set: EXTRA_BUNDLE (opaque data Tasker
-// will store and hand back verbatim at fire time — see
+// will store and hand back verbatim at fire time, see
 // TaskerBundleCodec) and EXTRA_BLURB (a short human-readable summary
 // Tasker shows in the user's task list, e.g. "Send SMS").
 //
 // The action picker and its param form are both built from
-// AutomationRegistry.allActions() / an action's paramSchema — this
+// AutomationRegistry.allActions() / an action's paramSchema, this
 // screen has ZERO SMS-specific code in it. Adding a second
 // AutomationAction later makes it selectable here automatically,
 // with a correct param form, with no changes to this file.
@@ -42,7 +42,7 @@ class TaskerEditActivity : Activity() {
     private lateinit var paramFieldsContainer: LinearLayout
     private lateinit var actionSpinner: Spinner
 
-    // Rebuilt every time the spinner selection changes — key is the
+    // Rebuilt every time the spinner selection changes, key is the
     // action's declared param name, value is the EditText currently
     // holding it.
     private var currentFields: Map<String, EditText> = emptyMap()
@@ -66,7 +66,7 @@ class TaskerEditActivity : Activity() {
         })
 
         if (actions.isEmpty()) {
-            // Defensive — ThinkLessApplication.onCreate registers
+            // Defensive, ThinkLessApplication.onCreate registers
             // send_sms unconditionally, so this shouldn't happen in
             // practice, but a plugin screen that silently does
             // nothing when there's genuinely no action to configure
@@ -115,7 +115,7 @@ class TaskerEditActivity : Activity() {
         }
         actionSpinner.setSelection(initialIndex)
         // setSelection doesn't always fire onItemSelected when the
-        // index is already 0 on first layout — build the initial
+        // index is already 0 on first layout, build the initial
         // field set explicitly so the very first action isn't left
         // with an empty form.
         rebuildParamFields(actions[initialIndex], existing?.second ?: emptyMap())
@@ -160,8 +160,8 @@ class TaskerEditActivity : Activity() {
         finish()
     }
 
-    // A short summary Tasker shows in the user's task list — e.g.
-    // "Send SMS: hello there" — truncated so one long message field
+    // A short summary Tasker shows in the user's task list, e.g.
+    // "Send SMS: hello there", truncated so one long message field
     // doesn't blow out Tasker's UI.
     private fun buildBlurb(action: AutomationAction, params: Map<String, String>): String {
         val firstValue = params.values.firstOrNull()?.take(40) ?: ""

@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// NotificationManagerTests — verifies the notification-tap-to-open-
+// NotificationManagerTests, verifies the notification-tap-to-open-
 // Messages wiring that was previously dead code (delegate was never
 // registered with UNUserNotificationCenter).
 // ───────────────────────────────────────────────────────────────────
@@ -14,7 +14,7 @@
 // build here, not assumed. So this test suite verifies what's genuinely
 // reachable from outside the framework:
 //   1. Delegate conformance is in place (the actual root cause of the
-//      original bug — the class existed but was never registered/didn't
+//      original bug, the class existed but was never registered/didn't
 //      conform, so taps silently did nothing).
 //   2. `NotificationManager.shared` is correctly wired as the current
 //      UNUserNotificationCenter's delegate after init.
@@ -36,7 +36,7 @@ final class NotificationManagerTests: XCTestCase {
         // The original bug: NotificationManager existed with the right
         // logic but was never assigned as UNUserNotificationCenter's
         // delegate, so `didReceive`/`willPresent` were never called by
-        // iOS. NotificationManager.init() registers itself — accessing
+        // iOS. NotificationManager.init() registers itself, accessing
         // `.shared` triggers that init, so this checks the registration
         // actually stuck.
         _ = NotificationManager.shared

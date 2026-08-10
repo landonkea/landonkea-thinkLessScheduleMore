@@ -1,10 +1,10 @@
 // ───────────────────────────────────────────────────────────────────
-// StatsCalculator — turns the raw send log into dashboard numbers
+// StatsCalculator, turns the raw send log into dashboard numbers
 // ───────────────────────────────────────────────────────────────────
 // Mirrors Android's StatsCalculator.kt, adapted for iOS's status
 // vocabulary (see SentLogEntry): there's no "sent"/"failed" outcome
 // here, only "pending" (notification scheduled, not yet tapped) and
-// "opened" (user tapped it and Messages opened pre-filled — the
+// "opened" (user tapped it and Messages opened pre-filled, the
 // closest iOS gets to a confirmed send).
 //
 // Kept as a pure enum (no Foundation UI dependency beyond Date/

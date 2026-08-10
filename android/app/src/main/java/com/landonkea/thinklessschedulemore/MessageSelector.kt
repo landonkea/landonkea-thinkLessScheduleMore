@@ -1,9 +1,9 @@
 // ───────────────────────────────────────────────────────────────────
-// MessageSelector — picks the next message to send, avoiding recent
+// MessageSelector, picks the next message to send, avoiding recent
 // repeats
 // ───────────────────────────────────────────────────────────────────
 // Previously SchedulerService picked `messages[Random.nextInt(size)]`
-// with no memory at all — it was entirely possible (and, with a small
+// with no memory at all, it was entirely possible (and, with a small
 // pool, common) to send the exact same message twice or three times
 // in a row. This tracks the last few messages actually sent and
 // excludes them from the candidate pool for the next pick.
@@ -31,7 +31,7 @@ object MessageSelector {
     fun pick(pool: List<String>, recentlySent: List<String>, random: Random = Random.Default): String {
         require(pool.isNotEmpty()) { "Cannot pick a message from an empty pool" }
 
-        // Never exclude more than (pool.size - 1) entries — always
+        // Never exclude more than (pool.size - 1) entries, always
         // leave at least one candidate standing.
         val maxExclusions = pool.size - 1
         val toExclude = if (maxExclusions <= 0) emptySet() else recentlySent.takeLast(maxExclusions).toSet()

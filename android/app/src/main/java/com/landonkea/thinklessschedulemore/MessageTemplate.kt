@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// MessageTemplate — renders {name}/{time-of-day} placeholders
+// MessageTemplate, renders {name}/{time-of-day} placeholders
 // ───────────────────────────────────────────────────────────────────
 // Lets one message pool entry generate variety instead of every send
 // being verbatim. Supports two placeholders:
@@ -8,7 +8,7 @@
 //   {time-of-day}  → morning / afternoon / evening / night, derived
 //                    from the hour the message is actually sent
 //
-// Plain string replacement — no need for a templating library for
+// Plain string replacement, no need for a templating library for
 // two placeholders. Kept as a pure, standalone object so it's
 // trivially unit-testable and shared conceptually with the iOS
 // MessageTemplate.swift (same rendering rules on both platforms).

@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// NextSendFormatterTests — the Home Screen widget's display-text logic.
+// NextSendFormatterTests, the Home Screen widget's display-text logic.
 // ───────────────────────────────────────────────────────────────────
 // NextSendFormatter is a pure function (no Date(), no UserDefaults, no
 // WidgetKit) so every branch can be exercised deterministically here

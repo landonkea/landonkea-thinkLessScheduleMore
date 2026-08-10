@@ -1,9 +1,9 @@
 // ───────────────────────────────────────────────────────────────────
-// TaskerBundleCodecTest — the encode/decode round trip Tasker relies on
+// TaskerBundleCodecTest, the encode/decode round trip Tasker relies on
 // ───────────────────────────────────────────────────────────────────
 // This is the one piece of the Tasker integration where a real bug
 // would be invisible until someone actually opened Tasker and tried
-// it — TaskerEditActivity encodes, TaskerFireReceiver decodes,
+// it, TaskerEditActivity encodes, TaskerFireReceiver decodes,
 // potentially days apart (Tasker persists the Bundle in the user's
 // saved Task), so a round-trip mismatch here is exactly the kind of
 // thing worth pinning down with a test instead of just "it compiled."
@@ -60,7 +60,7 @@ class TaskerBundleCodecTest {
 
     @Test
     fun `param values containing special characters survive the round trip`() {
-        val params = mapOf("message" to "Hi! 100% done — see you @ 5pm? \"quoted\"")
+        val params = mapOf("message" to "Hi! 100% done, see you @ 5pm? \"quoted\"")
 
         val bundle = TaskerBundleCodec.encode("send_sms", params)
         val decoded = TaskerBundleCodec.decode(bundle)

@@ -1,15 +1,15 @@
 // ───────────────────────────────────────────────────────────────────
-// BootReceiver — restarts scheduling after a device reboot
+// BootReceiver, restarts scheduling after a device reboot
 // ───────────────────────────────────────────────────────────────────
 // Without this, SchedulerService (a plain Foreground Service, not
-// WorkManager) simply doesn't exist anymore after a reboot — Android
+// WorkManager) simply doesn't exist anymore after a reboot, Android
 // doesn't restart services on its own. The user would see "Enabled"
 // still checked in the UI, believe messages are being sent, and
 // nothing would actually go out until they manually reopened the app
 // and re-toggled the switch. That's a silent, total feature outage.
 //
 // We listen for BOOT_COMPLETED (and MY_PACKAGE_REPLACED, which fires
-// after the app itself is updated/reinstalled — the service is torn
+// after the app itself is updated/reinstalled, the service is torn
 // down then too) and, if the user had scheduling enabled with a
 // recipient set, restart SchedulerService. SchedulerService's own
 // scheduleNext() re-validates messages/recipient/enabled state, so

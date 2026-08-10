@@ -1,11 +1,11 @@
-// NextSendSnapshot.swift — Shared "when's the next message going out"
+// NextSendSnapshot.swift, Shared "when's the next message going out"
 // state, crossing the process boundary between the main app and the
 // Home Screen widget extension.
 //
 // WHY THIS FILE LIVES IN ITS OWN Shared FOLDER (mirrors the pattern used
 // by landonkea-ytmusic-ios's Sources/YTMusicShared):
 // The widget extension (ios/ThinkLessScheduleMoreWidget) runs in a
-// separate OS process from the main app (ios/ThinkLessScheduleMore) — a
+// separate OS process from the main app (ios/ThinkLessScheduleMore), a
 // distinct extension target with its own sandbox. It cannot read
 // MessageStore's @Published properties directly. Both targets compile
 // this same file (see project.yml's `sources:` for each target), so they
@@ -13,7 +13,7 @@
 // instead of two independently-maintained copies that could drift.
 //
 // HOW DATA CROSSES THE PROCESS BOUNDARY:
-// The app and the widget extension both belong to the same "App Group" —
+// The app and the widget extension both belong to the same "App Group",
 // a sandboxed container both processes are allowed to read/write
 // (declared in ThinkLessScheduleMore.entitlements and
 // ThinkLessScheduleMoreWidget.entitlements). We use UserDefaults(suiteName:)
@@ -34,7 +34,7 @@ struct NextSendSnapshot: Codable, Equatable {
     /// When this snapshot was written.
     let updatedAt: Date
 
-    /// The "nothing scheduled" state — shown on fresh installs (before the
+    /// The "nothing scheduled" state, shown on fresh installs (before the
     /// app has ever written a snapshot) and whenever scheduling is off.
     static let empty = NextSendSnapshot(nextSendDate: nil, recipientName: "", updatedAt: Date())
 
@@ -56,7 +56,7 @@ enum NextSendSnapshotStore {
 
     /// The WidgetKit "kind" identifier shared between the widget's
     /// `StaticConfiguration(kind:)` and the app's
-    /// `WidgetCenter.reloadTimelines(ofKind:)` call — both must agree on
+    /// `WidgetCenter.reloadTimelines(ofKind:)` call, both must agree on
     /// this string or the reload silently targets nothing.
     static let widgetKind = "NextSendWidget"
 
@@ -67,12 +67,12 @@ enum NextSendSnapshotStore {
     }
 
     /// Persist the current snapshot. Safe to call on every scheduling
-    /// recompute — it's a tiny JSON blob written to UserDefaults.
+    /// recompute, it's a tiny JSON blob written to UserDefaults.
     ///
     /// If the App Group is unavailable (e.g. a local build with no
     /// code-signing team configured, so the shared container can't be
     /// resolved), `UserDefaults(suiteName:)` returns `nil` and this
-    /// silently no-ops — the main app's own scheduling is unaffected;
+    /// silently no-ops, the main app's own scheduling is unaffected;
     /// only the widget would show stale/empty data until a real
     /// provisioning profile with this App Group capability is set up.
     static func save(_ snapshot: NextSendSnapshot) {
@@ -82,7 +82,7 @@ enum NextSendSnapshotStore {
 
     /// Read the last-saved snapshot, or `.empty` if nothing has ever been
     /// written, the App Group is unavailable, or the stored data is
-    /// somehow corrupt/undecodable — the widget always has *something*
+    /// somehow corrupt/undecodable, the widget always has *something*
     /// safe to draw.
     static func load() -> NextSendSnapshot {
         guard let defaults, let data = defaults.data(forKey: storageKey) else {

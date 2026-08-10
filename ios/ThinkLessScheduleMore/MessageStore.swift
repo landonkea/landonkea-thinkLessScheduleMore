@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// MessageStore — stores all app data via UserDefaults
+// MessageStore, stores all app data via UserDefaults
 // ───────────────────────────────────────────────────────────────────
 // UserDefaults is iOS's equivalent of Android's SharedPreferences.
 // It's a simple key-value store that persists between app launches.
@@ -10,7 +10,7 @@
 
 import Foundation
 import Combine  // For @Published (auto-refresh UI when data changes)
-import WidgetKit  // For WidgetCenter.reloadTimelines(ofKind:) — see nextScheduledTime's didSet
+import WidgetKit  // For WidgetCenter.reloadTimelines(ofKind:), see nextScheduledTime's didSet
 
 // ── MessageStore ──────────────────────────────────────────────────
 // `ObservableObject` means SwiftUI watches it for changes.
@@ -26,7 +26,7 @@ class MessageStore: ObservableObject {
     }
 
     // ── Recipient display name (for {name} template substitution) ─
-    // Separate from the phone number — a number doesn't tell us how
+    // Separate from the phone number, a number doesn't tell us how
     // the user wants their partner addressed in a rendered message.
     @Published var recipientName: String {
         didSet {
@@ -61,13 +61,13 @@ class MessageStore: ObservableObject {
         didSet { UserDefaults.standard.set(isEnabled, forKey: Keys.enabled) }
     }
 
-    // ── Send log (persisted, structured — feeds the stats dashboard) ─
+    // ── Send log (persisted, structured, feeds the stats dashboard) ─
     // Previously this was `[String]` and explicitly NOT persisted
-    // ("ephemeral for privacy" — reset every app launch). That made a
+    // ("ephemeral for privacy", reset every app launch). That made a
     // stats-over-time dashboard impossible: there was never more than
     // one session's worth of history to summarize. Persisting it here
-    // doesn't change what leaves the device — it's the same on-device
-    // UserDefaults storage Android already uses for its sent log — it
+    // doesn't change what leaves the device, it's the same on-device
+    // UserDefaults storage Android already uses for its sent log, it
     // just stops silently discarding it on relaunch.
     @Published var sentLog: [SentLogEntry] {
         didSet { saveSentLog() }
@@ -76,10 +76,10 @@ class MessageStore: ObservableObject {
     // ── Next scheduled send time ─────────────────────────────────
     // Set by SchedulerManager whenever it (re)computes today's sends,
     // so the UI can surface "next message at ..." without duplicating
-    // the scheduling math. Ephemeral like sentLog — recomputed each
+    // the scheduling math. Ephemeral like sentLog, recomputed each
     // time scheduling runs, not persisted to disk.
     // didSet mirrors this into the App Group shared container and pokes
-    // WidgetKit to redraw the Home Screen "Next Message" widget — see
+    // WidgetKit to redraw the Home Screen "Next Message" widget, see
     // ../Shared/NextSendSnapshot.swift for why the widget can't just read
     // this @Published property directly (it runs in a separate process).
     @Published var nextScheduledTime: Date? = nil {
@@ -200,7 +200,7 @@ class MessageStore: ObservableObject {
 
     // ── Push nextScheduledTime to the Home Screen widget ──────────
     // Writes the current (send time, recipient) pair to the App Group
-    // shared container, then asks WidgetKit to re-render — see
+    // shared container, then asks WidgetKit to re-render, see
     // ../Shared/NextSendSnapshot.swift for the full explanation of why
     // this hand-off exists (the widget runs in a separate process and
     // can't observe @Published properties directly).
@@ -221,7 +221,7 @@ class MessageStore: ObservableObject {
     // repeats when picking the next message to send.
     func addRecentlySent(_ message: String) {
         var updated = recentlySent
-        updated.append(message)  // Oldest first — MessageSelector reads the tail.
+        updated.append(message)  // Oldest first, MessageSelector reads the tail.
         if updated.count > MessageSelector.historySize {
             updated.removeFirst(updated.count - MessageSelector.historySize)
         }

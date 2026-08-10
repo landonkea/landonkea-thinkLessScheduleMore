@@ -1,4 +1,4 @@
-# landonkea-thinkLessScheduleMore — Design & Workflow
+# landonkea-thinkLessScheduleMore - Design & Workflow
 
 ## High-Level Overview
 

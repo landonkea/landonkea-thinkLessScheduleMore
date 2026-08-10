@@ -1,18 +1,18 @@
 // ───────────────────────────────────────────────────────────────────
-// AutomationRegistry — the pool every trigger and action shares
+// AutomationRegistry, the pool every trigger and action shares
 // ───────────────────────────────────────────────────────────────────
 // This is the piece that actually makes triggers and actions
 // composable instead of hardwired: a trigger (SchedulerService's
 // timer today, a Tasker plugin fire once TaskerPluginReceiver lands)
 // never imports or references a concrete action class like
-// SendSmsAction — it only knows an action's string id, looked up
+// SendSmsAction, it only knows an action's string id, looked up
 // here. Adding a second action later means implementing
 // AutomationAction and calling register() once at startup; every
 // existing trigger can reach it immediately, with zero changes to
 // SchedulerService or the Tasker plugin wiring.
 //
 // A plain Kotlin `object` (process-wide singleton) rather than
-// something requiring DI/a framework — this app has no dependency-
+// something requiring DI/a framework, this app has no dependency-
 // injection setup elsewhere (MessageStore/RecurringMessageStore are
 // constructed directly with a Context), so this matches the existing
 // style rather than introducing a new pattern for one file.
@@ -31,7 +31,7 @@ object AutomationRegistry {
         actions[action.id] = action
     }
 
-    /** All currently-registered actions, in registration order — used to
+    /** All currently-registered actions, in registration order, used to
      *  build both this app's own "pick an action" UI and Tasker's plugin
      *  edit-activity action list, so neither hardcodes the current set. */
     fun allActions(): List<AutomationAction> = actions.values.toList()
@@ -40,7 +40,7 @@ object AutomationRegistry {
 
     /**
      * Look up [actionId] and run it, or return a failure result if no
-     * action is registered under that id — callers (a trigger) never
+     * action is registered under that id, callers (a trigger) never
      * need their own null-check branch, keeping every trigger's
      * dispatch code identical regardless of which action fires.
      */

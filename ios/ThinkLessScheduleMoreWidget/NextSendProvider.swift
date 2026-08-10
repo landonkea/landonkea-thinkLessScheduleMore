@@ -1,7 +1,7 @@
-// NextSendProvider.swift — Supplies timeline entries to NextSendWidget.
+// NextSendProvider.swift, Supplies timeline entries to NextSendWidget.
 //
 // HOW WIDGETKIT TIMELINES WORK:
-// A widget doesn't run continuously like the main app — the system asks a
+// A widget doesn't run continuously like the main app, the system asks a
 // `TimelineProvider` for a `Timeline` (a list of entries, each with a
 // date), then renders whichever entry's date has most recently passed, on
 // its own schedule.
@@ -26,14 +26,14 @@ struct NextSendEntry: TimelineEntry {
 }
 
 struct NextSendProvider: TimelineProvider {
-    /// Shown instantly while the widget is loading its first real entry —
+    /// Shown instantly while the widget is loading its first real entry,
     /// SwiftUI previews and the widget gallery also use this indirectly
     /// via `getSnapshot(in:completion:)`'s `context.isPreview` branch.
     func placeholder(in context: Context) -> NextSendEntry {
         NextSendEntry(date: Date(), snapshot: .placeholderExample)
     }
 
-    /// A quick, representative entry — used by the widget gallery/picker
+    /// A quick, representative entry, used by the widget gallery/picker
     /// UI and for transient system snapshots.
     func getSnapshot(in context: Context, completion: @escaping (NextSendEntry) -> Void) {
         if context.isPreview {
@@ -52,7 +52,7 @@ struct NextSendProvider: TimelineProvider {
         // Refresh policy: if there's a future send time, ask WidgetKit to
         // re-invoke getTimeline() right after it passes (so "Next: 3:45 PM"
         // flips to "Sending any moment" without waiting on the app). If
-        // there's no scheduled time, `.never` — the app will push a reload
+        // there's no scheduled time, `.never`, the app will push a reload
         // via WidgetCenter as soon as scheduling resumes.
         let policy: TimelineReloadPolicy
         if let nextSendDate = snapshot.nextSendDate, nextSendDate > now {

@@ -1,9 +1,9 @@
-// ThinkLessScheduleMoreWidgetBundle.swift — Entry point for the widget
+// ThinkLessScheduleMoreWidgetBundle.swift, Entry point for the widget
 // extension process.
 //
 // A WidgetKit extension is its own tiny app-like process (separate from
 // ThinkLessScheduleMore) launched by the system to render one or more
-// widgets. This `@main` struct is where the OS starts — analogous to
+// widgets. This `@main` struct is where the OS starts, analogous to
 // ThinkLessScheduleMoreApp.swift's `@main App` for the main app, but for
 // widget kinds instead of scenes.
 //

@@ -1,10 +1,10 @@
 // ───────────────────────────────────────────────────────────────────
-// SmsResultMapperTest — resultCode → SendStatus mapping
+// SmsResultMapperTest, resultCode → SendStatus mapping
 // ───────────────────────────────────────────────────────────────────
 // SmsResultMapper only touches compile-time int constants from the
 // Android SDK stub jar (Activity.RESULT_OK, SmsManager.RESULT_ERROR_*),
 // same as MessageSelector/StatsCalculator reference other android.*
-// framework constants — no Robolectric needed, this runs as a plain
+// framework constants, no Robolectric needed, this runs as a plain
 // JVM unit test.
 // ───────────────────────────────────────────────────────────────────
 

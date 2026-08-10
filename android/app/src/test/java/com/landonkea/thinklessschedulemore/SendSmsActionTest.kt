@@ -1,9 +1,9 @@
 // ───────────────────────────────────────────────────────────────────
-// SendSmsActionTest — parameter validation
+// SendSmsActionTest, parameter validation
 // ───────────────────────────────────────────────────────────────────
 // Deliberately does NOT test the real send path here (that's
 // SmsSender's job, exercised via Robolectric's shadow SmsManager in
-// SmsSenderTest) — this just proves a malformed params map (exactly
+// SmsSenderTest), this just proves a malformed params map (exactly
 // what an untyped Tasker-supplied Bundle risks producing) is rejected
 // with a clear message *before* ever reaching SmsSender, matching
 // AutomationAction's documented "validate defensively" contract.

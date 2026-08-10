@@ -1,9 +1,9 @@
 // ───────────────────────────────────────────────────────────────────
-// AutomationRegistryTest — proves the trigger/action decoupling is real
+// AutomationRegistryTest, proves the trigger/action decoupling is real
 // ───────────────────────────────────────────────────────────────────
 // Uses a fake action (not SendSmsAction) specifically so these tests
 // can't accidentally pass just because SMS-sending logic happens to
-// work — they're testing that ANY registered action is reachable by
+// work, they're testing that ANY registered action is reachable by
 // id, with no special-casing anywhere in AutomationRegistry, which is
 // the actual architectural property this refactor exists to deliver.
 // ───────────────────────────────────────────────────────────────────

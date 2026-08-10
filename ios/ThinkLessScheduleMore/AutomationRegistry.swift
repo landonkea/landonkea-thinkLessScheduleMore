@@ -1,9 +1,9 @@
 // ───────────────────────────────────────────────────────────────────
-// AutomationRegistry — the pool every trigger and action shares (iOS)
+// AutomationRegistry, the pool every trigger and action shares (iOS)
 // ───────────────────────────────────────────────────────────────────
 // The Swift twin of Android's AutomationRegistry.kt. A plain
 // singleton class (not an actor/framework-managed object) matching
-// this app's existing style — MessageStore/RecurringMessageStore are
+// this app's existing style, MessageStore/RecurringMessageStore are
 // both constructed and used directly, no DI framework anywhere else
 // in this codebase either.
 // ───────────────────────────────────────────────────────────────────

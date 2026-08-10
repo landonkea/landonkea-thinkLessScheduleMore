@@ -1,5 +1,5 @@
 // ───────────────────────────────────────────────────────────────────
-// NotificationManager — handles iOS local notifications
+// NotificationManager, handles iOS local notifications
 // ───────────────────────────────────────────────────────────────────
 // iOS does NOT allow apps to send SMS silently.
 // The best we can do is:
@@ -21,7 +21,7 @@ import UserNotifications  // iOS notification framework
 // Handles scheduling notifications and opening the Messages app.
 //
 // Also acts as UNUserNotificationCenterDelegate: this is what wires
-// "user taps the notification" to "open Messages pre-filled" — the
+// "user taps the notification" to "open Messages pre-filled", the
 // last step of the core loop described in shared/ARCHITECTURE.md.
 // Without registering as the delegate, iOS still shows the
 // notification, but tapping it just opens the app to the main
@@ -32,7 +32,7 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     // There should only be one NotificationManager in the app.
     static let shared = NotificationManager()
 
-    // Category identifier for real send-time notifications — the
+    // Category identifier for real send-time notifications, the
     // "wake up" (tomorrow re-schedule trigger) notifications are NOT
     // tagged with this, since snoozing a re-schedule trigger wouldn't
     // mean anything (there's no recipient/message to delay).
@@ -78,7 +78,7 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     // Set by ContentView (which owns the MessageStore) so this class
     // stays store-agnostic. Called with the log entry's id whenever
     // the user taps a real send-time notification (not a "wake up"
-    // one — those carry no id).
+    // one, those carry no id).
     var onOpen: ((UUID) -> Void)?
 
     // ── Request notification permission ───────────────────────────
@@ -88,7 +88,7 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         let center = UNUserNotificationCenter.current()
         center.requestAuthorization(options: [.alert, .sound]) { granted, error in
             if !granted {
-                print("Notification permission denied — scheduling won't work.")
+                print("Notification permission denied, scheduling won't work.")
             }
         }
     }
@@ -118,7 +118,7 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         if let id = id {
             userInfo["id"] = id.uuidString
             // Only real send-time notifications (the ones with an id
-            // tying them to a SentLogEntry) get snooze actions — the
+            // tying them to a SentLogEntry) get snooze actions, the
             // "wake up" re-schedule trigger has nothing to delay.
             content.categoryIdentifier = NotificationManager.scheduledMessageCategory
         }
@@ -160,7 +160,7 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     // Called when the user taps a notification. The real work moved
     // to OpenSmsComposeAction, reached through AutomationRegistry
     // exactly the way a future Siri/Shortcuts-triggered AppIntent
-    // will reach it too — a notification tap is just one more
+    // will reach it too, a notification tap is just one more
     // trigger sharing the same action, not special-cased logic.
     static func openMessages(recipient: String, message: String) {
         _ = AutomationRegistry.shared.execute(
@@ -175,7 +175,7 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     // background or not running). This is where "wake up" notifications
     // (from scheduleTomorrow) and real send-time notifications diverge:
     // a "wake up" one has no recipient/message in userInfo, so there's
-    // nothing to pre-fill — the tap just brings the user into the app,
+    // nothing to pre-fill, the tap just brings the user into the app,
     // which re-schedules today's sends via ContentView's onAppear/toggle
     // flow. A real send-time notification carries recipient + message,
     // so we open Messages pre-filled with them.
@@ -186,7 +186,7 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     ) {
         // ── Snooze actions ("Snooze 15 min" / "Snooze 1 hour") ──────
         // These reschedule the notification instead of opening
-        // Messages — the underlying SentLogEntry stays "pending", so
+        // Messages, the underlying SentLogEntry stays "pending", so
         // this genuinely delays the send (see SnoozeCalculator.swift
         // and Feature A notes in the task for the full rationale).
         if let duration = SnoozeDuration(actionIdentifier: response.actionIdentifier) {
@@ -239,7 +239,7 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
 
     // Called when a notification would fire while the app is already
     // in the foreground. Without this, foreground notifications are
-    // silently swallowed (no banner, no sound) — show them like normal.
+    // silently swallowed (no banner, no sound), show them like normal.
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification,
