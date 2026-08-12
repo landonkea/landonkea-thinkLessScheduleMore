@@ -28,13 +28,30 @@ class SchedulerManager {
     // RecurringMessageStore.swift and RecurringMessageMatcher.swift.
     private let recurringStore: RecurringMessageStore
 
+    // ── Days the random pool schedule should skip ─────────────────
+    // See NoSendDayStore/NoSendDayChecker. Doesn't affect
+    // recurringStore above, birthday/anniversary messages are
+    // guaranteed sends regardless of this.
+    private let noSendDayStore: NoSendDayStore
+
+    // ── Per-message priority weights ──────────────────────────────
+    // See MessagePriorityStore/WeightedMessageSelector.
+    private let priorityStore: MessagePriorityStore
+
     // ── Notification manager (sends local notifications) ─────────
     private let notifier = NotificationManager.shared
 
     // ── Init ─────────────────────────────────────────────────────
-    init(store: MessageStore, recurringStore: RecurringMessageStore) {
+    init(
+        store: MessageStore,
+        recurringStore: RecurringMessageStore,
+        noSendDayStore: NoSendDayStore,
+        priorityStore: MessagePriorityStore
+    ) {
         self.store = store
         self.recurringStore = recurringStore
+        self.noSendDayStore = noSendDayStore
+        self.priorityStore = priorityStore
     }
 
     // ── Schedule today's messages ─────────────────────────────────
@@ -62,6 +79,26 @@ class SchedulerManager {
 
         guard !store.messages.isEmpty else {
             store.nextScheduledTime = nil
+            return
+        }
+
+        // ── "No send" day gate ──────────────────────────────────────
+        // Skips the random pool schedule entirely for today if it's a
+        // blocked weekday or a one-off blocked date (see
+        // NoSendDayChecker). Recurring (birthday/anniversary) messages
+        // are unaffected, scheduleRecurringMessages() above already ran
+        // and isn't gated by this, guaranteed sends stay guaranteed.
+        let today = Date()
+        let todayWeekday = Calendar.current.component(.weekday, from: today)
+        let todayKey = Self.dayKeyFormatter.string(from: today)
+        if NoSendDayChecker.isNoSendDay(
+            weekday: todayWeekday,
+            dateKey: todayKey,
+            noSendWeekdays: noSendDayStore.noSendWeekdays,
+            noSendDates: noSendDayStore.noSendDates
+        ) {
+            scheduleTomorrow()
+            store.nextScheduledTime = tomorrowWindowStart()
             return
         }
 
@@ -111,8 +148,15 @@ class SchedulerManager {
 
             // Pick a message, avoiding whatever we've picked most
             // recently (see MessageSelector, no more back-to-back
-            // repeats from a small pool).
-            let template = MessageSelector.pick(pool: store.messages, recentlySent: store.recentlySent)
+            // repeats from a small pool) and biased by whatever
+            // priority weight the user set per message (see
+            // WeightedMessageSelector/MessagePriorityStore, a message
+            // with no weight set is treated as normal priority).
+            let template = WeightedMessageSelector.pick(
+                pool: store.messages,
+                weights: priorityStore.weights,
+                recentlySent: store.recentlySent
+            )
             store.addRecentlySent(template)
 
             // Render {name}/{time-of-day} placeholders against the

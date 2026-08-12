@@ -45,6 +45,8 @@ class SchedulerService : Service() {
     // Our data stores.
     private lateinit var store: MessageStore
     private lateinit var recurringStore: RecurringMessageStore
+    private lateinit var noSendDayStore: NoSendDayStore
+    private lateinit var priorityStore: MessagePriorityStore
 
     // ── SMS sending ──────────────────────────────────────────────
     // This service is a TRIGGER (a timer, plus the recurring-date
@@ -71,6 +73,8 @@ class SchedulerService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         store = MessageStore(this)
         recurringStore = RecurringMessageStore(this)
+        noSendDayStore = NoSendDayStore(this)
+        priorityStore = MessagePriorityStore(this)
 
         // Show the persistent notification (required for foreground).
         startForeground(NOTIFICATION_ID, createNotification())
@@ -143,6 +147,26 @@ class SchedulerService : Service() {
             return
         }
 
+        // ── "No send" day gate ────────────────────────────────────
+        // Skips the random pool schedule entirely for today if it's a
+        // blocked weekday or a one-off blocked date (see NoSendDayChecker).
+        // Recurring (birthday/anniversary) messages are unaffected, they're
+        // handled separately above by sendDueRecurringMessages, which
+        // isn't gated by this check, guaranteed sends stay guaranteed.
+        val todayCal = java.util.Calendar.getInstance()
+        val todayWeekday = todayCal.get(java.util.Calendar.DAY_OF_WEEK)
+        val todayKey = TODAY_KEY_FORMAT.format(todayCal.time)
+        if (NoSendDayChecker.isNoSendDay(
+                weekday = todayWeekday,
+                dateKey = todayKey,
+                noSendWeekdays = noSendDayStore.getNoSendWeekdays(),
+                noSendDates = noSendDayStore.getNoSendDates()
+            )
+        ) {
+            scheduleTomorrow()
+            return
+        }
+
         // ── Pick a random delay within the time window ───────────
         val now = System.currentTimeMillis()
         val startHour = store.getHourStart()
@@ -164,8 +188,15 @@ class SchedulerService : Service() {
         sendRunnable = Runnable {
             // Pick a message, avoiding whatever we've sent most
             // recently (see MessageSelector, no more back-to-back
-            // repeats from a small pool).
-            val template = MessageSelector.pick(messages, store.getRecentlySent())
+            // repeats from a small pool) and biased by whatever
+            // priority weight the user set per message (see
+            // WeightedMessageSelector/MessagePriorityStore, a message
+            // with no weight set is treated as normal priority).
+            val template = WeightedMessageSelector.pick(
+                messages,
+                priorityStore.getWeights(),
+                store.getRecentlySent()
+            )
             store.addRecentlySent(template)
 
             // Render {name}/{time-of-day} placeholders against the

@@ -27,6 +27,14 @@ struct ThinkLessScheduleMoreApp: App {
     // schedule, not a replacement. See RecurringMessageStore.swift.
     @StateObject private var recurringStore = RecurringMessageStore()
 
+    // Days the random pool schedule should skip (weekly or one-off),
+    // see NoSendDayStore.swift/NoSendDayChecker.swift.
+    @StateObject private var noSendDayStore = NoSendDayStore()
+
+    // Per-message priority weights for WeightedMessageSelector, see
+    // MessagePriorityStore.swift.
+    @StateObject private var priorityStore = MessagePriorityStore()
+
     // Registers every AutomationAction exactly once, here, because
     // this init is the one guaranteed-first entry point, a
     // Siri/Shortcuts-triggered AppIntent (see SendSmsIntent.swift)
@@ -45,6 +53,8 @@ struct ThinkLessScheduleMoreApp: App {
             ContentView()
                 .environmentObject(store)
                 .environmentObject(recurringStore)
+                .environmentObject(noSendDayStore)
+                .environmentObject(priorityStore)
         }
     }
 }

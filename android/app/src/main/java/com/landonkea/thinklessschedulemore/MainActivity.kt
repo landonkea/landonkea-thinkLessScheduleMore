@@ -42,6 +42,8 @@ class MainActivity : AppCompatActivity() {
     // ── Our data stores ───────────────────────────────────────────
     private lateinit var store: MessageStore
     private lateinit var recurringStore: RecurringMessageStore
+    private lateinit var noSendDayStore: NoSendDayStore
+    private lateinit var priorityStore: MessagePriorityStore
 
     // ── UI references (so we can update them when data changes) ───
     private lateinit var messageListText: TextView
@@ -59,6 +61,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var intervalSeek: SeekBar
     private lateinit var nextSendLabel: TextView
     private lateinit var recurringListText: TextView
+    private lateinit var noSendDaysText: TextView
 
     // ── Contact picker plumbing ─────────────────────────────────────
     // Two-step flow: request READ_CONTACTS (if not already granted),
@@ -80,12 +83,20 @@ class MainActivity : AppCompatActivity() {
         // Deliberately permissive, real validation happens at the
         // carrier, this is just a "did you fat-finger this" guard.
         private val PHONE_REGEX = Regex("^\\+?[0-9]{8,15}$")
+
+        // Display names for Calendar.SUNDAY(1)..Calendar.SATURDAY(7),
+        // index 0 unused so the Calendar constant can index straight in.
+        private val WEEKDAY_NAMES = arrayOf(
+            "", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         store = MessageStore(this)
         recurringStore = RecurringMessageStore(this)
+        noSendDayStore = NoSendDayStore(this)
+        priorityStore = MessagePriorityStore(this)
 
         // ── Contact picker launchers ──────────────────────────────
         // Must be registered unconditionally in onCreate (before the
@@ -392,6 +403,65 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+        // ── Section: No-Send Days ───────────────────────────────
+        // Pauses the random pool schedule (only, see NoSendDayChecker's
+        // doc comment: recurring birthday/anniversary messages above
+        // still fire) on chosen weekdays and/or specific one-off dates.
+        root.addView(TextView(this).apply {
+            text = "\n🚫 No-Send Days"
+            textSize = 18f
+        })
+        root.addView(TextView(this).apply {
+            text = "Pauses random messages (recurring ones above still send)."
+            textSize = 12f
+        })
+
+        noSendDaysText = TextView(this).apply {
+            text = formatNoSendDays()
+        }
+        root.addView(noSendDaysText)
+
+        root.addView(Button(this).apply {
+            text = "📅 Choose Weekly No-Send Days"
+            setOnClickListener {
+                showNoSendWeekdaysDialog()
+            }
+        })
+
+        root.addView(Button(this).apply {
+            text = "➕ Add One-Off No-Send Date"
+            setOnClickListener {
+                showAddNoSendDateDialog()
+            }
+        })
+
+        root.addView(Button(this).apply {
+            text = "❌ Remove One-Off No-Send Date"
+            setOnClickListener {
+                showRemoveNoSendDateDialog()
+            }
+        })
+
+        // ── Section: Message Priority ───────────────────────────
+        // Weights a message's odds of being picked next by the random
+        // pool schedule (see WeightedMessageSelector). Everything
+        // defaults to normal priority until the user bumps one up.
+        root.addView(TextView(this).apply {
+            text = "\n⭐ Message Priority"
+            textSize = 18f
+        })
+        root.addView(TextView(this).apply {
+            text = "Higher priority messages send more often (1=normal, 10=favorite)."
+            textSize = 12f
+        })
+
+        root.addView(Button(this).apply {
+            text = "⭐ Set Message Priority"
+            setOnClickListener {
+                showSetPriorityDialog()
+            }
+        })
+
         // ── Section: Send History ───────────────────────────────
         root.addView(TextView(this).apply {
             text = "\n📋 Send History"
@@ -487,6 +557,7 @@ class MainActivity : AppCompatActivity() {
         intervalSeek.progress = store.getMinInterval()
         messageListText.text = formatMessages(store.getMessages())
         recurringListText.text = formatRecurringMessages(recurringStore.getRecurringMessages())
+        noSendDaysText.text = formatNoSendDays()
         historyText.text = formatHistory(store.getSentLog())
         nextSendLabel.text = formatNextSend(store.getNextSendTime())
 
@@ -776,5 +847,179 @@ class MainActivity : AppCompatActivity() {
         return entries.joinToString("\n") { entry ->
             "${entry.month}/${entry.day}, ❝${entry.message}❞"
         }
+    }
+
+    // ── No-Send Days ─────────────────────────────────────────────
+
+    private fun formatNoSendDays(): String {
+        val weekdays = noSendDayStore.getNoSendWeekdays()
+        val dates = noSendDayStore.getNoSendDates()
+        if (weekdays.isEmpty() && dates.isEmpty()) return "(No no-send days set)"
+
+        val lines = mutableListOf<String>()
+        if (weekdays.isNotEmpty()) {
+            lines.add(weekdays.sorted().joinToString(", ") { WEEKDAY_NAMES[it] })
+        }
+        dates.forEach { lines.add(it) }
+        return lines.joinToString("\n")
+    }
+
+    // Multi-choice dialog, one row per weekday, pre-checked from
+    // whatever's already blocked. Applies on OK, same as the recurring
+    // message dialogs use Add/Cancel rather than writing on every tap.
+    private fun showNoSendWeekdaysDialog() {
+        val calendarWeekdays = intArrayOf(
+            java.util.Calendar.SUNDAY, java.util.Calendar.MONDAY, java.util.Calendar.TUESDAY,
+            java.util.Calendar.WEDNESDAY, java.util.Calendar.THURSDAY, java.util.Calendar.FRIDAY,
+            java.util.Calendar.SATURDAY
+        )
+        val labels = calendarWeekdays.map { WEEKDAY_NAMES[it] }.toTypedArray()
+        val current = noSendDayStore.getNoSendWeekdays()
+        val checked = calendarWeekdays.map { it in current }.toBooleanArray()
+
+        AlertDialog.Builder(this)
+            .setTitle("No-Send Weekdays")
+            .setMultiChoiceItems(labels, checked) { _, which, isChecked ->
+                checked[which] = isChecked
+            }
+            .setPositiveButton("Save") { _, _ ->
+                val selected = calendarWeekdays.filterIndexed { i, _ -> checked[i] }.toSet()
+                noSendDayStore.setNoSendWeekdays(selected)
+                refreshUI()
+                Toast.makeText(this, "No-send weekdays saved", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    // One-off date entry via three number fields, matching the
+    // month/day EditText style the recurring-message dialog already uses.
+    private fun showAddNoSendDateDialog() {
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(48, 16, 48, 0)
+        }
+
+        val yearInput = EditText(this).apply {
+            hint = "Year (e.g. 2026)"
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER
+        }
+        val monthInput = EditText(this).apply {
+            hint = "Month (1-12)"
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER
+        }
+        val dayInput = EditText(this).apply {
+            hint = "Day (1-31)"
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER
+        }
+
+        container.addView(TextView(this).apply { text = "Year" })
+        container.addView(yearInput)
+        container.addView(TextView(this).apply { text = "Month" })
+        container.addView(monthInput)
+        container.addView(TextView(this).apply { text = "Day" })
+        container.addView(dayInput)
+
+        AlertDialog.Builder(this)
+            .setTitle("New No-Send Date")
+            .setView(container)
+            .setPositiveButton("Add") { _, _ ->
+                val year = yearInput.text.toString().trim().toIntOrNull()
+                val month = monthInput.text.toString().trim().toIntOrNull()
+                val day = dayInput.text.toString().trim().toIntOrNull()
+
+                if (year == null || month == null || month !in 1..12 || day == null || day !in 1..31) {
+                    Toast.makeText(this, "Enter a valid year, month (1-12), and day (1-31)", Toast.LENGTH_LONG).show()
+                    return@setPositiveButton
+                }
+
+                val dateKey = String.format(java.util.Locale.US, "%04d-%02d-%02d", year, month, day)
+                noSendDayStore.addNoSendDate(dateKey)
+                refreshUI()
+                Toast.makeText(this, "No-send date added!", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showRemoveNoSendDateDialog() {
+        val dates = noSendDayStore.getNoSendDates()
+        if (dates.isEmpty()) {
+            Toast.makeText(this, "No one-off no-send dates to remove.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Remove a No-Send Date")
+            .setItems(dates.toTypedArray()) { _, which ->
+                noSendDayStore.removeNoSendDate(dates[which])
+                refreshUI()
+                Toast.makeText(this, "No-send date removed!", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    // ── Message Priority ─────────────────────────────────────────
+
+    // Pick which message, same list-of-previews pattern as
+    // showEditMessageDialog, then a SeekBar to set its weight.
+    private fun showSetPriorityDialog() {
+        val messages = store.getMessages()
+        if (messages.isEmpty()) {
+            Toast.makeText(this, "No messages yet. Add one first!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val messageItems = messages.mapIndexed { index, msg ->
+            "${index + 1}. ${msg.take(50)}${if (msg.length > 50) "…" else ""}"
+        }.toTypedArray()
+
+        AlertDialog.Builder(this)
+            .setTitle("Set Priority For Which Message?")
+            .setItems(messageItems) { _, which ->
+                showPriorityWeightDialog(messages[which])
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showPriorityWeightDialog(message: String) {
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(48, 16, 48, 0)
+        }
+
+        val currentWeight = priorityStore.getWeight(message)
+        val weightLabel = TextView(this).apply {
+            text = "Priority: $currentWeight"
+        }
+        val weightSeek = SeekBar(this).apply {
+            max = MessagePriorityStore.PRIORITY_MAX - MessagePriorityStore.PRIORITY_MIN
+            progress = currentWeight - MessagePriorityStore.PRIORITY_MIN
+            setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seek: SeekBar, value: Int, fromUser: Boolean) {
+                    weightLabel.text = "Priority: ${value + MessagePriorityStore.PRIORITY_MIN}"
+                }
+                override fun onStartTrackingTouch(seek: SeekBar) {}
+                override fun onStopTrackingTouch(seek: SeekBar) {}
+            })
+        }
+
+        container.addView(TextView(this).apply {
+            text = "❝${message.take(80)}${if (message.length > 80) "…" else ""}❞"
+        })
+        container.addView(weightLabel)
+        container.addView(weightSeek)
+
+        AlertDialog.Builder(this)
+            .setTitle("Message Priority")
+            .setView(container)
+            .setPositiveButton("Save") { _, _ ->
+                priorityStore.setWeight(message, weightSeek.progress + MessagePriorityStore.PRIORITY_MIN)
+                Toast.makeText(this, "Priority saved", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 }

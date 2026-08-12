@@ -26,6 +26,17 @@ struct ContentView: View {
     // Additive to `store`'s pool schedule, see RecurringMessageStore.
     @EnvironmentObject var recurringStore: RecurringMessageStore
 
+    // ── Days the random pool schedule should skip ───────────────────
+    // See NoSendDayStore/NoSendDayChecker.
+    @EnvironmentObject var noSendDayStore: NoSendDayStore
+
+    // ── Per-message priority weights ─────────────────────────────────
+    // See MessagePriorityStore/WeightedMessageSelector.
+    @EnvironmentObject var priorityStore: MessagePriorityStore
+
+    // ── State for the "add a one-off no-send date" picker ───────────
+    @State private var newNoSendDate = Date()
+
     // ── State for the contact picker sheet ─────────────────────────
     @State private var showContactPicker = false
 
@@ -45,6 +56,17 @@ struct ContentView: View {
     private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "MMM d h:mm a"
+        return f
+    }()
+
+    // "yyyy-MM-dd", matches NoSendDayStore's documented date-key format
+    // and SchedulerManager's own dayKeyFormatter.
+    private static let dayKeyFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        f.calendar = Calendar(identifier: .gregorian)
+        f.timeZone = Calendar.current.timeZone
+        f.locale = Locale(identifier: "en_US_POSIX")
         return f
     }()
 
@@ -178,6 +200,63 @@ struct ContentView: View {
                     }
                 }
 
+                // ── Section: No-Send Days ──────────────────────────
+                // Pauses the random pool schedule (only, recurring
+                // birthday/anniversary messages above still fire), see
+                // NoSendDayChecker's doc comment.
+                Section(header: Text("🚫 No-Send Days"),
+                        footer: Text("Pauses random messages (recurring ones above still send).")) {
+                    ForEach(Calendar.current.weekdaySymbols.indices, id: \.self) { i in
+                        let weekday = i + 1  // Calendar weekday: Sunday=1...Saturday=7
+                        Toggle(Calendar.current.weekdaySymbols[i], isOn: Binding(
+                            get: { noSendDayStore.noSendWeekdays.contains(weekday) },
+                            set: { noSendDayStore.toggleWeekday(weekday, blocked: $0) }
+                        ))
+                    }
+
+                    DatePicker("One-off date", selection: $newNoSendDate, displayedComponents: .date)
+                    Button("➕ Add No-Send Date") {
+                        noSendDayStore.addDate(Self.dayKeyFormatter.string(from: newNoSendDate))
+                    }
+
+                    ForEach(noSendDayStore.noSendDates.indices, id: \.self) { index in
+                        HStack {
+                            Text(noSendDayStore.noSendDates[index])
+                            Spacer()
+                            Button(role: .destructive) {
+                                noSendDayStore.removeDate(at: index)
+                            } label: {
+                                Image(systemName: "trash")
+                            }
+                            .buttonStyle(.borderless)
+                        }
+                    }
+                }
+
+                // ── Section: Message Priority ──────────────────────
+                // Weights a message's odds of being picked next by the
+                // random pool schedule (see WeightedMessageSelector).
+                Section(header: Text("⭐ Message Priority"),
+                        footer: Text("Higher priority messages send more often (1=normal, 10=favorite).")) {
+                    if store.messages.isEmpty {
+                        Text("No messages yet, add one above")
+                            .foregroundColor(.secondary)
+                    }
+
+                    ForEach(store.messages.indices, id: \.self) { index in
+                        let message = store.messages[index]
+                        Stepper(
+                            "Priority \(priorityStore.weight(for: message)), ❝\(message.prefix(40))\(message.count > 40 ? "…" : "")❞",
+                            value: Binding(
+                                get: { priorityStore.weight(for: message) },
+                                set: { priorityStore.setWeight($0, for: message) }
+                            ),
+                            in: MessagePriorityStore.priorityMin...MessagePriorityStore.priorityMax
+                        )
+                        .font(.caption)
+                    }
+                }
+
                 // ── Section: Send History ──────────────────────────
                 Section(header: Text("📋 Send History")) {
                     if store.sentLog.isEmpty {
@@ -216,7 +295,12 @@ struct ContentView: View {
 
                 // Initialize the scheduler when the view appears.
                 if scheduler == nil {
-                    scheduler = SchedulerManager(store: store, recurringStore: recurringStore)
+                    scheduler = SchedulerManager(
+                        store: store,
+                        recurringStore: recurringStore,
+                        noSendDayStore: noSendDayStore,
+                        priorityStore: priorityStore
+                    )
                     // If scheduling was already enabled from a previous
                     // session, re-run it now so "Next message" reflects
                     // reality instead of showing stale/empty state.
