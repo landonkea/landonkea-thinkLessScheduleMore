@@ -1,0 +1,71 @@
+name: Build Debug
+
+# Debug channel: every push to a dev-* branch gets a build, so a
+# work-in-progress branch always has an installable APK/simulator
+# build without waiting for a tag. See android/app/build.gradle.kts's
+# "Build types" comment block for the full debug/beta/release story,
+# and build-beta.yml / build-release.yml for the other two channels.
+
+on:
+  push:
+    branches:
+      - "dev-*"
+
+jobs:
+  android-debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Build debug APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-debug-${{ github.sha }}
+          path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+  # No signing identity lives in this repo (see build.gradle.kts), so
+  # there's no device-installable iOS build to produce here. A
+  # simulator build is the honest equivalent: it proves the debug
+  # configuration still compiles and gives something to drag into
+  # Simulator, without pretending it's a real device/TestFlight artifact.
+  ios-debug:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate Xcode project
+        run: |
+          cd ios
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Build for iOS Simulator (Debug)
+        run: |
+          cd ios
+          xcodebuild -scheme ThinkLessScheduleMore -sdk iphonesimulator \
+            -configuration Debug -derivedDataPath build build
+
+      - name: Zip the .app bundle
+        run: |
+          cd ios/build/Build/Products/Debug-iphonesimulator
+          zip -r ThinkLessScheduleMore-Debug-Simulator.zip ThinkLessScheduleMore.app
+
+      - name: Upload simulator build
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-debug-simulator-${{ github.sha }}
+          path: ios/build/Build/Products/Debug-iphonesimulator/*.zip
+          if-no-files-found: error

@@ -1,0 +1,82 @@
+name: Build Release
+
+# Release channel: stable version tags (v1.2.0). Tag globbing alone
+# can't reliably tell "v1.2.0" apart from "v1.2.0-beta.1" (GitHub
+# Actions' glob syntax has no way to say "no hyphen anywhere"), so this
+# triggers on the same "v*.*.*" shape build-beta.yml's pre-release
+# pattern is a superset of, then each job double-checks with an
+# explicit "no hyphen in the tag" condition and no-ops otherwise.
+#
+# No signing identity lives in this repo (see android/app/build.gradle.kts
+# and ios/project.yml), so both jobs below produce unsigned build
+# artifacts only, meant to be signed and published by hand later, not
+# an automatic Play Store / App Store release.
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  android-release:
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.ref_name, '-') }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Build release APK and AAB
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleRelease bundleRelease
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-release-${{ github.ref_name }}
+          path: |
+            android/app/build/outputs/apk/release/*.apk
+            android/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: error
+
+  # Same simulator-only caveat as the debug/beta workflows: without a
+  # real Apple Developer signing identity, a device-installable .ipa
+  # isn't possible from this repo. This job builds the Release
+  # configuration for the simulator instead, mainly to confirm it still
+  # compiles clean at tag time. Producing a real archive is a step for
+  # whoever eventually attaches signing credentials.
+  ios-release:
+    runs-on: macos-latest
+    if: ${{ !contains(github.ref_name, '-') }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate Xcode project
+        run: |
+          cd ios
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Build for iOS Simulator (Release)
+        run: |
+          cd ios
+          xcodebuild -scheme ThinkLessScheduleMore -sdk iphonesimulator \
+            -configuration Release -derivedDataPath build build
+
+      - name: Zip the .app bundle
+        run: |
+          cd ios/build/Build/Products/Release-iphonesimulator
+          zip -r ThinkLessScheduleMore-Release-Simulator.zip ThinkLessScheduleMore.app
+
+      - name: Upload simulator build
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-release-simulator-${{ github.ref_name }}
+          path: ios/build/Build/Products/Release-iphonesimulator/*.zip
+          if-no-files-found: error

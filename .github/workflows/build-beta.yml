@@ -1,0 +1,73 @@
+name: Build Beta
+
+# Beta channel: pre-release tags (v1.2.0-beta.1, v1.2.0-rc.1, ...).
+# The "v*.*.*-*" tag pattern only matches tags that contain a hyphen
+# after the version numbers, which is exactly semver's pre-release
+# marker, so a plain "v1.2.0" tag never lands here (that's
+# build-release.yml). See android/app/build.gradle.kts's "Build types"
+# comment block for why the Android "beta" build type exists.
+
+on:
+  push:
+    tags:
+      - "v*.*.*-*"
+
+jobs:
+  android-beta:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Build beta APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleBeta
+
+      - name: Upload beta APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-beta-${{ github.ref_name }}
+          path: android/app/build/outputs/apk/beta/*.apk
+          if-no-files-found: error
+
+  # Same caveat as build-debug.yml: no signing identity in this repo,
+  # so this is a simulator build, not a TestFlight build. iOS doesn't
+  # have Android's applicationIdSuffix trick either (a TestFlight beta
+  # and an App Store release share one bundle ID, distinguished by
+  # channel and build number, not by identity) — see project.yml's
+  # "Beta" configuration for how that maps onto Xcode.
+  ios-beta:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate Xcode project
+        run: |
+          cd ios
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Build for iOS Simulator (Beta)
+        run: |
+          cd ios
+          xcodebuild -scheme ThinkLessScheduleMore -sdk iphonesimulator \
+            -configuration Beta -derivedDataPath build build
+
+      - name: Zip the .app bundle
+        run: |
+          cd ios/build/Build/Products/Beta-iphonesimulator
+          zip -r ThinkLessScheduleMore-Beta-Simulator.zip ThinkLessScheduleMore.app
+
+      - name: Upload simulator build
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-beta-simulator-${{ github.ref_name }}
+          path: ios/build/Build/Products/Beta-iphonesimulator/*.zip
+          if-no-files-found: error
