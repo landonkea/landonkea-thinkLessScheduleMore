@@ -49,12 +49,17 @@ or emulator. `android/local.properties` (your local SDK path) is
 git-ignored and must be created locally. Android Studio does this for
 you on first open.
 
-**Build types:** `debug` (applies a `.debug` applicationId suffix so it
-can be installed alongside a release build) and `release` (R8
-minification + resource shrinking enabled). Release builds are
-intentionally unsigned in this repo. Signing requires a real keystore,
-which is not checked in. Generate one and configure a `signingConfig`
-locally if you need a signed release build.
+**Build types:** `debug` (`.debug` applicationId suffix, unminified),
+`beta` (release-shaped: R8 + resource shrinking on, `.beta` suffix and
+a `-beta` version suffix so it installs alongside both debug and
+release), and `release` (R8 minification + resource shrinking, no
+`.debug`/`.beta` suffix). Beta and release builds are intentionally
+unsigned in this repo. Signing requires a real keystore, which is not
+checked in. Generate one and configure a `signingConfig` locally if
+you need a signed build. CI builds each channel automatically:
+`.github/workflows/build-debug.yml` on a `dev-*` branch push,
+`build-beta.yml` on a pre-release tag, `build-release.yml` on a stable
+tag, see `BUILD_LOG.md` for the exact trigger patterns.
 
 Runtime permissions requested on first launch: `SEND_SMS` (required to
 send at all) and, on Android 13+, `POST_NOTIFICATIONS` (required for the
@@ -86,10 +91,16 @@ Re-run `xcodegen generate` any time you add/remove Swift files.
 (which is still committed so the project opens without xcodegen
 installed, but stays in sync with `project.yml`).
 
-**Build configurations:** Debug and Release are already set up (xcodegen
-default), with `SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG` scoping debug
-code. No further environment separation exists or is needed. This is a
-local-only app with no backend.
+**Build configurations:** `Debug`, `Beta`, and `Release`. `Debug` is the
+only one with `SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG` set; `Beta`
+and `Release` are both release-shaped and share the same bundle
+identifier (unlike Android's per-channel `applicationIdSuffix`, iOS
+doesn't distinguish a TestFlight beta from an App Store release by
+identity, only by build number and distribution channel). Pass
+`-configuration Beta` or `-configuration Release` to `xcodebuild` to
+target the other two. This is a local-only app with no backend, so
+the three configurations exist purely for the build-channel split, not
+for pointing at different environments.
 
 Notification permission is requested on first launch. If denied,
 scheduled notifications simply won't be delivered, logged in the
@@ -130,7 +141,19 @@ artifact.
 
 ## Known gaps / ideas
 
-Not yet implemented on either platform: multiple recipients, scheduled
-one-off messages (birthdays/anniversaries), "no send" days, weighted
-message selection, widgets, delivery reports, and localization. See
-`shared/ARCHITECTURE.md` for the core design this would build on top of.
+Not yet implemented on either platform: multiple recipients and
+localization. Recurring date-based messages (birthdays/anniversaries)
+have a settings UI on Android only, the underlying store and matcher
+exist on iOS too but nothing there lets you add one yet. See
+`shared/ARCHITECTURE.md` for the core design this would build on top
+of, and `CHECKLIST.md`/`PROJECT_CHECKLIST.md` for full current status.
+
+## More docs
+
+- [BUILD_LOG.md](BUILD_LOG.md): how this repo got built, commit by
+  commit, decisions worth knowing the reasoning behind, and exact
+  steps to rebuild it from scratch.
+- [FEATURE_IDEAS.md](FEATURE_IDEAS.md): concrete feature ideas that
+  would fit this app specifically, not yet scheduled anywhere.
+- [docs/DESIGN.md](docs/DESIGN.md): architecture diagrams and dev
+  workflow notes.
