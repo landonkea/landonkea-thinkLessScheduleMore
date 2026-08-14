@@ -38,17 +38,31 @@ android {
     // ── Build types ─────────────────────────────────────────────
     // debug: gets a distinct applicationId suffix so a debug build
     //   can be installed side-by-side with a release build on the
-    //   same device (they're treated as different apps).
+    //   same device (they're treated as different apps). Built on
+    //   every push to a dev-* branch, see .github/workflows/build-debug.yml.
+    // beta: a release-shaped build (R8 shrinking on, same as release)
+    //   but with its own applicationId suffix so it can sit on a
+    //   device next to both debug and release. This is the CI channel
+    //   for pre-release tags (v1.2.0-beta.1, etc.), see
+    //   .github/workflows/build-beta.yml. Since it isn't declared as
+    //   `debuggable`, AGP won't resolve libraries that only publish a
+    //   "debug" variant against it, hence matchingFallbacks below.
     // release: enables code shrinking/obfuscation (R8) and resource
     //   shrinking. No signingConfig is defined here — release builds
     //   must be signed manually (e.g. via `-Pandroid.injected.signing...`
     //   or Android Studio's Generate Signed Bundle flow) using a real
     //   keystore, which is intentionally not checked into this repo.
+    //   Built from stable version tags (v1.2.0), see
+    //   .github/workflows/build-release.yml.
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
             isMinifyEnabled = false
         }
+        // release is configured before beta below, since beta's
+        // initWith(getByName("release")) copies whatever state release
+        // has *at that point* — Gradle runs this block top to bottom,
+        // it isn't declarative/order-independent.
         release {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -56,6 +70,12 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        create("beta") {
+            initWith(getByName("release"))
+            applicationIdSuffix = ".beta"
+            versionNameSuffix = "-beta"
+            matchingFallbacks += listOf("release")
         }
     }
 }
