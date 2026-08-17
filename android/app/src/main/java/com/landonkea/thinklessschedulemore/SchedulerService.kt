@@ -29,6 +29,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import androidx.annotation.VisibleForTesting
 import androidx.core.app.NotificationCompat
 import kotlin.random.Random
 
@@ -218,11 +219,16 @@ class SchedulerService : Service() {
 
     // ── Calculate a random delay within the time window ───────────
     // Returns milliseconds to wait.
-    private fun calculateRandomDelay(now: Long, startHour: Int, endHour: Int): Long {
-        // Get today's start and end in milliseconds.
-        val dayStartMs = now - (now % 86400000L)         // Midnight today
-        val windowStartMs = dayStartMs + (startHour * 3600000L)  // e.g. 9 AM
-        val windowEndMs = dayStartMs + (endHour * 3600000L)    // e.g. 9 PM
+    @VisibleForTesting
+    fun calculateRandomDelay(now: Long, startHour: Int, endHour: Int): Long {
+        // Window bounds in the DEVICE'S LOCAL time, not UTC: startHour/
+        // endHour come from a plain 0-23 SeekBar the user reads as their
+        // own wall-clock hour, so "today" has to mean local-midnight,
+        // not the most recent UTC midnight (now % 86400000L was doing
+        // the latter, offsetting the whole window by the device's UTC
+        // offset for anyone not literally in UTC).
+        val windowStartMs = localHourToday(now, startHour)  // e.g. 9 AM
+        val windowEndMs = localHourToday(now, endHour)    // e.g. 9 PM
 
         // If the window hasn't started yet, schedule for window start.
         if (now < windowStartMs) {
@@ -252,9 +258,8 @@ class SchedulerService : Service() {
     // timer that fires at the START of tomorrow's window.
     private fun scheduleTomorrow() {
         val now = System.currentTimeMillis()
-        val tomorrowStart = now - (now % 86400000L) + 86400000L
         val startHour = store.getHourStart()
-        val windowStartMs = tomorrowStart + (startHour * 3600000L)
+        val windowStartMs = localHourToday(now, startHour, addDays = 1)
         val delayMs = windowStartMs - now
 
         if (delayMs <= 0) {
@@ -272,6 +277,26 @@ class SchedulerService : Service() {
             // Tomorrow's window has started.  Begin the loop.
             scheduleNext()
         }, delayMs)
+    }
+
+    // ── Resolve a wall-clock hour to an epoch millis timestamp ────
+    // `hour` is local time (0-23, as set on the SeekBar in
+    // MainActivity), so this anchors to the device's local calendar
+    // day, not a UTC day, and lets Calendar's own arithmetic (rather
+    // than raw millis math) absorb any DST transition when addDays
+    // crosses one.
+    @VisibleForTesting
+    fun localHourToday(now: Long, hour: Int, addDays: Int = 0): Long {
+        val cal = java.util.Calendar.getInstance()
+        cal.timeInMillis = now
+        if (addDays != 0) {
+            cal.add(java.util.Calendar.DAY_OF_YEAR, addDays)
+        }
+        cal.set(java.util.Calendar.HOUR_OF_DAY, hour)
+        cal.set(java.util.Calendar.MINUTE, 0)
+        cal.set(java.util.Calendar.SECOND, 0)
+        cal.set(java.util.Calendar.MILLISECOND, 0)
+        return cal.timeInMillis
     }
 
     // ── Send the actual SMS ───────────────────────────────────────

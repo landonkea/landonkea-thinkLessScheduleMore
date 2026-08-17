@@ -66,6 +66,11 @@ if $RUN_ANDROID; then
 
   if ! $PARSE_ONLY; then
     echo "==> Running Android unit tests (./gradlew testDebugUnitTest)"
+    # Clear stale results first: if gradle fails before the test task
+    # actually runs (e.g. a missing toolchain), leftover XML from a
+    # previous successful run would otherwise get parsed below and
+    # reported as this run's (passing) results.
+    rm -rf "$ANDROID_XML_DIR"
     (cd "$ANDROID_DIR" && chmod +x gradlew && ./gradlew testDebugUnitTest)
     echo "==> Android gradle invocation exited with $?"
   fi
